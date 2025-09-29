@@ -1,0 +1,40 @@
+{
+  "parent": "minecraft:adventure/root",
+  "criteria": {
+    "place_glow_torch_underwater": {
+      "trigger": "minecraft:placed_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:block_state_property",
+            "block": "ectolum:glow_ink_torch",
+            "properties": {
+              "waterlogged": "true"
+            }
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.ectolum.adventure.place_glow_torch_underwater.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "ectolum:glow_ink_torch"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.ectolum.adventure.place_glow_torch_underwater.title"
+    }
+  },
+  "requirements": [
+    [
+      "place_glow_torch_underwater"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

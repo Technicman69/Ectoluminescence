@@ -1,0 +1,13 @@
+{
+  "type": "ectolum:smithing_merge_nbt",
+  "template": {
+    "item": "minecraft:glow_ink_sac"
+  },
+  "base": {
+    "tag": "minecraft:trimmable_armor"
+  },
+  "addition": {
+    "item": "minecraft:glow_ink_sac"
+  },
+  "nbt": "{Trim: {ectolum.glowing: true}}"
+}

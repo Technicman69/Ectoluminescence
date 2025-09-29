@@ -1,0 +1,41 @@
+{
+	"schemaVersion": 1,
+	"id": "ectolum",
+	"version": "${version}",
+	"name": "Ectoluminescence",
+	"description": "Ectolum - Adds more use cases for \"USELESS\" minecraft features such as Glow Ink Sac, Phantom Membrane or Echo Shard. The mod implements ideas proposed by Nekoma in their youtube video",
+	"authors": [
+		"Technicman"
+	],
+	"contact": {
+		"homepage": "https://fabricmc.net/",
+		"sources": "https://github.com/FabricMC/fabric-example-mod"
+	},
+	"license": "CC0-1.0",
+	"icon": "icon.png",
+	"environment": "*",
+	"entrypoints": {
+		"main": [
+			"com.technicman.ectolum.Ectoluminescence"
+		],
+		"client": [
+			"com.technicman.ectolum.EctoluminescenceClient"
+		]
+	},
+	"mixins": [
+		"ectolum.mixins.json",
+		{
+			"config": "ectolum.client.mixins.json",
+			"environment": "client"
+		}
+	],
+	"depends": {
+		"fabricloader": ">=0.17.2",
+		"minecraft": "~1.20.1",
+		"java": ">=17",
+		"fabric-api": "*"
+	},
+	"suggests": {
+
+	}
+}

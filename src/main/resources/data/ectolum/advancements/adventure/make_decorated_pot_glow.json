@@ -1,0 +1,53 @@
+{
+  "parent": "minecraft:adventure/craft_decorated_pot_using_only_sherds",
+  "criteria": {
+    "make_decorated_pot_glow": {
+      "trigger": "minecraft:item_used_on_block",
+      "conditions": {
+        "location": [
+          {
+            "condition": "minecraft:location_check",
+            "predicate": {
+              "block": {
+                "blocks": [
+                  "minecraft:decorated_pot"
+                ],
+                "nbt": "{ectolum.sherd_glow_overrides:[B;1B,1B,1B,1B]}"
+              }
+            }
+          },
+          {
+            "condition": "minecraft:match_tool",
+            "predicate": {
+              "items": [
+                "minecraft:glow_ink_sac"
+              ]
+            }
+          }
+        ]
+      }
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.ectolum.adventure.make_decorated_pot_glow.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "minecraft:decorated_pot",
+      "nbt": "{BlockEntityTag:{id:\"minecraft:decorated_pot\",sherds:[\"minecraft:brick\",\"minecraft:burn_pottery_sherd\",\"minecraft:brick\",\"minecraft:burn_pottery_sherd\"],ectolum.sherd_glow_overrides:[B;1B,1B,1B,1B]}}"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.ectolum.adventure.make_decorated_pot_glow.title"
+    }
+  },
+  "requirements": [
+    [
+      "make_decorated_pot_glow"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

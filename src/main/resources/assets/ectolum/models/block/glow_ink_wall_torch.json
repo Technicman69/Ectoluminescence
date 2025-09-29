@@ -1,0 +1,57 @@
+{
+	"credit": "Made with Blockbench",
+	"parent": "minecraft:block/template_torch_wall",
+	"ambientocclusion": false,
+	"textures": {
+		"particle": "ectolum:block/glow_ink_torch",
+		"1_0": "ectolum:block/glow_ink_torch"
+	},
+	"elements": [
+		{
+			"name": "light",
+			"from": [-1.25, 14, 6.75],
+			"to": [1.25, 11.5, 9.25],
+			"shade": false,
+			"rotation": {"angle": -22.5, "axis": "z", "origin": [0, 3.5, 8]},
+			"faces": {
+				"north": {"uv": [8, 8, 9, 7], "texture": "#1_0"},
+				"east": {"uv": [8, 8, 9, 7], "texture": "#1_0"},
+				"south": {"uv": [8, 8, 9, 7], "texture": "#1_0"},
+				"west": {"uv": [8, 8, 9, 7], "texture": "#1_0"},
+				"up": {"uv": [9, 7, 8, 8], "texture": "#1_0"},
+				"down": {"uv": [9, 7, 8, 8], "texture": "#1_0"}
+			}
+		},
+		{
+			"name": "root",
+			"from": [-1, 3.5, 7],
+			"to": [1, 13.5, 9],
+			"shade": false,
+			"rotation": {"angle": -22.5, "axis": "z", "origin": [0, 3.5, 8]},
+			"faces": {
+				"north": {"uv": [7, 6, 9, 16], "texture": "#1_0"},
+				"east": {"uv": [7, 6, 9, 16], "texture": "#1_0"},
+				"south": {"uv": [7, 6, 9, 16], "texture": "#1_0"},
+				"west": {"uv": [7, 6, 9, 16], "texture": "#1_0"},
+				"up": {"uv": [7, 6, 9, 8], "texture": "#1_0"},
+				"down": {"uv": [7, 14, 9, 16], "texture": "#1_0"}
+			}
+		}
+	],
+	"display": {},
+	"groups": [
+		{
+			"name": "glow_ink_torch",
+			"origin": [8, 8, 8],
+			"color": 0,
+			"children": [
+				{
+					"name": "torch",
+					"origin": [0, 0, 0],
+					"color": 0,
+					"children": [0, 1]
+				}
+			]
+		}
+	]
+}

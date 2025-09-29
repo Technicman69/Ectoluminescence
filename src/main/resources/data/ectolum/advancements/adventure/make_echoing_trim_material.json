@@ -1,0 +1,33 @@
+{
+  "parent": "ectolum:adventure/make_echoing_trim",
+  "criteria": {
+    "make_echoing_trim_material": {
+      "conditions": {
+        "recipe_id": "ectolum:echoing_material_smithing"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.ectolum.adventure.make_echoing_trim_material.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "minecraft:netherite_chestplate",
+      "nbt": "{Trim:{material:\"diamond\",pattern:\"dune\",ectolum.echoing_layers:[{material:\"amethyst\"}]}}"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.ectolum.adventure.make_echoing_trim_material.title"
+    }
+  },
+  "requirements": [
+    [
+      "make_echoing_trim_material"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

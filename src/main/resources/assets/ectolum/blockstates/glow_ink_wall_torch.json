@@ -1,0 +1,19 @@
+{
+  "variants": {
+    "facing=east": {
+      "model": "ectolum:block/glow_ink_wall_torch"
+    },
+    "facing=north": {
+      "model": "ectolum:block/glow_ink_wall_torch",
+      "y": 270
+    },
+    "facing=south": {
+      "model": "ectolum:block/glow_ink_wall_torch",
+      "y": 90
+    },
+    "facing=west": {
+      "model": "ectolum:block/glow_ink_wall_torch",
+      "y": 180
+    }
+  }
+}

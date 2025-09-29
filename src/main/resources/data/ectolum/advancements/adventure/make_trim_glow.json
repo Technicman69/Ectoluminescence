@@ -1,0 +1,33 @@
+{
+  "parent": "minecraft:adventure/trim_with_any_armor_pattern",
+  "criteria": {
+    "make_trim_glow": {
+      "conditions": {
+        "recipe_id": "ectolum:glowing_smithing"
+      },
+      "trigger": "minecraft:recipe_crafted"
+    }
+  },
+  "display": {
+    "announce_to_chat": true,
+    "description": {
+      "translate": "advancements.ectolum.adventure.make_trim_glow.description"
+    },
+    "frame": "task",
+    "hidden": false,
+    "icon": {
+      "item": "minecraft:netherite_chestplate",
+      "nbt": "{Trim:{material:\"iron\",pattern:\"dune\",ectolum.glowing:true}}"
+    },
+    "show_toast": true,
+    "title": {
+      "translate": "advancements.ectolum.adventure.make_trim_glow.title"
+    }
+  },
+  "requirements": [
+    [
+      "make_trim_glow"
+    ]
+  ],
+  "sends_telemetry_event": true
+}

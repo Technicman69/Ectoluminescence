@@ -1,0 +1,21 @@
+{
+  "type": "minecraft:block",
+  "pools": [
+    {
+      "bonus_rolls": 0,
+      "conditions": [
+        {
+          "condition": "minecraft:survives_explosion"
+        }
+      ],
+      "entries": [
+        {
+          "type": "minecraft:item",
+          "name": "ectolum:glow_ink_torch"
+        }
+      ],
+      "rolls": 1
+    }
+  ],
+  "random_sequence": "ectolum:blocks/glow_ink_torch"
+}

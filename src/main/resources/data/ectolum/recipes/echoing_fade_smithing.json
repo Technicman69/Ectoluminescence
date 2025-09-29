@@ -1,0 +1,13 @@
+{
+  "type": "ectolum:smithing_merge_nbt",
+  "template": {
+    "item": "minecraft:echo_shard"
+  },
+  "base": {
+    "tag": "minecraft:trimmable_armor"
+  },
+  "addition": {
+    "item": "minecraft:phantom_membrane"
+  },
+  "nbt": "{Trim: {ectolum.echoing_layers: [{hidden: true}], ectolum.hidden: false}}"
+}

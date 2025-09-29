@@ -1,0 +1,12 @@
+{
+  "type": "ectolum:smithing_echoing_material_recipe",
+  "template": {
+    "item": "minecraft:echo_shard"
+  },
+  "base": {
+    "tag": "minecraft:trimmable_armor"
+  },
+  "addition": {
+    "tag": "minecraft:trim_materials"
+  }
+}
