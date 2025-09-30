@@ -1,42 +1,42 @@
 {
-  "subtitles.ectolum.item.phantom_membrane.use": "Phantom Membrane stretches",
-  "subtitles.ectolum.entity.clear_item_frame.add_item": "Clear Item Frame fills",
-  "subtitles.ectolum.entity.clear_item_frame.break": "Clear Item Frame breaks",
-  "subtitles.ectolum.entity.clear_item_frame.place": "Clear Item Frame placed",
-  "subtitles.ectolum.entity.clear_item_frame.remove_item": "Clear Item Frame empties",
-  "subtitles.ectolum.entity.clear_item_frame.rotate_item": "Clear Item Frame clicks",
+  "subtitles.ectolum.item.phantom_membrane.use": "Błona Fantoma rozciąga się",
+  "subtitles.ectolum.entity.clear_item_frame.add_item": "Wypełnienie Przezroczystej Ramki na Przedmiot",
+  "subtitles.ectolum.entity.clear_item_frame.break": "Przezroczysta Ramka na Przedmiot niszczy się",
+  "subtitles.ectolum.entity.clear_item_frame.place": "Umieszczenie Przezroczystej Ramki na Przedmiot",
+  "subtitles.ectolum.entity.clear_item_frame.remove_item": "Opróżnienie Przezroczystej Ramki na Przedmiot",
+  "subtitles.ectolum.entity.clear_item_frame.rotate_item": "Przezroczysta Ramka na Przedmiot klika",
 
-  "block.ectolum.glow_ink_torch": "Glow Torch",
-  "item.ectolum.clear_item_frame": "Clear Item Frame",
+  "block.ectolum.glow_ink_torch": "Lśniąca Pochodnia",
+  "item.ectolum.clear_item_frame": "Przezroczysta Ramka na Przedmiot",
 
   "item.ectolum.smithing_template.glowing": "+Blask",
-  "item.ectolum.smithing_template.hidden": "+Niewidzialny",
+  "item.ectolum.smithing_template.hidden": "+Ukrycie",
   "item.ectolum.smithing_template.echoing_effect": "+Efekt Echa:",
   "echoing_effect.ectolum.glowing": "Migotanie",
   "echoing_effect.ectolum.hidden": "Zanikanie",
   "echoing_effect.ectolum.material": "Pigment (%s)",
 
-  "advancements.ectolum.adventure.place_glow_torch_underwater.title": "Glowink torch",
-  "advancements.ectolum.adventure.place_glow_torch_underwater.description": "Craft Glow Torch and place it underwater, where it glows brighter!",
+  "advancements.ectolum.adventure.place_glow_torch_underwater.title": "Lśniąca Pochodnia lśni!",
+  "advancements.ectolum.adventure.place_glow_torch_underwater.description": "Stwórz Lśniącą Pochodnię i połóż ją pod wodą, tam gdzie świeci najjaśniej!",
 
   "advancements.ectolum.husbandry.make_sheep_glow_at_night.title": "Made counting sheep easier!",
-  "advancements.ectolum.husbandry.make_sheep_glow_at_night.description": "Use Glow Ink Sac on a Sheep at night",
+  "advancements.ectolum.husbandry.make_sheep_glow_at_night.description": "Użyj Torbielu ze Świecącym Atramentem na Owcy podczas nocy",
 
-  "advancements.ectolum.husbandry.make_banner_glow_in_daylight.title": "No difference",
-  "advancements.ectolum.husbandry.make_banner_glow_in_daylight.description": "Make a Banner Pattern glow during the day",
+  "advancements.ectolum.husbandry.make_banner_glow_in_daylight.title": "Nie widzę różnicy ze świeceniem czy bez",
+  "advancements.ectolum.husbandry.make_banner_glow_in_daylight.description": "Zaświeć wzór na Sztandarze podczas dnia",
 
-  "advancements.ectolum.adventure.make_decorated_pot_glow.title": "Shiny!",
-  "advancements.ectolum.adventure.make_decorated_pot_glow.description": "Make a whole Decorated Pot glow",
+  "advancements.ectolum.adventure.make_decorated_pot_glow.title": "Świecidełko",
+  "advancements.ectolum.adventure.make_decorated_pot_glow.description": "Zaświeć cały Dekorowane Naczynie",
 
   "advancements.ectolum.adventure.make_trim_glow.title": "Light up!",
-  "advancements.ectolum.adventure.make_trim_glow.description": "Combine 2 Glow Ink Sacs with trimmed armor at a Smithing Table",
+  "advancements.ectolum.adventure.make_trim_glow.description": "Połącz dwa Torbiele ze Świecącym Atramentem wraz z dekorowaną zbroją",
 
-  "advancements.ectolum.adventure.make_echoing_trim.title": "Light resonance",
-  "advancements.ectolum.adventure.make_echoing_trim.description": "Combine an Echo Shard with trimmed armor and either Phantom Membrane or Glow Ink Sac at a Smithing Table",
+  "advancements.ectolum.adventure.make_echoing_trim.title": "Fale światła",
+  "advancements.ectolum.adventure.make_echoing_trim.description": "Połącz Odłamek Echa ze zdobioną zbroją i Łuską Fantoma lub Torbielem ze Świecącym Atramentem przy stole kowalskim",
 
-  "advancements.ectolum.adventure.make_echoing_trim_material.title": "Echoing finish-up",
-  "advancements.ectolum.adventure.make_echoing_trim_material.description": "Make a trimmed armor pulse-change color",
+  "advancements.ectolum.adventure.make_echoing_trim_material.title": "Wykończenie z pogłosem",
+  "advancements.ectolum.adventure.make_echoing_trim_material.description": "Nałóż efekt echa na zbroje, aby zmieniała ona kolor",
 
-  "advancements.ectolum.adventure.make_wall_decoration_dissappear.title": "Graffiti",
-  "advancements.ectolum.adventure.make_wall_decoration_dissappear.description": "Make a Sign or a Banner dissappear on a wall"
+  "advancements.ectolum.adventure.make_wall_decoration_dissappear.title": "Wandalizm",
+  "advancements.ectolum.adventure.make_wall_decoration_dissappear.description": "Spraw aby tabliczka lub sztandar widzący na ścianie zniknął"
 }
