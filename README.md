@@ -25,7 +25,7 @@ Makes the armor trim disappear periodically
 Makes the armor trim periodically emissive (it is best observed in the dark)
 ![echoing_twinkle.png](description_images%2Fechoing_twinkle.png)
 ### Echoing Effect: Pigment
-Makes the armor trim change color periodically, from the one from original trim, to a new one that depends on a material used
+Combining an Echo Shard with a trimmed armor and any trim material makes the armor trim change color periodically, from the one from original trim, to a new one that depends on a material used
 ![echoing_pigment.gif](description_images%2Fechoing_pigment.gif)
 
 # Info for commandblock users and developers
