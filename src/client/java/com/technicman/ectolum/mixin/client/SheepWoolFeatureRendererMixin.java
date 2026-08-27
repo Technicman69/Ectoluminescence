@@ -1,7 +1,7 @@
 package com.technicman.ectolum.mixin.client;
 
-import com.technicman.ectolum.addon.EctolumSheepInterface;
-import com.technicman.ectolum.EctoluminescenceClient;
+import com.technicman.ectolum.accessor.EctolumSheepInterface;
+import com.technicman.ectolum.util.GlobalVariables;
 import net.minecraft.client.render.entity.feature.SheepWoolFeatureRenderer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -17,7 +17,7 @@ public class SheepWoolFeatureRendererMixin {
     private void render(Args args) {
         int light = args.get(5);
         EctolumSheepInterface sheepEntity = args.get(6);
-        args.set(5, sheepEntity.ectolum$isGlowing() ? EctoluminescenceClient.GLOW_STRENGTH : light);
+        args.set(5, sheepEntity.ectolum$isGlowing() ? GlobalVariables.GLOW_STRENGTH : light);
         // Changing rgb values, multiplying their values, making color x1.2 brighter
 //        if (sheepEntity.ectolum$isGlowing()) {
 //            for (int c = 13; c <= 15; c++) {

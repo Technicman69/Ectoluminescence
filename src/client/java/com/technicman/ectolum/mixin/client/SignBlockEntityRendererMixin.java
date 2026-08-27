@@ -1,6 +1,6 @@
 package com.technicman.ectolum.mixin.client;
 
-import com.technicman.ectolum.addon.EctolumSignInterface;
+import com.technicman.ectolum.accessor.EctolumSignInterface;
 import net.minecraft.block.*;
 import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.client.model.Model;

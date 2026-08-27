@@ -16,6 +16,9 @@
   "echoing_effect.ectolum.hidden": "Fade",
   "echoing_effect.ectolum.material": "Pigment (%s)",
 
+  "block.minecraft.banner.ectolum.hide_background": "+Clear Background",
+  "block.minecraft.banner.ectolum.glowing": "+Glowing Patterns",
+
   "advancements.ectolum.adventure.place_glow_torch_underwater.title": "Glowink torch",
   "advancements.ectolum.adventure.place_glow_torch_underwater.description": "Craft Glow Torch and place it underwater, where it glows brighter!",
 

@@ -1,6 +1,6 @@
 package com.technicman.ectolum.mixin;
 
-import com.technicman.ectolum.addon.EctolumSignInterface;
+import com.technicman.ectolum.accessor.EctolumSignInterface;
 import com.technicman.ectolum.sound.ModSounds;
 import net.minecraft.block.AbstractSignBlock;
 import net.minecraft.block.BlockState;

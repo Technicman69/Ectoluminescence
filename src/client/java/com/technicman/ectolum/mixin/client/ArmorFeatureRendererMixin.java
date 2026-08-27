@@ -1,14 +1,13 @@
 package com.technicman.ectolum.mixin.client;
 
 import com.mojang.datafixers.util.Pair;
-import com.technicman.ectolum.EctoluminescenceClient;
-import com.technicman.ectolum.addon.EctolumArmorTrimInterface;
+import com.technicman.ectolum.accessor.EctolumArmorTrimInterface;
+import com.technicman.ectolum.util.GlobalVariables;
 import net.minecraft.client.render.*;
 import net.minecraft.client.render.entity.feature.ArmorFeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRenderer;
 import net.minecraft.client.render.entity.feature.FeatureRendererContext;
 import net.minecraft.client.render.entity.model.BipedEntityModel;
-import net.minecraft.client.render.item.ItemRenderer;
 import net.minecraft.client.texture.Sprite;
 import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.client.util.math.MatrixStack;
@@ -50,20 +49,21 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
         ItemStack itemStack = entity.getEquippedStack(armorSlot);
         Item item = itemStack.getItem();
         if (item instanceof ArmorItem armorItem) {
-            boolean bl = this.usesInnerModel(armorSlot);
-            long time = entity.getWorld().getTime();
-            float t = Math.floorMod(time, 10L) * 0.1f;
-            float w = ((MathHelper.cos(3.1415927F * t) + 1) * 0.5f);
             ArmorTrim.getTrim(entity.getWorld().getRegistryManager(), itemStack).ifPresent((trim) -> {
+                boolean bl = this.usesInnerModel(armorSlot);
+                long time = entity.getWorld().getTime();
+                float t = Math.floorMod(time, 10L) * 0.1f;
+                float w = -(MathHelper.cos(MathHelper.PI * t) + 1) * 0.5f;
+
                 EctolumArmorTrimInterface ectolumTrim = (EctolumArmorTrimInterface) trim;
                 if (ectolumTrim.ectolum$hasEchoingLayers()) {
                     Pair<ArmorTrim, ArmorTrim> pair = ectolumTrim.ectolum$calculateTrimsAtInterval(Math.floorDiv(time, 10L));
                     if (((EctolumArmorTrimInterface) pair.getSecond()).ectolum$hidden()) {
-                        ectolum$renderTrim(armorItem.getMaterial(), matrices, vertexConsumers, light, w, pair.getFirst(), model, bl);
+                        ectolum$renderTrim(armorItem.getMaterial(), matrices, vertexConsumers, light, 1.0f - w, pair.getFirst(), model, bl);
                         return;
                     }
                     ectolum$renderTrim(armorItem.getMaterial(), matrices, vertexConsumers, light, 1.0f, pair.getFirst(), model, bl);
-                    ectolum$renderTrim(armorItem.getMaterial(), matrices, vertexConsumers, light, 1.0f-w, pair.getSecond(), model, bl);
+                    ectolum$renderTrim(armorItem.getMaterial(), matrices, vertexConsumers, light, w, pair.getSecond(), model, bl);
                 } else {
                     ectolum$renderTrim(armorItem.getMaterial(), matrices, vertexConsumers, light, 1.0f, trim, model, bl);
                 }
@@ -91,6 +91,6 @@ public abstract class ArmorFeatureRendererMixin<T extends LivingEntity, M extend
         }
         Sprite sprite = this.armorTrimsAtlas.getSprite(leggings ? trim.getLeggingsModelId(material) : trim.getGenericModelId(material));
         VertexConsumer vertexConsumer = sprite.getTextureSpecificVertexConsumer(vertexConsumers.getBuffer(RenderLayer.getEntityTranslucent(TexturedRenderLayers.ARMOR_TRIMS_ATLAS_TEXTURE)));
-        model.render(matrices, vertexConsumer, ectolumTrim.ectolum$isGlowing() ? EctoluminescenceClient.GLOW_STRENGTH : light, OverlayTexture.DEFAULT_UV, 1.0f, 1.0f, 1.0f, alpha);
+        model.render(matrices, vertexConsumer, ectolumTrim.ectolum$isGlowing() ? GlobalVariables.GLOW_STRENGTH : light, OverlayTexture.DEFAULT_UV, 1.0f, 1.0f, 1.0f, alpha);
     }
 }

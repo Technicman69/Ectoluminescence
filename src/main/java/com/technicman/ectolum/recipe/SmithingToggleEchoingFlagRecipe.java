@@ -3,12 +3,16 @@ package com.technicman.ectolum.recipe;
 import com.google.gson.JsonObject;
 import com.technicman.ectolum.Ectoluminescence;
 import com.technicman.ectolum.accessor.EctolumArmorTrimInterface;
-import com.technicman.ectolum.accessor.EctolumArmorTrimInterface.EchoingLayer;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
-import net.minecraft.item.trim.*;
+import net.minecraft.item.trim.ArmorTrim;
+import net.minecraft.item.trim.ArmorTrimMaterial;
+import net.minecraft.item.trim.ArmorTrimMaterials;
+import net.minecraft.item.trim.ArmorTrimPattern;
+import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtElement;
+import net.minecraft.nbt.NbtList;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.RecipeSerializer;
@@ -19,21 +23,22 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.JsonHelper;
 import net.minecraft.world.World;
 
-import java.util.Arrays;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class SmithingEchoingMatterialRecipe implements EctolumRecipe {
+public class SmithingToggleEchoingFlagRecipe implements EctolumRecipe {
     private final Identifier id;
     final Ingredient template;
     final Ingredient base;
     final Ingredient addition;
+    final String flag;
 
-    public SmithingEchoingMatterialRecipe(Identifier id, Ingredient template, Ingredient base, Ingredient addition) {
+    public SmithingToggleEchoingFlagRecipe(Identifier id, Ingredient template, Ingredient base, Ingredient addition, String flag) {
         this.id = id;
         this.template = template;
         this.base = base;
         this.addition = addition;
+        this.flag = flag;
     }
 
     public boolean matches(Inventory inventory, World world) {
@@ -41,45 +46,46 @@ public class SmithingEchoingMatterialRecipe implements EctolumRecipe {
     }
 
     public ItemStack craft(Inventory inventory, DynamicRegistryManager registryManager) {
-        ItemStack itemStack = inventory.getStack(1);
-        if (this.base.test(itemStack)) {
-            Optional<RegistryEntry.Reference<ArmorTrimMaterial>> optionalMaterial = ArmorTrimMaterials.get(registryManager, inventory.getStack(2));
-            if (optionalMaterial.isPresent()) {
-                Optional<ArmorTrim> optionalTrim = ArmorTrim.getTrim(registryManager, itemStack);
-                if (optionalTrim.isEmpty()) {
-                    return ItemStack.EMPTY;
-                }
-                EctolumArmorTrimInterface trim = (EctolumArmorTrimInterface) optionalTrim.get();
-                RegistryEntry<ArmorTrimMaterial> material = optionalMaterial.get();
-                if (trim.ectolum$hasEchoingLayers()) {
-                    Optional<RegistryEntry<ArmorTrimMaterial>> optional3 = trim.ectolum$getEchoingLayers()[0].material();
+        ItemStack original = inventory.getStack(1);
+        ItemStack result = original.copy();
 
-                    if (optional3.isPresent() && optional3.get().equals(material)) {
-                        return ItemStack.EMPTY;
-                    }
-                }
+        NbtCompound trim = result.getOrCreateNbt().getCompound("Trim");
+        if (trim.isEmpty()) {
+            return ItemStack.EMPTY;
+        }
+        boolean negation = !trim.getBoolean("ectolum." + flag);
+        if (!trim.contains("ectolum.echoing_layers", NbtElement.LIST_TYPE)) {
 
-                ItemStack itemStack2 = itemStack.copy();
-                itemStack2.setCount(1);
+            NbtCompound echoingLayer = new NbtCompound();
+            echoingLayer.putBoolean(flag, negation);
 
-                EchoingLayer[] oldLayers = trim.ectolum$hasEchoingLayers() ? trim.ectolum$getEchoingLayers() : new EchoingLayer[]{};
-                // Refuse to craft if echoing layer limit reached
-                if (oldLayers.length >= Ectoluminescence.ECHOING_LAYER_LIMIT) {
-                    return ItemStack.EMPTY;
-                }
-                EchoingLayer[] layers = Arrays.copyOf(oldLayers, oldLayers.length + 1);
+            NbtList echoingLayers = new NbtList();
+            echoingLayers.add(echoingLayer);
 
-                EchoingLayer echoingLayer = new EchoingLayer(Optional.of(material), Optional.empty(), Optional.empty());
-                layers[oldLayers.length] = echoingLayer;
-                trim.ectolum$setEchoingLayers(layers);
+            trim.put("ectolum.echoing_layers", echoingLayers);
+            return result;
+        }
 
-                if (ArmorTrim.apply(registryManager, itemStack2, (ArmorTrim) trim)) {
-                    return itemStack2;
-                }
+        NbtList echoingLayers = trim.getList("ectolum.echoing_layers", NbtElement.COMPOUND_TYPE);
+
+        if (echoingLayers.size() >= Ectoluminescence.ECHOING_LAYER_LIMIT) {
+            // Echoing layer limit reached
+            return ItemStack.EMPTY;
+        }
+
+        for (int i = echoingLayers.size()-1; i >= 0; i--) {
+            NbtCompound echoingLayer = echoingLayers.getCompound(i);
+            if (echoingLayer.contains(flag)) {
+                negation = !echoingLayer.getBoolean(flag);
+                break;
             }
         }
 
-        return ItemStack.EMPTY;
+        NbtCompound echoingLayer = new NbtCompound();
+        echoingLayer.putBoolean(flag, negation);
+
+        echoingLayers.add(echoingLayer);
+        return result;
     }
 
     public ItemStack getOutput(DynamicRegistryManager registryManager) {
@@ -92,7 +98,7 @@ public class SmithingEchoingMatterialRecipe implements EctolumRecipe {
                 if (optional3.isPresent()) {
                     ArmorTrim armorTrim = new ArmorTrim(optional2.get(), optional.get());
                     RegistryEntry<ArmorTrimMaterial> material = optional3.get();
-                    EctolumArmorTrimInterface.EchoingLayer layer = new EctolumArmorTrimInterface.EchoingLayer(Optional.of(material), Optional.empty(), Optional.empty());
+                    EctolumArmorTrimInterface.EchoingLayer layer = new EctolumArmorTrimInterface.EchoingLayer(Optional.of(material), Optional.of(true), Optional.empty());
                     ((EctolumArmorTrimInterface) armorTrim).ectolum$setEchoingLayers(new EctolumArmorTrimInterface.EchoingLayer[]{layer});
                     ArmorTrim.apply(registryManager, itemStack, armorTrim);
                 }
@@ -119,7 +125,7 @@ public class SmithingEchoingMatterialRecipe implements EctolumRecipe {
     }
 
     public RecipeSerializer<?> getSerializer() {
-        return ModRecipes.SMITHING_ECHOING_MATERIAL_RECIPE;
+        return ModRecipes.SMITHING_TOGGLE_ECHOING_FLAG_RECIPE;
     }
 
     public boolean isEmpty() {
@@ -141,28 +147,31 @@ public class SmithingEchoingMatterialRecipe implements EctolumRecipe {
         return addition;
     }
 
-    public static class Serializer implements RecipeSerializer<SmithingEchoingMatterialRecipe> {
+    public static class Serializer implements RecipeSerializer<SmithingToggleEchoingFlagRecipe> {
         public Serializer() {
         }
 
-        public SmithingEchoingMatterialRecipe read(Identifier identifier, JsonObject jsonObject) {
+        public SmithingToggleEchoingFlagRecipe read(Identifier identifier, JsonObject jsonObject) {
             Ingredient ingredient = Ingredient.fromJson(JsonHelper.getElement(jsonObject, "template"));
             Ingredient ingredient2 = Ingredient.fromJson(JsonHelper.getElement(jsonObject, "base"));
             Ingredient ingredient3 = Ingredient.fromJson(JsonHelper.getElement(jsonObject, "addition"));
-            return new SmithingEchoingMatterialRecipe(identifier, ingredient, ingredient2, ingredient3);
+            String flag = JsonHelper.getString(jsonObject, "flag");
+            return new SmithingToggleEchoingFlagRecipe(identifier, ingredient, ingredient2, ingredient3, flag);
         }
 
-        public SmithingEchoingMatterialRecipe read(Identifier identifier, PacketByteBuf packetByteBuf) {
+        public SmithingToggleEchoingFlagRecipe read(Identifier identifier, PacketByteBuf packetByteBuf) {
             Ingredient ingredient = Ingredient.fromPacket(packetByteBuf);
             Ingredient ingredient2 = Ingredient.fromPacket(packetByteBuf);
             Ingredient ingredient3 = Ingredient.fromPacket(packetByteBuf);
-            return new SmithingEchoingMatterialRecipe(identifier, ingredient, ingredient2, ingredient3);
+            String flag = packetByteBuf.readString();
+            return new SmithingToggleEchoingFlagRecipe(identifier, ingredient, ingredient2, ingredient3, flag);
         }
 
-        public void write(PacketByteBuf packetByteBuf, SmithingEchoingMatterialRecipe smithingTransformRecipe) {
+        public void write(PacketByteBuf packetByteBuf, SmithingToggleEchoingFlagRecipe smithingTransformRecipe) {
             smithingTransformRecipe.template.write(packetByteBuf);
             smithingTransformRecipe.base.write(packetByteBuf);
             smithingTransformRecipe.addition.write(packetByteBuf);
+            packetByteBuf.writeString(smithingTransformRecipe.flag);
         }
     }
 }

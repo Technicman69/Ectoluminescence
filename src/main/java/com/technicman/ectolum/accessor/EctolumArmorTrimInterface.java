@@ -1,11 +1,10 @@
-package com.technicman.ectolum.addon;
+package com.technicman.ectolum.accessor;
 
 import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.technicman.ectolum.Ectoluminescence;
 import net.minecraft.item.trim.ArmorTrimMaterial;
-import net.minecraft.item.trim.ArmorTrimMaterials;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.item.trim.ArmorTrim;
 import net.minecraft.text.MutableText;

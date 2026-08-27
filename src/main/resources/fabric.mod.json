@@ -19,6 +19,9 @@
 		],
 		"client": [
 			"com.technicman.ectolum.EctoluminescenceClient"
+		],
+		"jei_mod_plugin": [
+			"com.technicman.ectolum.integration.jei.Plugin"
 		]
 	},
 	"mixins": [
@@ -35,6 +38,6 @@
 		"fabric-api": "*"
 	},
 	"suggests": {
-
+		"glow_ink_plus": "*"
 	}
 }

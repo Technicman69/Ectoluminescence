@@ -3,7 +3,11 @@ package com.technicman.ectolum.recipe;
 import com.google.gson.JsonObject;
 import com.google.gson.JsonParseException;
 import com.google.gson.JsonSyntaxException;
+import com.mojang.brigadier.StringReader;
 import com.mojang.brigadier.exceptions.CommandSyntaxException;
+import com.technicman.ectolum.Ectoluminescence;
+import com.technicman.ectolum.util.NbtOperator;
+import net.minecraft.command.argument.NbtPathArgumentType;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -12,11 +16,11 @@ import net.minecraft.item.trim.ArmorTrimMaterial;
 import net.minecraft.item.trim.ArmorTrimMaterials;
 import net.minecraft.item.trim.ArmorTrimPattern;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.nbt.NbtElement;
 import net.minecraft.nbt.StringNbtReader;
 import net.minecraft.network.PacketByteBuf;
 import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.SmithingRecipe;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryKeys;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -27,40 +31,67 @@ import net.minecraft.world.World;
 import java.util.Optional;
 import java.util.stream.Stream;
 
-public class SmithingMergeNbtRecipe implements EctolumRecipe {
+public class SmithingModifyNbtRecipe implements EctolumRecipe {
     private final Identifier id;
     final Ingredient template;
     final Ingredient base;
     final Ingredient addition;
-    final NbtCompound nbt;
+    final NbtElement nbt;
+    final String path;
+    final NbtPathArgumentType.NbtPath parsedPath;
+    final NbtOperator operator;
 
-    public SmithingMergeNbtRecipe(Identifier id, Ingredient template, Ingredient base, Ingredient addition, NbtCompound result) {
+    public SmithingModifyNbtRecipe(Identifier id, Ingredient template, Ingredient base, Ingredient addition, NbtElement nbt, String path, NbtOperator operator) {
         this.id = id;
         this.template = template;
         this.base = base;
         this.addition = addition;
-        this.nbt = result;
+        this.nbt = nbt;
+        this.path = path;
+        if (path == null) {
+            switch (operator) {
+                case MERGE, REPLACE -> {
+                    if (nbt.getType() != NbtElement.COMPOUND_TYPE) {
+                        throw new IllegalArgumentException("Expected \"nbt\" to be an object when \"path\" field is empty in recipe: " + id);
+                    }
+                }
+                case APPEND ->
+                        throw new IllegalArgumentException("\"path\" field cannot be empty when operator is set to \"append\" in recipe: " + id);
+            }
+            parsedPath = null;
+        } else {
+            try {
+                parsedPath = (new NbtPathArgumentType()).parse(new StringReader(path));
+            } catch (CommandSyntaxException var2) {
+                throw new IllegalArgumentException("Failed to parse path " + path, var2);
+            }
+        }
+        this.operator = operator;
     }
 
     public boolean matches(Inventory inventory, World world) {
-        return this.template.test(inventory.getStack(0)) && this.base.test(inventory.getStack(1)) && this.addition.test(inventory.getStack(2)) && isTrimValid(inventory.getStack(1));
+        return this.template.test(inventory.getStack(0)) && this.base.test(inventory.getStack(1)) && this.addition.test(inventory.getStack(2)) && isNbtValid(inventory.getStack(1));
     }
 
-    public boolean isTrimValid(ItemStack stack) {
-        if (this.nbt != null && this.nbt.contains("Trim")) {
-            NbtCompound nbt = stack.getOrCreateNbt().copy().copyFrom(this.nbt);
-            return nbt.contains("Trim", NbtCompound.COMPOUND_TYPE) &&
-                    nbt.getCompound("Trim").contains("pattern", NbtCompound.STRING_TYPE) &&
-                    nbt.getCompound("Trim").contains("material", NbtCompound.STRING_TYPE);
+    public boolean isNbtValid(ItemStack stack) {
+        NbtCompound itemNbt = stack.getOrCreateNbt().copy();
+        try {
+            operator.merge(stack, parsedPath, nbt);
+        } catch (CommandSyntaxException e) {
+            return false;
         }
-        return true;
+        return itemNbt.getList("ectolum.echoing_layers", NbtElement.COMPOUND_TYPE).size() <= Ectoluminescence.ECHOING_LAYER_LIMIT;
     }
 
     public ItemStack craft(Inventory inventory, DynamicRegistryManager registryManager) {
         ItemStack itemStack = inventory.getStack(1);
         ItemStack itemStack2 = itemStack.copy();
         if (nbt != null) {
-            itemStack2.getOrCreateNbt().copyFrom(nbt);
+            try {
+                operator.merge(itemStack2, parsedPath, nbt);
+            } catch (CommandSyntaxException e) {
+                Ectoluminescence.LOGGER.warn("Couldn't take result from smithing modify nbt recipe: " + e);
+            }
             if (itemStack2.getOrCreateNbt().equals(itemStack.getNbt())) {
                 return ItemStack.EMPTY;
             }
@@ -78,7 +109,11 @@ public class SmithingMergeNbtRecipe implements EctolumRecipe {
                 ArmorTrim armorTrim = new ArmorTrim(optional2.get(), optional.get());
                 ArmorTrim.apply(registryManager, itemStack, armorTrim);
                 if (nbt != null) {
-                    itemStack.getOrCreateNbt().copyFrom(nbt);
+                    try {
+                        operator.merge(itemStack, parsedPath, nbt);
+                    } catch (CommandSyntaxException e) {
+                        Ectoluminescence.LOGGER.warn("Couldn't take result from smithing modify nbt recipe: " + e);
+                    }
                 }
             }
         }
@@ -125,11 +160,11 @@ public class SmithingMergeNbtRecipe implements EctolumRecipe {
         return addition;
     }
 
-    public static class Serializer implements RecipeSerializer<SmithingMergeNbtRecipe> {
+    public static class Serializer implements RecipeSerializer<SmithingModifyNbtRecipe> {
         public Serializer() {
         }
 
-        public SmithingMergeNbtRecipe read(Identifier identifier, JsonObject jsonObject) {
+        public SmithingModifyNbtRecipe read(Identifier identifier, JsonObject jsonObject) {
             Ingredient ingredient = Ingredient.fromJson(JsonHelper.getElement(jsonObject, "template"));
             Ingredient ingredient2 = Ingredient.fromJson(JsonHelper.getElement(jsonObject, "base"));
             Ingredient ingredient3 = Ingredient.fromJson(JsonHelper.getElement(jsonObject, "addition"));
@@ -139,22 +174,33 @@ public class SmithingMergeNbtRecipe implements EctolumRecipe {
             } catch (CommandSyntaxException e) {
                 throw new JsonParseException("Couldn't parse \"nbt\" field of recipe " + identifier + ": ", e);
             } catch (JsonSyntaxException ignored) {}
-            return new SmithingMergeNbtRecipe(identifier, ingredient, ingredient2, ingredient3, nbt);
+            String path = JsonHelper.getString(jsonObject, "path", null);
+            NbtOperator operator = NbtOperator.get(JsonHelper.getString(jsonObject, "operator", "merge"));
+            return new SmithingModifyNbtRecipe(identifier, ingredient, ingredient2, ingredient3, nbt, path, operator);
         }
 
-        public SmithingMergeNbtRecipe read(Identifier identifier, PacketByteBuf packetByteBuf) {
+        public SmithingModifyNbtRecipe read(Identifier identifier, PacketByteBuf packetByteBuf) {
             Ingredient ingredient = Ingredient.fromPacket(packetByteBuf);
             Ingredient ingredient2 = Ingredient.fromPacket(packetByteBuf);
             Ingredient ingredient3 = Ingredient.fromPacket(packetByteBuf);
-            NbtCompound nbt = packetByteBuf.readNbt();
-            return new SmithingMergeNbtRecipe(identifier, ingredient, ingredient2, ingredient3, nbt);
+            NbtCompound nbt;
+            try {
+                nbt = StringNbtReader.parse(packetByteBuf.readString());
+            } catch (CommandSyntaxException e) {
+                throw new JsonParseException("Unexpected error. Couldn't parse \"nbt\" field of recipe " + identifier + " from packet: ", e);
+            }
+            String path = packetByteBuf.readString();
+            NbtOperator operator = NbtOperator.values()[packetByteBuf.readByte()];
+            return new SmithingModifyNbtRecipe(identifier, ingredient, ingredient2, ingredient3, nbt, path, operator);
         }
 
-        public void write(PacketByteBuf packetByteBuf, SmithingMergeNbtRecipe smithingTransformRecipe) {
+        public void write(PacketByteBuf packetByteBuf, SmithingModifyNbtRecipe smithingTransformRecipe) {
             smithingTransformRecipe.template.write(packetByteBuf);
             smithingTransformRecipe.base.write(packetByteBuf);
             smithingTransformRecipe.addition.write(packetByteBuf);
-            packetByteBuf.writeNbt(smithingTransformRecipe.nbt);
+            packetByteBuf.writeString(smithingTransformRecipe.nbt.asString());
+            packetByteBuf.writeString(smithingTransformRecipe.path);
+            packetByteBuf.writeByte(smithingTransformRecipe.operator.ordinal());
         }
     }
 }

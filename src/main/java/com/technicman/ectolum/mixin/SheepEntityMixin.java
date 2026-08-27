@@ -1,6 +1,6 @@
 package com.technicman.ectolum.mixin;
 
-import com.technicman.ectolum.addon.EctolumSheepInterface;
+import com.technicman.ectolum.accessor.EctolumSheepInterface;
 import net.minecraft.advancement.criterion.Criteria;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.passive.AnimalEntity;

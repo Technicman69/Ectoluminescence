@@ -1,4 +1,4 @@
-package com.technicman.ectolum.addon;
+package com.technicman.ectolum.accessor;
 
 import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.data.TrackedData;

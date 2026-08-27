@@ -1,6 +1,6 @@
 package com.technicman.ectolum.mixin;
 
-import com.technicman.ectolum.addon.EctolumDecoratedPotInterface;
+import com.technicman.ectolum.accessor.EctolumDecoratedPotInterface;
 import net.minecraft.block.DecoratedPotBlock;
 import net.minecraft.block.entity.DecoratedPotBlockEntity;
 import net.minecraft.client.item.TooltipContext;

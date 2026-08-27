@@ -1,18 +1,17 @@
 package com.technicman.ectolum;
 
-import com.technicman.ectolum.addon.EctolumBannerInterface;
-import com.technicman.ectolum.addon.EctolumDecoratedPotInterface;
+import com.technicman.ectolum.accessor.EctolumBannerInterface;
+import com.technicman.ectolum.accessor.EctolumDecoratedPotInterface;
 import com.technicman.ectolum.block.ModBlocks;
 import com.technicman.ectolum.entity.ModEntities;
 import com.technicman.ectolum.item.ModItems;
+import com.technicman.ectolum.loot.ModLootTableModifiers;
 import com.technicman.ectolum.recipe.ModRecipes;
 import com.technicman.ectolum.sound.ModSounds;
 import net.fabricmc.api.ModInitializer;
 
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.advancement.criterion.Criteria;
-import net.minecraft.block.AbstractBannerBlock;
-import net.minecraft.block.AbstractCandleBlock;
 import net.minecraft.block.entity.BannerBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.DecoratedPotBlockEntity;
@@ -23,7 +22,6 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.event.GameEvent;
@@ -37,6 +35,8 @@ public class Ectoluminescence implements ModInitializer {
 	// It is considered best practice to use your mod id as the logger's name.
 	// That way, it's clear which mod wrote info, warnings, and errors.
 	public static final Logger LOGGER = LoggerFactory.getLogger(MOD_ID);
+	public static final int ECHOING_LAYER_LIMIT = 8;
+
 
 	@Override
 	public void onInitialize() {
@@ -48,6 +48,7 @@ public class Ectoluminescence implements ModInitializer {
 		ModItems.onInitialize();
 		ModSounds.onInitialize();
 		ModRecipes.onInitialize();
+		ModLootTableModifiers.onInitialize();
 		GlowingDecoratedPotPatterns.onInitialize();
 
 		LOGGER.info("Hello Fabric world!");

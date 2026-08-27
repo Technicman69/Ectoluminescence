@@ -1,6 +1,6 @@
 package com.technicman.ectolum.mixin;
 
-import com.technicman.ectolum.addon.EctolumDecoratedPotInterface;
+import com.technicman.ectolum.accessor.EctolumDecoratedPotInterface;
 import net.minecraft.block.entity.DecoratedPotBlockEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
@@ -10,8 +10,6 @@ import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.Arrays;
 
 @Mixin(DecoratedPotBlockEntity.class)
 public class DecoratedPotBlockEntityMixin implements EctolumDecoratedPotInterface {

@@ -1,6 +1,6 @@
 package com.technicman.ectolum.mixin;
 
-import com.technicman.ectolum.addon.EctolumSignInterface;
+import com.technicman.ectolum.accessor.EctolumSignInterface;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;

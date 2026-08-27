@@ -5,11 +5,14 @@
   "client": [
     "ArmorFeatureRendererMixin",
     "BannerBlockEntityRendererMixin",
+    "BuiltinModelItemRendererMixin",
     "DecoratedPotBlockEntityRendererMixin",
     "ItemFrameEntityRendererMixin",
+    "ItemRendererMixin",
     "ModelLoaderMixin",
     "SheepWoolFeatureRendererMixin",
-    "SignBlockEntityRendererMixin"
+    "SignBlockEntityRendererMixin",
+    "VertexConsumerMixin"
   ],
   "injectors": {
     "defaultRequire": 1

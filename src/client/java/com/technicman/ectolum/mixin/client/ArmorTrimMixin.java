@@ -2,29 +2,16 @@ package com.technicman.ectolum.mixin.client;
 
 import com.llamalad7.mixinextras.sugar.Local;
 import com.mojang.datafixers.util.Pair;
-import com.mojang.logging.LogUtils;
 import com.mojang.serialization.DataResult;
 import com.technicman.ectolum.Ectoluminescence;
-import com.technicman.ectolum.addon.EctolumArmorTrimInterface;
-import net.fabricmc.fabric.impl.client.rendering.ArmorRendererRegistryImpl;
-import net.fabricmc.fabric.mixin.client.indigo.renderer.ItemRendererMixin;
-import net.fabricmc.fabric.mixin.item.ArmorItemMixin;
-import net.minecraft.client.render.entity.ItemFrameEntityRenderer;
-import net.minecraft.client.render.item.ItemRenderer;
-import net.minecraft.data.server.recipe.SmithingTransformRecipeJsonBuilder;
-import net.minecraft.data.server.recipe.SmithingTrimRecipeJsonBuilder;
-import net.minecraft.item.ArmorItem;
+import com.technicman.ectolum.accessor.EctolumArmorTrimInterface;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
 import net.minecraft.item.trim.ArmorTrim;
 import net.minecraft.item.trim.ArmorTrimMaterial;
-import net.minecraft.item.trim.ArmorTrimMaterials;
 import net.minecraft.item.trim.ArmorTrimPattern;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.nbt.NbtList;
 import net.minecraft.nbt.NbtOps;
-import net.minecraft.recipe.SmithingTransformRecipe;
-import net.minecraft.recipe.SmithingTrimRecipe;
 import net.minecraft.registry.DynamicRegistryManager;
 import net.minecraft.registry.RegistryOps;
 import net.minecraft.registry.entry.RegistryEntry;
@@ -36,7 +23,6 @@ import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import org.slf4j.Logger;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -46,7 +32,6 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-import java.util.Arrays;
 import java.util.List;
 import java.util.Optional;
 
@@ -78,6 +63,7 @@ public class ArmorTrimMixin implements EctolumArmorTrimInterface {
     public ArmorTrimMixin(boolean ectolum$hidden, EchoingLayer[] ectolum$echoingLayers) {
         this.ectolum$hidden = ectolum$hidden;
         this.ectolum$echoingLayers = ectolum$echoingLayers;
+        System.out.println("Echoing layer initialization! :DDDDDD");
     }
     @Override
     public boolean ectolum$isGlowing() {

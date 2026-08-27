@@ -1,4 +1,4 @@
-package com.technicman.ectolum.addon;
+package com.technicman.ectolum.accessor;
 
 public interface EctolumSignInterface {
     boolean ectolum$isBackgroundHidden();

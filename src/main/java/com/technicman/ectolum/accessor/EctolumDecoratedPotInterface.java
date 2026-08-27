@@ -1,4 +1,4 @@
-package com.technicman.ectolum.addon;
+package com.technicman.ectolum.accessor;
 
 public interface EctolumDecoratedPotInterface {
     String SHERD_GLOW_OVERRIDES_KEY = "ectolum.sherd_glow_overrides";
