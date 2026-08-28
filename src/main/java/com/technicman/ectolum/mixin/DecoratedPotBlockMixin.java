@@ -29,7 +29,7 @@ public class DecoratedPotBlockMixin {
             ),
             cancellable = true
     )
-    private static void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options, CallbackInfo ci) {
+    private void appendTooltip(ItemStack stack, @Nullable BlockView world, List<Text> tooltip, TooltipContext options, CallbackInfo ci) {
         NbtCompound nbt = BlockItem.getBlockEntityNbt(stack);
         DecoratedPotBlockEntity.Sherds sherds = DecoratedPotBlockEntity.Sherds.fromNbt(nbt);
         byte[] glowOverrides;
