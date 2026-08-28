@@ -69,18 +69,36 @@ public class SmithingModifyNbtRecipe implements EctolumRecipe {
         this.operator = operator;
     }
 
+    public NbtElement getNbt() {
+        return nbt;
+    }
+
+    public NbtPathArgumentType.NbtPath getPath() {
+        return parsedPath;
+    }
+
+    public NbtOperator getOperator() {
+        return operator;
+    }
+
     public boolean matches(Inventory inventory, World world) {
         return this.template.test(inventory.getStack(0)) && this.base.test(inventory.getStack(1)) && this.addition.test(inventory.getStack(2)) && isNbtValid(inventory.getStack(1));
     }
 
     public boolean isNbtValid(ItemStack stack) {
-        NbtCompound itemNbt = stack.getOrCreateNbt().copy();
+        ItemStack item = stack.copy();
         try {
-            operator.merge(stack, parsedPath, nbt);
+            operator.merge(item, parsedPath, nbt);
         } catch (CommandSyntaxException e) {
             return false;
         }
-        return itemNbt.getList("ectolum.echoing_layers", NbtElement.COMPOUND_TYPE).size() <= Ectoluminescence.ECHOING_LAYER_LIMIT;
+
+        NbtCompound trim = item.getOrCreateNbt().getCompound("Trim");
+        if (!trim.isEmpty()) {
+            return trim.contains("material") && trim.contains("pattern");
+        }
+
+        return true;
     }
 
     public ItemStack craft(Inventory inventory, DynamicRegistryManager registryManager) {

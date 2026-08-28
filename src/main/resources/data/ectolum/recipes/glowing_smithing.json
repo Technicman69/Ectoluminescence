@@ -1,5 +1,5 @@
 {
-  "type": "ectolum:smithing_merge_nbt",
+  "type": "ectolum:smithing_modify_nbt",
   "template": {
     "item": "minecraft:glow_ink_sac"
   },

@@ -41,6 +41,10 @@ public class SmithingToggleEchoingFlagRecipe implements EctolumRecipe {
         this.flag = flag;
     }
 
+    public String getFlag() {
+        return flag;
+    }
+
     public boolean matches(Inventory inventory, World world) {
         return this.template.test(inventory.getStack(0)) && this.base.test(inventory.getStack(1)) && this.addition.test(inventory.getStack(2));
     }

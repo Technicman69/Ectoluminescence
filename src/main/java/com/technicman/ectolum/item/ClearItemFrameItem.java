@@ -1,13 +1,8 @@
 package com.technicman.ectolum.item;
 
 import com.technicman.ectolum.entity.ClearItemFrameEntity;
-import com.technicman.ectolum.entity.ModEntities;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.AbstractDecorationEntity;
-import net.minecraft.entity.decoration.GlowItemFrameEntity;
-import net.minecraft.entity.decoration.ItemFrameEntity;
-import net.minecraft.entity.decoration.painting.PaintingEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemFrameItem;
 import net.minecraft.item.ItemStack;
@@ -18,8 +13,6 @@ import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.World;
 import net.minecraft.world.event.GameEvent;
-
-import java.util.Optional;
 
 public class ClearItemFrameItem extends ItemFrameItem {
     public ClearItemFrameItem(EntityType<? extends AbstractDecorationEntity> entityType, Settings settings) {

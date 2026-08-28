@@ -8,8 +8,8 @@ import com.technicman.ectolum.item.ModItems;
 import com.technicman.ectolum.loot.ModLootTableModifiers;
 import com.technicman.ectolum.recipe.ModRecipes;
 import com.technicman.ectolum.sound.ModSounds;
+import com.technicman.ectolum.util.GlowingDecoratedPotPatterns;
 import net.fabricmc.api.ModInitializer;
-
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.advancement.criterion.Criteria;
 import net.minecraft.block.entity.BannerBlockEntity;

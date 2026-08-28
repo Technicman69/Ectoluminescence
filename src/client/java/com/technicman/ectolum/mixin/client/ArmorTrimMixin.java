@@ -63,7 +63,6 @@ public class ArmorTrimMixin implements EctolumArmorTrimInterface {
     public ArmorTrimMixin(boolean ectolum$hidden, EchoingLayer[] ectolum$echoingLayers) {
         this.ectolum$hidden = ectolum$hidden;
         this.ectolum$echoingLayers = ectolum$echoingLayers;
-        System.out.println("Echoing layer initialization! :DDDDDD");
     }
     @Override
     public boolean ectolum$isGlowing() {

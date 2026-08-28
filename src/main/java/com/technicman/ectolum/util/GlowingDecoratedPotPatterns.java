@@ -1,7 +1,6 @@
-package com.technicman.ectolum;
+package com.technicman.ectolum.util;
 
 import net.minecraft.block.DecoratedPotPatterns;
-import net.minecraft.block.entity.DecoratedPotBlockEntity;
 import net.minecraft.item.Item;
 import net.minecraft.item.Items;
 import net.minecraft.registry.Registries;

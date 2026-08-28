@@ -1,7 +1,10 @@
 package com.technicman.ectolum.mixin.client;
 
 import com.technicman.ectolum.accessor.EctolumSignInterface;
-import net.minecraft.block.*;
+import net.minecraft.block.AbstractSignBlock;
+import net.minecraft.block.BlockState;
+import net.minecraft.block.WallSignBlock;
+import net.minecraft.block.WoodType;
 import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.client.model.Model;
 import net.minecraft.client.render.VertexConsumerProvider;

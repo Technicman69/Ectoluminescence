@@ -1,6 +1,5 @@
 package com.technicman.ectolum.mixin;
 
-import com.llamalad7.mixinextras.sugar.Local;
 import net.minecraft.item.BannerItem;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;

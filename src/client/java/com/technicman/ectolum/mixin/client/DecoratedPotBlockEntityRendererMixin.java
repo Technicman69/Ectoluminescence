@@ -1,8 +1,8 @@
 package com.technicman.ectolum.mixin.client;
 
-import com.technicman.ectolum.GlowingDecoratedPotPatterns;
 import com.technicman.ectolum.accessor.EctolumDecoratedPotInterface;
 import com.technicman.ectolum.util.GlobalVariables;
+import com.technicman.ectolum.util.GlowingDecoratedPotPatterns;
 import net.minecraft.block.entity.DecoratedPotBlockEntity;
 import net.minecraft.client.model.ModelPart;
 import net.minecraft.client.render.TexturedRenderLayers;

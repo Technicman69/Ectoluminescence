@@ -38,6 +38,7 @@
 		"fabric-api": "*"
 	},
 	"suggests": {
-		"glow_ink_plus": "*"
+		"glow_ink_plus": "*",
+		"jei": ">=15.49.0.191"
 	}
 }
