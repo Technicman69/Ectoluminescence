@@ -3,7 +3,7 @@ package com.technicman.ectolum.recipe;
 import com.google.gson.JsonObject;
 import com.technicman.ectolum.Ectoluminescence;
 import com.technicman.ectolum.accessor.EctolumArmorTrimInterface;
-import com.technicman.ectolum.accessor.EctolumArmorTrimInterface.EchoingLayer;
+import com.technicman.ectolum.util.EchoingLayer;
 import net.minecraft.inventory.Inventory;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
@@ -95,8 +95,8 @@ public class SmithingEchoingMatterialRecipe implements EctolumRecipe {
                 if (optional3.isPresent()) {
                     ArmorTrim armorTrim = new ArmorTrim(optional2.get(), optional.get());
                     RegistryEntry<ArmorTrimMaterial> material = optional3.get();
-                    EctolumArmorTrimInterface.EchoingLayer layer = new EctolumArmorTrimInterface.EchoingLayer(Optional.of(material), Optional.empty(), Optional.empty());
-                    ((EctolumArmorTrimInterface) armorTrim).ectolum$setEchoingLayers(new EctolumArmorTrimInterface.EchoingLayer[]{layer});
+                    EchoingLayer layer = new EchoingLayer(Optional.of(material), Optional.empty(), Optional.empty());
+                    ((EctolumArmorTrimInterface) armorTrim).ectolum$setEchoingLayers(new EchoingLayer[]{layer});
                     ArmorTrim.apply(registryManager, itemStack, armorTrim);
                 }
             }

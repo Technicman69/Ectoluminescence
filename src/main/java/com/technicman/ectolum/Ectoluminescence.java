@@ -3,6 +3,7 @@ package com.technicman.ectolum;
 import com.technicman.ectolum.accessor.EctolumBannerInterface;
 import com.technicman.ectolum.accessor.EctolumDecoratedPotInterface;
 import com.technicman.ectolum.block.ModBlocks;
+import com.technicman.ectolum.component.ModComponents;
 import com.technicman.ectolum.entity.ModEntities;
 import com.technicman.ectolum.item.ModItems;
 import com.technicman.ectolum.loot.ModLootTableModifiers;
@@ -22,6 +23,7 @@ import net.minecraft.sound.SoundCategory;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.stat.Stats;
 import net.minecraft.util.ActionResult;
+import net.minecraft.util.Identifier;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
 import net.minecraft.world.event.GameEvent;
@@ -49,9 +51,14 @@ public class Ectoluminescence implements ModInitializer {
 		ModSounds.onInitialize();
 		ModRecipes.onInitialize();
 		ModLootTableModifiers.onInitialize();
+		ModComponents.onInitialize();
 		GlowingDecoratedPotPatterns.onInitialize();
 
 		LOGGER.info("Hello Fabric world!");
+	}
+
+	public static Identifier identifier(String name) {
+		return Identifier.of(MOD_ID, name);
 	}
 
 	private static int getDecoratedPotFaceIndex(Direction hitDirection, Direction sideFacing) {

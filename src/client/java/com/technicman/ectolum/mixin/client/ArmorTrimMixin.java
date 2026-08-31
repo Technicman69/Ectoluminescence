@@ -5,6 +5,7 @@ import com.mojang.datafixers.util.Pair;
 import com.mojang.serialization.DataResult;
 import com.technicman.ectolum.Ectoluminescence;
 import com.technicman.ectolum.accessor.EctolumArmorTrimInterface;
+import com.technicman.ectolum.util.EchoingLayer;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.trim.ArmorTrim;
 import net.minecraft.item.trim.ArmorTrimMaterial;

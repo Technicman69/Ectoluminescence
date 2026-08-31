@@ -5,6 +5,7 @@ import net.minecraft.block.entity.DecoratedPotBlockEntity;
 import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -27,25 +28,20 @@ public class DecoratedPotBlockEntityMixin implements EctolumDecoratedPotInterfac
     }
 
     @Inject(at = @At("HEAD"), method = "writeNbt")
-    private void writeNbt(NbtCompound nbt, CallbackInfo info) {
+    private void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup, CallbackInfo ci) {
         if (
                 ectolum$getSherdGlow(0) ||
                 ectolum$getSherdGlow(1) ||
                 ectolum$getSherdGlow(2) ||
                 ectolum$getSherdGlow(3)
         ) {
-            nbt.putByteArray("ectolum.sherd_glow_overrides", ectolum$sherdGlowOverrides);
+            nbt.putByteArray(SHERD_GLOW_OVERRIDES_KEY, ectolum$sherdGlowOverrides);
         }
     }
 
     @Inject(at = @At("HEAD"), method = "readNbt")
-    private void readNbt(NbtCompound nbt, CallbackInfo info) {
+    private void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup, CallbackInfo ci) {
         ectolum$readSherdGlowOverrides(nbt);
-    }
-
-    @Inject(method = "readNbtFromStack", at = @At("HEAD"))
-    private void readNbtFromStack(ItemStack stack, CallbackInfo ci) {
-        ectolum$readSherdGlowOverrides(BlockItem.getBlockEntityNbt(stack));
     }
 
     @Unique

@@ -35,7 +35,7 @@ public class GlowingDecoratedPotPatterns {
             Items.SHEAF_POTTERY_SHERD,
             Items.SHELTER_POTTERY_SHERD,
             Items.SKULL_POTTERY_SHERD,
-            Items.SNORT_POTTERY_SHERD
+            Items.SNORT_POTTERY_SHERD,
     };
 
     static {
