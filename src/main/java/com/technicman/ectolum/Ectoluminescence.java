@@ -9,6 +9,7 @@ import com.technicman.ectolum.item.ModItems;
 import com.technicman.ectolum.loot.ModLootTableModifiers;
 import com.technicman.ectolum.recipe.ModRecipes;
 import com.technicman.ectolum.sound.ModSounds;
+import com.technicman.ectolum.util.BannerEffects;
 import com.technicman.ectolum.util.GlowingDecoratedPotPatterns;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
@@ -87,13 +88,13 @@ public class Ectoluminescence implements ModInitializer {
 				if (world.isClient) {
 					return !(hasGlowInkSac || hasPhantomMembrane) ? ActionResult.CONSUME : ActionResult.SUCCESS;
 				}
-				EctolumBannerInterface ectolumBanner = (EctolumBannerInterface) bannerBlockEntity;
-				if (hasPhantomMembrane && !ectolumBanner.ectolum$isBackgroundHidden()) {
+				BannerEffects effects = ((EctolumBannerInterface) bannerBlockEntity).ectolum$getBannerEffects();
+				if (hasPhantomMembrane && !effects.isBackgroundHidden()) {
 					world.playSound(null, pos, ModSounds.PHANTOM_MEMBRANE_USE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-					((EctolumBannerInterface) bannerBlockEntity).ectolum$setHideBackground(true);
-				} else if (hasGlowInkSac && !ectolumBanner.ectolum$isGlowing()) {
+					effects.setHideBackground(true);
+				} else if (hasGlowInkSac && !effects.isGlowing()) {
 					world.playSound(null, pos, SoundEvents.ITEM_GLOW_INK_SAC_USE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-					((EctolumBannerInterface) bannerBlockEntity).ectolum$setGlowing(true);
+					effects.setGlowing(true);
 				} else {
 					return ActionResult.PASS;
 				}

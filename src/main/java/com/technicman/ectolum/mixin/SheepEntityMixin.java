@@ -3,6 +3,7 @@ package com.technicman.ectolum.mixin;
 import com.technicman.ectolum.accessor.EctolumSheepInterface;
 import net.minecraft.advancement.criterion.Criteria;
 import net.minecraft.entity.EntityType;
+import net.minecraft.entity.data.DataTracker;
 import net.minecraft.entity.passive.AnimalEntity;
 import net.minecraft.entity.passive.SheepEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -56,8 +57,8 @@ public abstract class SheepEntityMixin extends AnimalEntity implements EctolumSh
 	}
 
 	@Inject(method = "initDataTracker", at = @At("TAIL"))
-	private void initDataTracker(CallbackInfo ci) {
-		this.dataTracker.startTracking(GLOWING, false);
+	private void initDataTracker(DataTracker.Builder builder, CallbackInfo ci) {
+		builder.add(GLOWING, false);
 	}
 
 	public boolean ectolum$isGlowing() {

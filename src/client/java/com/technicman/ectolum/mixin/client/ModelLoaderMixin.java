@@ -20,21 +20,21 @@ import java.util.Map;
 @Mixin(ModelLoader.class)
 public abstract class ModelLoaderMixin {
 
-    @Mutable
-    @Final
-    @Shadow
-    private static Map<Identifier, StateManager<Block, BlockState>> STATIC_DEFINITIONS;
-
-    @Mutable
-    @Final
-    @Shadow
-    private static StateManager<Block, BlockState> ITEM_FRAME_STATE_FACTORY;
-
-    @Inject(method = "<clinit>", at = @At("TAIL"))
-    private static void injected(CallbackInfo ci) {
-        STATIC_DEFINITIONS = new ImmutableMap.Builder()
-                .putAll(STATIC_DEFINITIONS)
-                .put(new Identifier(Ectoluminescence.MOD_ID, "clear_item_frame"), ITEM_FRAME_STATE_FACTORY)
-                .build();
-    }
+//    @Mutable
+//    @Final
+//    @Shadow
+//    private static Map<Identifier, StateManager<Block, BlockState>> STATIC_DEFINITIONS;
+//
+//    @Mutable
+//    @Final
+//    @Shadow
+//    private static StateManager<Block, BlockState> ITEM_FRAME_STATE_FACTORY;
+//
+//    @Inject(method = "<clinit>", at = @At("TAIL"))
+//    private static void injected(CallbackInfo ci) {
+//        STATIC_DEFINITIONS = new ImmutableMap.Builder()
+//                .putAll(STATIC_DEFINITIONS)
+//                .put(new Identifier(Ectoluminescence.MOD_ID, "clear_item_frame"), ITEM_FRAME_STATE_FACTORY)
+//                .build();
+//    }
 }

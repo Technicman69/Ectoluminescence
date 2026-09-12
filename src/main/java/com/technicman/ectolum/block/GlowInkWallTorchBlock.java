@@ -23,7 +23,7 @@ public class GlowInkWallTorchBlock extends WallTorchBlock implements Waterloggab
     public static final BooleanProperty WATERLOGGED = Properties.WATERLOGGED;
 
     public GlowInkWallTorchBlock(Settings settings) {
-        super(settings, ParticleTypes.GLOW);
+        super(ParticleTypes.GLOW, settings);
         this.setDefaultState(this.stateManager.getDefaultState().with(WATERLOGGED, false));
     }
 

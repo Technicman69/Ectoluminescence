@@ -1,9 +1,7 @@
 package com.technicman.ectolum.accessor;
 
-public interface EctolumBannerInterface {
-    boolean ectolum$isGlowing();
-    boolean ectolum$isBackgroundHidden();
+import com.technicman.ectolum.util.BannerEffects;
 
-    void ectolum$setGlowing(boolean glowing);
-    void ectolum$setHideBackground(boolean hideBackground);
+public interface EctolumBannerInterface {
+    BannerEffects ectolum$getBannerEffects();
 }

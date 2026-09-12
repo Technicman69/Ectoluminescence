@@ -10,10 +10,10 @@ import net.minecraft.util.Identifier;
 
 public class ModEntities {
     public static final EntityType<ClearItemFrameEntity> CLEAR_ITEM_FRAME = registerEntity("clear_item_frame",
-            EntityType.Builder.<ClearItemFrameEntity>create(ClearItemFrameEntity::new, SpawnGroup.MISC).setDimensions(0.5F, 0.5F).maxTrackingRange(10).trackingTickInterval(Integer.MAX_VALUE)
+            EntityType.Builder.<ClearItemFrameEntity>create(ClearItemFrameEntity::new, SpawnGroup.MISC).dimensions(0.5F, 0.5F).maxTrackingRange(10).trackingTickInterval(Integer.MAX_VALUE)
     );
     private static <T extends Entity> EntityType<T> registerEntity(String name, EntityType.Builder<T> entityType) {
-        Identifier id = new Identifier(Ectoluminescence.MOD_ID, name);
+        Identifier id = Ectoluminescence.identifier(name);
         return Registry.register(Registries.ENTITY_TYPE, id, entityType.build(name));
     }
 

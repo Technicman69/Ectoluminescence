@@ -14,7 +14,7 @@ public class ModSounds {
     public static final SoundEvent ENTITY_CLEAR_ITEM_FRAME_REMOVE_ITEM = registerSoundEvent("entity.clear_item_frame.remove_item");
     public static final SoundEvent ENTITY_CLEAR_ITEM_FRAME_ROTATE_ITEM = registerSoundEvent("entity.clear_item_frame.rotate_item");
     private static SoundEvent registerSoundEvent(String name) {
-        Identifier id = new Identifier(Ectoluminescence.MOD_ID, name);
+        Identifier id = Ectoluminescence.identifier(name);
         return Registry.register(Registries.SOUND_EVENT, id, SoundEvent.of(id));
     }
 

@@ -1,5 +1,5 @@
 {
-  "type": "ectolum:smithing_modify_nbt",
+  "type": "ectolum:smithing_glowing",
   "template": {
     "item": "minecraft:glow_ink_sac"
   },
@@ -8,6 +8,5 @@
   },
   "addition": {
     "item": "minecraft:glow_ink_sac"
-  },
-  "nbt": "{Trim: {ectolum.glowing: true}}"
+  }
 }

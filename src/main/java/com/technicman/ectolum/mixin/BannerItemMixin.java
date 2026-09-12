@@ -1,9 +1,9 @@
 package com.technicman.ectolum.mixin;
 
+import com.technicman.ectolum.component.ModComponents;
+import com.technicman.ectolum.util.BannerEffects;
 import net.minecraft.item.BannerItem;
-import net.minecraft.item.BlockItem;
 import net.minecraft.item.ItemStack;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 import org.spongepowered.asm.mixin.Mixin;
@@ -17,14 +17,12 @@ import java.util.List;
 public class BannerItemMixin {
     @Inject(method = "appendBannerTooltip", at = @At("TAIL"))
     private static void appendTooltip(ItemStack stack, List<Text> tooltip, CallbackInfo ci) {
-        NbtCompound nbt = BlockItem.getBlockEntityNbt(stack);
-        if (nbt != null) {
-            if (nbt.getBoolean("ectolum.glowing")) {
-                tooltip.add(Text.translatable("block.minecraft.banner.ectolum.glowing").formatted(Formatting.WHITE));
-            }
-            if (nbt.getBoolean("ectolum.hide_background")) {
-                tooltip.add(Text.translatable("block.minecraft.banner.ectolum.hide_background").formatted(Formatting.WHITE));
-            }
+        BannerEffects component = stack.getOrDefault(ModComponents.BANNER_EFFECTS, BannerEffects.EMPTY);
+        if (component.isGlowing()) {
+            tooltip.add(Text.translatable("block.minecraft.banner.ectolum.glowing").formatted(Formatting.WHITE));
+        }
+        if (component.isBackgroundHidden()) {
+            tooltip.add(Text.translatable("block.minecraft.banner.ectolum.hide_background").formatted(Formatting.WHITE));
         }
     }
 }

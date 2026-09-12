@@ -17,7 +17,7 @@ public class ModBlocks {
 
 
     private static Block registerBlock(String name, Block block) {
-        Identifier id = new Identifier(Ectoluminescence.MOD_ID, name);
+        Identifier id = Ectoluminescence.identifier(name);
         return Registry.register(Registries.BLOCK, id, block);
 
     }

@@ -24,9 +24,9 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 @Mixin(ItemFrameEntityRenderer.class)
 public abstract class ItemFrameEntityRendererMixin<T extends ItemFrameEntity> extends EntityRenderer<T> {
     @Unique
-    private static final ModelIdentifier CLEAR_FRAME = new ModelIdentifier(Ectoluminescence.MOD_ID, "clear_item_frame", "map=false");
+    private static final ModelIdentifier CLEAR_FRAME = new ModelIdentifier(Ectoluminescence.identifier("clear_item_frame"), "map=false");
     @Unique
-    private static final ModelIdentifier MAP_CLEAR_FRAME = new ModelIdentifier(Ectoluminescence.MOD_ID, "clear_item_frame", "map=true");
+    private static final ModelIdentifier MAP_CLEAR_FRAME = new ModelIdentifier(Ectoluminescence.identifier("clear_item_frame"), "map=true");
 
     protected ItemFrameEntityRendererMixin(EntityRendererFactory.Context ctx) {
         super(ctx);

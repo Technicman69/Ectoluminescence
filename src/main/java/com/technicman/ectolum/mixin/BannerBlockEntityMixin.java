@@ -1,11 +1,13 @@
 package com.technicman.ectolum.mixin;
 
 import com.technicman.ectolum.accessor.EctolumBannerInterface;
+import com.technicman.ectolum.util.BannerEffects;
 import net.minecraft.block.BlockState;
 import net.minecraft.block.entity.BannerBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.BlockEntityType;
 import net.minecraft.nbt.NbtCompound;
+import net.minecraft.registry.RegistryWrapper;
 import net.minecraft.util.math.BlockPos;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -16,49 +18,30 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Mixin(BannerBlockEntity.class)
 public class BannerBlockEntityMixin extends BlockEntity implements EctolumBannerInterface {
 	@Unique
-	private boolean ectolum$glowing = false;
-	@Unique
-	private boolean ectolum$hideBackground = false;
+	private final BannerEffects ectolum$effects = BannerEffects.empty();
 
 	public BannerBlockEntityMixin(BlockEntityType<?> type, BlockPos pos, BlockState state) {
 		super(type, pos, state);
 	}
 
+	@Override
+	public BannerEffects ectolum$getBannerEffects() {
+		return ectolum$effects;
+	}
+
 	@Inject(at = @At("HEAD"), method = "writeNbt")
-	private void writeNbt(NbtCompound nbt, CallbackInfo info) {
-		if (this.ectolum$glowing) {
+	private void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup, CallbackInfo ci) {
+		if (ectolum$effects.isGlowing()) {
 			nbt.putBoolean("ectolum.glowing", true);
 		}
-		if (this.ectolum$hideBackground) {
+		if (ectolum$effects.isBackgroundHidden()) {
 			nbt.putBoolean("ectolum.hide_background", true);
 		}
 	}
 
 	@Inject(at = @At("HEAD"), method = "readNbt")
-	private void readNbt(NbtCompound nbt, CallbackInfo info) {
-		ectolum$hideBackground = nbt.contains("ectolum.hide_background") && nbt.getBoolean("ectolum.hide_background");
-		ectolum$glowing = nbt.contains("ectolum.glowing") && nbt.getBoolean("ectolum.glowing");
-	}
-
-	@Override
-	public boolean ectolum$isGlowing() {
-		return ectolum$glowing;
-	}
-
-	@Override
-	public boolean ectolum$isBackgroundHidden() {
-		return ectolum$hideBackground;
-	}
-
-	@Override
-	public void ectolum$setGlowing(boolean glowing) {
-		ectolum$glowing = glowing;
-		markDirty();
-	}
-
-	@Override
-	public void ectolum$setHideBackground(boolean hideBackground) {
-		ectolum$hideBackground = hideBackground;
-		markDirty();
+	private void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup, CallbackInfo ci) {
+		ectolum$effects.setHideBackground(nbt.contains("ectolum.hide_background") && nbt.getBoolean("ectolum.hide_background"));
+		ectolum$effects.setGlowing(nbt.contains("ectolum.glowing") && nbt.getBoolean("ectolum.glowing"));
 	}
 }

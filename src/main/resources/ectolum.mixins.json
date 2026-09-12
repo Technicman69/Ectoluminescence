@@ -8,6 +8,7 @@
     "BannerItemMixin",
     "DecoratedPotBlockEntityMixin",
     "DecoratedPotBlockMixin",
+    "ItemStackMixin",
     "SheepEntityMixin",
     "SignBlockEntityMixin",
     "integration.GlowInkPlus"

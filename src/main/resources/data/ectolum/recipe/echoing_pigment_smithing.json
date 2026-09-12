@@ -1,5 +1,5 @@
 {
-  "type": "ectolum:smithing_echoing_material_recipe",
+  "type": "ectolum:smithing_echoing_pigment",
   "template": {
     "item": "minecraft:echo_shard"
   },

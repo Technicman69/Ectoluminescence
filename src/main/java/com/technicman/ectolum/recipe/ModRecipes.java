@@ -8,12 +8,13 @@ import net.minecraft.registry.Registry;
 import net.minecraft.util.Identifier;
 
 public class ModRecipes {
-    public static SmithingModifyNbtRecipe.Serializer SMITHING_MERGE_NBT_RECIPE = register("smithing_modify_nbt", new SmithingModifyNbtRecipe.Serializer());
-    public static SmithingEchoingMatterialRecipe.Serializer SMITHING_ECHOING_MATERIAL_RECIPE = register("smithing_echoing_material_recipe", new SmithingEchoingMatterialRecipe.Serializer());
-    public static SmithingToggleEchoingFlagRecipe.Serializer SMITHING_TOGGLE_ECHOING_FLAG_RECIPE = register("smithing_toggle_echoing_flag_recipe", new SmithingToggleEchoingFlagRecipe.Serializer());
+    public static SmithingEchoingFadeRecipe.Serializer SMITHING_ECHOING_FADE_RECIPE = register("smithing_echoing_fade", new SmithingEchoingFadeRecipe.Serializer());
+    public static SmithingEchoingPigmentRecipe.Serializer SMITHING_ECHOING_PIGMENT_RECIPE = register("smithing_echoing_pigment", new SmithingEchoingPigmentRecipe.Serializer());
+    public static SmithingEchoingTwinkleRecipe.Serializer SMITHING_ECHOING_TWINKLE_RECIPE = register("smithing_echoing_twinkle", new SmithingEchoingTwinkleRecipe.Serializer());
+    public static SmithingGlowingRecipe.Serializer SMITHING_GLOWING_RECIPE = register("smithing_glowing", new SmithingGlowingRecipe.Serializer());
 
     static <S extends RecipeSerializer<T>, T extends Recipe<?>> S register(String name, S serializer) {
-        Identifier id = new Identifier(Ectoluminescence.MOD_ID, name);
+        Identifier id = Ectoluminescence.identifier(name);
         return Registry.register(Registries.RECIPE_SERIALIZER, id, serializer);
     }
 

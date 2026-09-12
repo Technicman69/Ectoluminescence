@@ -1,6 +1,9 @@
 package com.technicman.ectolum.item;
 
 import com.technicman.ectolum.entity.ClearItemFrameEntity;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.NbtComponent;
+import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.AbstractDecorationEntity;
 import net.minecraft.entity.player.PlayerEntity;
@@ -32,9 +35,9 @@ public class ClearItemFrameItem extends ItemFrameItem {
             AbstractDecorationEntity abstractDecorationEntity = new ClearItemFrameEntity(world, blockPos2, direction);
 
 
-            NbtCompound nbtCompound = itemStack.getNbt();
-            if (nbtCompound != null) {
-                EntityType.loadFromEntityNbt(world, playerEntity, abstractDecorationEntity, nbtCompound);
+            NbtComponent nbtComponent = itemStack.getOrDefault(DataComponentTypes.ENTITY_DATA, NbtComponent.DEFAULT);
+            if (!nbtComponent.isEmpty()) {
+                EntityType.loadFromEntityNbt(world, playerEntity, abstractDecorationEntity, nbtComponent);
             }
 
             if (abstractDecorationEntity.canStayAttached()) {

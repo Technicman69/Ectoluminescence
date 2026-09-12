@@ -1,5 +1,5 @@
 {
-  "type": "ectolum:smithing_toggle_echoing_flag_recipe",
+  "type": "ectolum:smithing_echoing_twinkle",
   "template": {
     "item": "minecraft:echo_shard"
   },
@@ -8,6 +8,5 @@
   },
   "addition": {
     "item": "minecraft:glow_ink_sac"
-  },
-  "flag": "glowing"
+  }
 }

@@ -1,30 +1,48 @@
 package com.technicman.ectolum.mixin;
 
+import com.technicman.ectolum.Ectoluminescence;
 import com.technicman.ectolum.accessor.EctolumDecoratedPotInterface;
+import com.technicman.ectolum.component.ModComponents;
+import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.DecoratedPotBlockEntity;
-import net.minecraft.item.BlockItem;
-import net.minecraft.item.ItemStack;
+import net.minecraft.block.entity.Sherds;
+import net.minecraft.component.ComponentMap;
+import net.minecraft.component.DataComponentTypes;
+import net.minecraft.component.type.ContainerComponent;
 import net.minecraft.nbt.NbtCompound;
 import net.minecraft.registry.RegistryWrapper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
+import org.spongepowered.asm.mixin.gen.Accessor;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
+import java.util.List;
+import java.util.stream.Collectors;
+import java.util.stream.IntStream;
+import java.util.stream.Stream;
+
+import static java.util.Arrays.stream;
+
 @Mixin(DecoratedPotBlockEntity.class)
 public class DecoratedPotBlockEntityMixin implements EctolumDecoratedPotInterface {
     @Unique
-    private byte[] ectolum$sherdGlowOverrides = new byte[4];
+    private List<Boolean> ectolum$sherdGlowOverrides = ectolum$getEmptyGlowOverrides();
+
+    @Unique
+    private static List<Boolean> ectolum$getEmptyGlowOverrides() {
+        return Stream.of(false, false, false, false).collect(Collectors.toList());
+    }
 
     @Override
     public boolean ectolum$getSherdGlow(int index) {
-        return ectolum$sherdGlowOverrides[index] != (byte)0;
+        return ectolum$sherdGlowOverrides.get(index);
     }
 
     @Override
     public void ectolum$setSherdGlow(int index, boolean glowing) {
-        ectolum$sherdGlowOverrides[index] = glowing ? (byte)1 : (byte)0;
+        ectolum$sherdGlowOverrides.set(index, glowing);
     }
 
     @Inject(at = @At("HEAD"), method = "writeNbt")
@@ -35,21 +53,35 @@ public class DecoratedPotBlockEntityMixin implements EctolumDecoratedPotInterfac
                 ectolum$getSherdGlow(2) ||
                 ectolum$getSherdGlow(3)
         ) {
-            nbt.putByteArray(SHERD_GLOW_OVERRIDES_KEY, ectolum$sherdGlowOverrides);
+            nbt.putByteArray(SHERD_GLOW_OVERRIDES_KEY, ectolum$sherdGlowOverrides.stream().map(b -> b ? (byte) 1 : (byte) 0).collect(Collectors.toUnmodifiableList()));
         }
     }
 
     @Inject(at = @At("HEAD"), method = "readNbt")
     private void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup, CallbackInfo ci) {
-        ectolum$readSherdGlowOverrides(nbt);
+        if (nbt != null && nbt.contains(SHERD_GLOW_OVERRIDES_KEY, NbtCompound.BYTE_ARRAY_TYPE)) {
+            byte[] overrides = nbt.getByteArray(SHERD_GLOW_OVERRIDES_KEY);
+            ectolum$sherdGlowOverrides = IntStream.range(0, 4).mapToObj(i -> overrides[i] != 0).collect(Collectors.toList());
+        } else {
+            ectolum$sherdGlowOverrides = ectolum$getEmptyGlowOverrides();
+        }
     }
 
-    @Unique
-    private void ectolum$readSherdGlowOverrides(NbtCompound nbt) {
-        if (nbt != null && nbt.contains("ectolum.sherd_glow_overrides", NbtCompound.BYTE_ARRAY_TYPE)) {
-            ectolum$sherdGlowOverrides = nbt.getByteArray("ectolum.sherd_glow_overrides");
-        } else {
-            ectolum$sherdGlowOverrides = new byte[4];
+    @Inject(at = @At("TAIL"), method = "addComponents")
+    protected void addComponents(ComponentMap.Builder componentMapBuilder, CallbackInfo ci) {
+        componentMapBuilder.add(ModComponents.SHERD_GLOW_OVERRIDES, ectolum$sherdGlowOverrides);
+    }
+
+    @Inject(at = @At("TAIL"), method = "readComponents")
+    protected void readComponents(BlockEntity.ComponentsAccess components, CallbackInfo ci) {
+        this.ectolum$sherdGlowOverrides = components.get(ModComponents.SHERD_GLOW_OVERRIDES);
+        if (ectolum$sherdGlowOverrides == null) {
+            ectolum$sherdGlowOverrides = ectolum$getEmptyGlowOverrides();
         }
+    }
+
+    @Inject(at = @At("TAIL"), method = "removeFromCopiedStackNbt")
+    protected void removeFromCopiedStackNbt(NbtCompound nbt, CallbackInfo ci) {
+        nbt.remove(SHERD_GLOW_OVERRIDES_KEY);
     }
 }

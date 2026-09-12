@@ -11,13 +11,9 @@
     "ItemRendererMixin",
     "ModelLoaderMixin",
     "SheepWoolFeatureRendererMixin",
-    "SignBlockEntityRendererMixin",
-    "VertexConsumerMixin"
+    "SignBlockEntityRendererMixin"
   ],
   "injectors": {
     "defaultRequire": 1
-  },
-  "mixins": [
-    "ArmorTrimMixin"
-  ]
+  }
 }

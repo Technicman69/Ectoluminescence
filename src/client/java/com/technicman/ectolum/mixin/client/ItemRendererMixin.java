@@ -2,9 +2,7 @@ package com.technicman.ectolum.mixin.client;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.mojang.datafixers.util.Pair;
-import com.technicman.ectolum.accessor.EctolumArmorTrimInterface;
-import com.technicman.ectolum.util.GlobalVariables;
+import com.technicman.ectolum.util.EchoingKeyframe;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.item.ItemRenderer;
@@ -13,21 +11,30 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.client.world.ClientWorld;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.trim.ArmorTrim;
-import net.minecraft.registry.DynamicRegistryManager;
+import net.minecraft.util.Pair;
 import net.minecraft.util.math.MathHelper;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+
+import java.util.Objects;
+
+import static com.technicman.ectolum.component.ModComponents.ECHOING_LAYERS;
+import static net.minecraft.component.DataComponentTypes.TRIM;
 
 @Mixin(ItemRenderer.class)
 public class ItemRendererMixin {
 
     @Unique
-    public void ectolum$applyTrim(DynamicRegistryManager registryManager, ItemStack stack, ArmorTrim trim) {
-        if (!((EctolumArmorTrimInterface) trim).ectolum$hidden()) {
-            ArmorTrim.apply(registryManager, stack, trim);
+    private static float ectolum$nextAlpha = 1.0f;
+
+    @Unique
+    public void ectolum$applyEchoingKeyFrame(ItemStack stack, EchoingKeyframe keyframe) {
+        if (!keyframe.hidden()) {
+            stack.set(TRIM, keyframe.toTrim(Objects.requireNonNull(stack.get(TRIM))));
         } else {
-            stack.removeSubNbt("Trim");
+            stack.remove(TRIM);
         }
     }
     @WrapOperation(
@@ -43,41 +50,49 @@ public class ItemRendererMixin {
             original.call(instance, model, stack, light, overlay, matrices, vertices);
             return;
         }
-        DynamicRegistryManager manager = world.getRegistryManager();
-        ArmorTrim.getTrim(manager, stack).ifPresentOrElse((trim) -> {
-            EctolumArmorTrimInterface ectolumTrim = (EctolumArmorTrimInterface) trim;
-            if (ectolumTrim.ectolum$hasEchoingLayers()) {
-                long time = world.getTime();
-                float t = Math.floorMod(time, 10L) * 0.1f;
-                float w = -(MathHelper.cos(MathHelper.PI * t) + 1) * 0.5f;
-                Pair<ArmorTrim, ArmorTrim> pair = ectolumTrim.ectolum$calculateTrimsAtInterval(Math.floorDiv(time, 10L));
+        if (stack.contains(TRIM) && stack.contains(ECHOING_LAYERS)) {
+            ArmorTrim savedTrim = stack.get(TRIM);
 
+            long worldTime = world.getTime();
+            float t = Math.floorMod(worldTime, 10L) * 0.1f;
+            long time = Math.floorDiv(worldTime, 10L);
+            Pair<EchoingKeyframe, EchoingKeyframe> pair = EchoingKeyframe.buildKeyFrames(stack, time);
 
-                //var l = ectolumTrim.ectolum$getEchoingLayers().length;
-                //System.out.println("Frame " + Math.floorDiv(time, 10L) % l + "/" + ectolumTrim.ectolum$getEchoingLayers().length + " : " + w);
-                boolean firstHidden = ((EctolumArmorTrimInterface) pair.getFirst()).ectolum$hidden();
-                boolean secondHidden = ((EctolumArmorTrimInterface) pair.getSecond()).ectolum$hidden();
-                boolean isConstant = (pair.getFirst().equals(pair.getSecond()) || firstHidden && secondHidden) && !(
-                        (!firstHidden && secondHidden) || (firstHidden && !secondHidden)
-                        );
+            boolean leftHidden = pair.getLeft().hidden();
+            boolean rightHidden = pair.getRight().hidden();
+            boolean isConstant = (pair.getLeft().equals(pair.getRight()) || leftHidden && rightHidden) && !(
+                    (!leftHidden && rightHidden) || (leftHidden && !rightHidden)
+                    );
 
-                ectolum$applyTrim(manager, stack, pair.getFirst());
-                BakedModel model1 = instance.getModel(stack, world, null, 0);
-                original.call(instance, model1, stack, light, overlay, matrices, vertices);
-                if (!isConstant) {
-                    GlobalVariables.nextAlpha = w;
+            ectolum$applyEchoingKeyFrame(stack, pair.getLeft());
+            BakedModel model1 = instance.getModel(stack, world, null, 0);
+            original.call(instance, model1, stack, light, overlay, matrices, vertices);
+            if (!isConstant) {
+                ectolum$nextAlpha = -(MathHelper.cos(MathHelper.PI * t) + 1) * 0.5f;
 
-                    ectolum$applyTrim(manager, stack, pair.getSecond());
-                    BakedModel model2 = instance.getModel(stack, world, null, 0);
-                    original.call(instance, model2, stack, light, overlay, matrices, vertices);
+                ectolum$applyEchoingKeyFrame(stack, pair.getRight());
+                BakedModel model2 = instance.getModel(stack, world, null, 0);
+                original.call(instance, model2, stack, light, overlay, matrices, vertices);
 
-                    GlobalVariables.nextAlpha = 1f;
-                }
-
-                ArmorTrim.apply(manager, stack, trim);
-            } else {
-                original.call(instance, model, stack, light, overlay, matrices, vertices);
+                ectolum$nextAlpha = 1f;
             }
-        }, () -> original.call(instance, model, stack, light, overlay, matrices, vertices));
+
+            stack.set(TRIM, savedTrim);
+        } else {
+            original.call(instance, model, stack, light, overlay, matrices, vertices);
+        }
+    }
+
+    @ModifyArg(
+            method = "renderBakedItemQuads",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/render/VertexConsumer;quad(Lnet/minecraft/client/util/math/MatrixStack$Entry;Lnet/minecraft/client/render/model/BakedQuad;FFFFII)V"
+            ),
+            index = 5
+    )
+    private float applyAlpha(float alpha) {
+
+        return alpha * ectolum$nextAlpha;
     }
 }

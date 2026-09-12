@@ -1,5 +1,5 @@
 {
-  "type": "ectolum:smithing_toggle_echoing_flag_recipe",
+  "type": "ectolum:smithing_echoing_fade",
   "template": {
     "item": "minecraft:echo_shard"
   },
@@ -8,6 +8,5 @@
   },
   "addition": {
     "item": "minecraft:phantom_membrane"
-  },
-  "flag": "hidden"
+  }
 }
