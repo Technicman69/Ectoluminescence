@@ -63,7 +63,8 @@ public class BannerEffects implements TooltipAppender {
     }
 
     public byte getFlags() {
-        return flags.toByteArray()[0];
+        byte[] bytes = flags.toByteArray();
+        return bytes.length > 0 ? bytes[0] : (byte)0;
     }
 
     @Override

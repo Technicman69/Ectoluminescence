@@ -15,7 +15,7 @@
     },
     "has_the_recipe": {
       "conditions": {
-        "recipe": "ectolum:echoing_material_smithing"
+        "recipe": "ectolum:echoing_pigment_smithing"
       },
       "trigger": "minecraft:recipe_unlocked"
     }
@@ -28,7 +28,7 @@
   ],
   "rewards": {
     "recipes": [
-      "ectolum:echoing_material_smithing"
+      "ectolum:echoing_pigment_smithing"
     ]
   },
   "sends_telemetry_event": false

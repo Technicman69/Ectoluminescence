@@ -92,9 +92,11 @@ public class Ectoluminescence implements ModInitializer {
 				if (hasPhantomMembrane && !effects.isBackgroundHidden()) {
 					world.playSound(null, pos, ModSounds.PHANTOM_MEMBRANE_USE, SoundCategory.BLOCKS, 1.0F, 1.0F);
 					effects.setHideBackground(true);
+					blockEntity.markDirty();
 				} else if (hasGlowInkSac && !effects.isGlowing()) {
 					world.playSound(null, pos, SoundEvents.ITEM_GLOW_INK_SAC_USE, SoundCategory.BLOCKS, 1.0F, 1.0F);
 					effects.setGlowing(true);
+					blockEntity.markDirty();
 				} else {
 					return ActionResult.PASS;
 				}
@@ -108,6 +110,7 @@ public class Ectoluminescence implements ModInitializer {
 				if (face != -1 && !ectolumPot.ectolum$getSherdGlow(face)) {
 					world.playSound(null, pos, SoundEvents.ITEM_GLOW_INK_SAC_USE, SoundCategory.BLOCKS, 1.0F, 1.0F);
 					ectolumPot.ectolum$setSherdGlow(face, true);
+					blockEntity.markDirty();
 				} else {
 					return ActionResult.PASS;
 				}

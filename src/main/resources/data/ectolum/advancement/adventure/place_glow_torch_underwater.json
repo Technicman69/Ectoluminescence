@@ -24,7 +24,7 @@
     "frame": "task",
     "hidden": false,
     "icon": {
-      "item": "ectolum:glow_ink_torch"
+      "id": "ectolum:glow_ink_torch"
     },
     "show_toast": true,
     "title": {

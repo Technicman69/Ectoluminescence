@@ -20,7 +20,7 @@ public class SmithingEchoingTwinkleRecipe extends SmithingToggleEchoingFlagRecip
     @Override
     public EchoingLayer computeEchoingLayer(EchoingKeyframe keyFrame) {
         return new EchoingLayer(
-                Optional.of(keyFrame.glowing()),
+                Optional.of(!keyFrame.glowing()),
                 Optional.empty(),
                 Optional.empty()
         );

@@ -75,7 +75,12 @@ public record EchoingKeyframe(
     public static EchoingKeyframe buildLast(ItemStack item) {
         if (item.contains(ModComponents.ECHOING_LAYERS)) {
             List<EchoingLayer> echoingLayers = item.get(ModComponents.ECHOING_LAYERS);
-            return build(echoingLayers, echoingLayers.size()-1);
+            EchoingKeyframe keyframe =  build(echoingLayers, echoingLayers.size()-1);
+            if (keyframe.material == null) {
+                ArmorTrim trim = item.get(DataComponentTypes.TRIM);
+                return new EchoingKeyframe(keyframe.glowing, keyframe.hidden, trim.getMaterial());
+            }
+            return keyframe;
         }
         ArmorTrim trim = item.get(DataComponentTypes.TRIM);
         return new EchoingKeyframe(DEFAULT_GLOWING, DEFAULT_HIDDEN, trim.getMaterial());

@@ -58,10 +58,15 @@ public class GlowingDecoratedPotPatterns {
     }
 
     private static RegistryKey<DecoratedPotPattern> registerFromBaseKey(RegistryKey<DecoratedPotPattern> basePatternKey) {
+        Identifier glowingPatternID = getIdentifier(basePatternKey);
         RegistryKey<DecoratedPotPattern> glowingPatternKey = getKey(basePatternKey);
-        DecoratedPotPattern pattern = new DecoratedPotPattern(glowingPatternKey.getValue());
+        DecoratedPotPattern pattern = new DecoratedPotPattern(glowingPatternID);
         Registry.register(Registries.DECORATED_POT_PATTERN, glowingPatternKey, pattern);
         return glowingPatternKey;
+    }
+
+    public static Identifier getIdentifier(RegistryKey<DecoratedPotPattern> basePatternKey) {
+        return basePatternKey.getValue().withSuffixedPath("_pottery_pattern_glowing");
     }
 
     public static RegistryKey<DecoratedPotPattern> getKey(RegistryKey<DecoratedPotPattern> basePatternKey) {

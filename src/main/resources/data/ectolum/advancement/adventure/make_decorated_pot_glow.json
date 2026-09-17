@@ -12,7 +12,7 @@
                 "blocks": [
                   "minecraft:decorated_pot"
                 ],
-                "nbt": "{ectolum.sherd_glow_overrides:[B;1B,1B,1B,1B]}"
+                "components": {"ectolum:sherd_glow_overrides": [1,1,1,1]}
               }
             }
           },
@@ -36,8 +36,16 @@
     "frame": "task",
     "hidden": false,
     "icon": {
-      "item": "minecraft:decorated_pot",
-      "nbt": "{BlockEntityTag:{id:\"minecraft:decorated_pot\",sherds:[\"minecraft:brick\",\"minecraft:burn_pottery_sherd\",\"minecraft:brick\",\"minecraft:burn_pottery_sherd\"],ectolum.sherd_glow_overrides:[B;1B,1B,1B,1B]}}"
+      "id": "minecraft:decorated_pot",
+      "components": {
+        "minecraft:pot_decorations": [
+          "minecraft:brick",
+          "minecraft:heart_pottery_sherd",
+          "minecraft:brick",
+          "minecraft:explorer_pottery_sherd"
+        ]
+      },
+      "ectolum:sherd_glow_overrides": [1,1,1,1]
     },
     "show_toast": true,
     "title": {

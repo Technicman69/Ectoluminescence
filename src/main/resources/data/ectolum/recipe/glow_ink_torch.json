@@ -3,10 +3,10 @@
   "category": "misc",
   "key": {
     "#": {
-      "item": "minecraft:stick"
+      "item": "stick"
     },
     "X": {
-      "item": "minecraft:glow_ink_sac"
+      "item": "glow_ink_sac"
     }
   },
   "pattern": [
@@ -15,6 +15,6 @@
   ],
   "result": {
     "count": 4,
-    "item": "ectolum:glow_ink_torch"
+    "id": "ectolum:glow_ink_torch"
   }
 }

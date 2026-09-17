@@ -9,7 +9,7 @@
             "condition": "minecraft:location_check",
             "predicate": {
               "block": {
-                "tag": "minecraft:banners"
+                "blocks": "#banners"
               }
             }
           },
@@ -25,6 +25,7 @@
             "condition": "minecraft:inverted",
             "term": {
               "condition": "minecraft:time_check",
+              "clock": "overworld",
               "value": {
                 "min": 12040,
                 "max": 23961
@@ -44,7 +45,7 @@
     "frame": "task",
     "hidden": false,
     "icon": {
-      "item": "minecraft:light_gray_banner"
+      "id": "light_gray_banner"
     },
     "show_toast": true,
     "title": {

@@ -30,11 +30,11 @@ public class ItemRendererMixin {
     private static float ectolum$nextAlpha = 1.0f;
 
     @Unique
-    public void ectolum$applyEchoingKeyFrame(ItemStack stack, EchoingKeyframe keyframe) {
-        if (!keyframe.hidden()) {
-            stack.set(TRIM, keyframe.toTrim(Objects.requireNonNull(stack.get(TRIM))));
-        } else {
+    public void ectolum$applyEchoingKeyFrame(ItemStack stack, EchoingKeyframe keyframe, ArmorTrim original) {
+        if (keyframe.hidden()) {
             stack.remove(TRIM);
+        } else {
+            stack.set(TRIM, keyframe.toTrim(original));
         }
     }
     @WrapOperation(
@@ -45,7 +45,8 @@ public class ItemRendererMixin {
             )
     )
     private void renderEchoingLayers(ItemRenderer instance, BakedModel model, ItemStack stack, int light, int overlay, MatrixStack matrices, VertexConsumer vertices, Operation<Void> original) {
-        ClientWorld world = MinecraftClient.getInstance().world;
+        assert MinecraftClient.getInstance().player != null;
+        ClientWorld world = MinecraftClient.getInstance().player.clientWorld;
         if (world == null) {
             original.call(instance, model, stack, light, overlay, matrices, vertices);
             return;
@@ -58,19 +59,16 @@ public class ItemRendererMixin {
             long time = Math.floorDiv(worldTime, 10L);
             Pair<EchoingKeyframe, EchoingKeyframe> pair = EchoingKeyframe.buildKeyFrames(stack, time);
 
-            boolean leftHidden = pair.getLeft().hidden();
-            boolean rightHidden = pair.getRight().hidden();
-            boolean isConstant = (pair.getLeft().equals(pair.getRight()) || leftHidden && rightHidden) && !(
-                    (!leftHidden && rightHidden) || (leftHidden && !rightHidden)
-                    );
-
-            ectolum$applyEchoingKeyFrame(stack, pair.getLeft());
+            ectolum$applyEchoingKeyFrame(stack, pair.getLeft(), savedTrim);
             BakedModel model1 = instance.getModel(stack, world, null, 0);
             original.call(instance, model1, stack, light, overlay, matrices, vertices);
-            if (!isConstant) {
+            if (
+                    pair.getLeft().hidden() != pair.getRight().hidden() ||
+                            !pair.getLeft().material().equals(pair.getRight().material())
+            ) {
                 ectolum$nextAlpha = -(MathHelper.cos(MathHelper.PI * t) + 1) * 0.5f;
 
-                ectolum$applyEchoingKeyFrame(stack, pair.getRight());
+                ectolum$applyEchoingKeyFrame(stack, pair.getRight(), savedTrim);
                 BakedModel model2 = instance.getModel(stack, world, null, 0);
                 original.call(instance, model2, stack, light, overlay, matrices, vertices);
 
@@ -92,7 +90,6 @@ public class ItemRendererMixin {
             index = 5
     )
     private float applyAlpha(float alpha) {
-
         return alpha * ectolum$nextAlpha;
     }
 }

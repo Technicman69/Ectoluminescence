@@ -16,12 +16,6 @@ public class ModComponents {
     public static void onInitialize() {
     }
 
-    public static final ComponentType<Boolean> SIGN_HIDE_BACKGROUND = registerComponent(
-            "sign_hide_background", builder -> builder
-                    .codec(Codec.BOOL)
-                    .packetCodec(PacketCodecs.BOOL)
-                    .cache());
-
     public static final ComponentType<List<Boolean>> SHERD_GLOW_OVERRIDES = registerComponent(
             "sherd_glow_overrides", builder -> builder
                     .codec(Codec.list(Codec.BOOL))
@@ -39,7 +33,7 @@ public class ModComponents {
 
     public static final ComponentType<List<EchoingLayer>> ECHOING_LAYERS = registerComponent(
             "echoing_layers", builder -> builder
-                    .codec(EchoingLayer.CODEC.sizeLimitedListOf(Ectoluminescence.ECHOING_LAYER_LIMIT))
+                    .codec(EchoingLayer.CODEC.listOf(1, Ectoluminescence.ECHOING_LAYER_LIMIT))
                     .packetCodec(EchoingLayer.PACKET_CODEC.collect(PacketCodecs.toList()))
                     .cache());
 

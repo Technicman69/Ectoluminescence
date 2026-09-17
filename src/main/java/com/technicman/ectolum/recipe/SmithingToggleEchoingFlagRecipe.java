@@ -24,6 +24,10 @@ public abstract class SmithingToggleEchoingFlagRecipe extends SmithingEchoingRec
             EchoingKeyframe last = EchoingKeyframe.buildLast(itemStack);
 
             List<EchoingLayer> echoingLayers = copyEchoingLayers(itemStack);
+            if (echoingLayers == null) {
+                // Echoing layer limit reached
+                return null;
+            }
 
             echoingLayers.add(computeEchoingLayer(last));
 

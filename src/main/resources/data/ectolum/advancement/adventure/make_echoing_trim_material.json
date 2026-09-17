@@ -3,7 +3,7 @@
   "criteria": {
     "make_echoing_trim_material": {
       "conditions": {
-        "recipe_id": "ectolum:echoing_material_smithing"
+        "recipe_id": "ectolum:echoing_pigment_smithing"
       },
       "trigger": "minecraft:recipe_crafted"
     }
@@ -16,8 +16,8 @@
     "frame": "task",
     "hidden": false,
     "icon": {
-      "item": "minecraft:netherite_chestplate",
-      "nbt": "{Trim:{material:\"diamond\",pattern:\"dune\",ectolum.echoing_layers:[{material:\"amethyst\"}]}}"
+      "id": "minecraft:netherite_chestplate",
+      "components": {"trim": {"material": "diamond", "pattern": "dune"}, "ectolum:echoing_layers": [{}, {"material": "amethyst"}]}
     },
     "show_toast": true,
     "title": {

@@ -16,8 +16,8 @@
     "frame": "task",
     "hidden": false,
     "icon": {
-      "item": "minecraft:netherite_chestplate",
-      "nbt": "{Trim:{material:\"iron\",pattern:\"dune\",ectolum.glowing:true}}"
+      "id": "minecraft:netherite_chestplate",
+      "components": {"trim": {"material": "diamond", "pattern": "dune"}, "ectolum:echoing_layers": [{"glowing": true}]}
     },
     "show_toast": true,
     "title": {

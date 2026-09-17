@@ -45,7 +45,7 @@ public class DecoratedPotBlockEntityMixin implements EctolumDecoratedPotInterfac
         ectolum$sherdGlowOverrides.set(index, glowing);
     }
 
-    @Inject(at = @At("HEAD"), method = "writeNbt")
+    @Inject(at = @At("TAIL"), method = "writeNbt")
     private void writeNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup, CallbackInfo ci) {
         if (
                 ectolum$getSherdGlow(0) ||
@@ -57,7 +57,7 @@ public class DecoratedPotBlockEntityMixin implements EctolumDecoratedPotInterfac
         }
     }
 
-    @Inject(at = @At("HEAD"), method = "readNbt")
+    @Inject(at = @At("TAIL"), method = "readNbt")
     private void readNbt(NbtCompound nbt, RegistryWrapper.WrapperLookup registryLookup, CallbackInfo ci) {
         if (nbt != null && nbt.contains(SHERD_GLOW_OVERRIDES_KEY, NbtCompound.BYTE_ARRAY_TYPE)) {
             byte[] overrides = nbt.getByteArray(SHERD_GLOW_OVERRIDES_KEY);

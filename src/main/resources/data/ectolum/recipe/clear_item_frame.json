@@ -3,13 +3,13 @@
   "category": "misc",
   "ingredients": [
     {
-      "item": "minecraft:item_frame"
+      "item": "item_frame"
     },
     {
-      "item": "minecraft:phantom_membrane"
+      "item": "phantom_membrane"
     }
   ],
   "result": {
-    "item": "ectolum:clear_item_frame"
+    "id": "ectolum:clear_item_frame"
   }
 }

@@ -12,6 +12,7 @@
         "entity": [
           {
             "condition": "minecraft:time_check",
+            "clock": "overworld",
             "period": 24000,
             "value": {
               "min": 13670,
@@ -22,7 +23,7 @@
             "condition": "minecraft:entity_properties",
             "entity": "this",
             "predicate": {
-              "type": "minecraft:sheep"
+              "entity_type": "minecraft:sheep"
             }
           }
         ]
@@ -37,7 +38,7 @@
     "frame": "task",
     "hidden": false,
     "icon": {
-      "item": "minecraft:white_wool"
+      "id": "white_wool"
     },
     "show_toast": true,
     "title": {

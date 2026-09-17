@@ -37,8 +37,8 @@ public class SmithingEchoingExtension<R extends SmithingEchoingRecipe> implement
     }
 
     private ArmorTrim getRandomTrim() {
-        RegistryEntry<ArmorTrimMaterial> material = MATERIALS.get(RANDOM.nextInt() % MATERIALS.size());
-        RegistryEntry<ArmorTrimPattern> pattern = PATTERNS.get(RANDOM.nextInt() % PATTERNS.size());
+        RegistryEntry<ArmorTrimMaterial> material = MATERIALS.get(RANDOM.nextInt(MATERIALS.size()));
+        RegistryEntry<ArmorTrimPattern> pattern = PATTERNS.get(RANDOM.nextInt(MATERIALS.size()));
         return new ArmorTrim(material, pattern);
     }
 

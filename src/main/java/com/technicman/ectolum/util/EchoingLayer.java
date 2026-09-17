@@ -3,7 +3,6 @@ package com.technicman.ectolum.util;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.technicman.ectolum.Ectoluminescence;
-import com.technicman.ectolum.accessor.EctolumArmorTrimInterface;
 import com.technicman.ectolum.component.ModComponents;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;

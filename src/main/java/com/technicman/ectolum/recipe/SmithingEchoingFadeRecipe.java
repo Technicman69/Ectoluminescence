@@ -21,7 +21,7 @@ public class SmithingEchoingFadeRecipe extends SmithingToggleEchoingFlagRecipe {
     public EchoingLayer computeEchoingLayer(EchoingKeyframe keyFrame) {
         return new EchoingLayer(
                 Optional.empty(),
-                Optional.of(keyFrame.hidden()),
+                Optional.of(!keyFrame.hidden()),
                 Optional.empty()
         );
     }
