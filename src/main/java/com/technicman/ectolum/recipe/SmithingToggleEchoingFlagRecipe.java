@@ -26,7 +26,7 @@ public abstract class SmithingToggleEchoingFlagRecipe extends SmithingEchoingRec
             List<EchoingLayer> echoingLayers = copyEchoingLayers(itemStack);
             if (echoingLayers == null) {
                 // Echoing layer limit reached
-                return null;
+                return ItemStack.EMPTY;
             }
 
             echoingLayers.add(computeEchoingLayer(last));

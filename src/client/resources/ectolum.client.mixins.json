@@ -9,7 +9,7 @@
     "DecoratedPotBlockEntityRendererMixin",
     "ItemFrameEntityRendererMixin",
     "ItemRendererMixin",
-    "ModelLoaderMixin",
+    "BlockStatesLoaderMixin",
     "SheepWoolFeatureRendererMixin",
     "SignBlockEntityRendererMixin"
   ],

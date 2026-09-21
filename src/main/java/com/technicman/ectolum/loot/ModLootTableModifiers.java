@@ -63,7 +63,7 @@ public class ModLootTableModifiers  {
                     tableBuilder.apply(function);
                 }
                 else if (BANNERS_LOOT_TABLE_IDS.contains(registryKey)) {
-                    System.out.println("Changed loot table: " + registryKey.getValue());
+                    //System.out.println("Changed loot table: " + registryKey.getValue());
                     LootFunction function = CopyComponentsLootFunction.builder(CopyComponentsLootFunction.Source.BLOCK_ENTITY)
                             .include(ModComponents.BANNER_EFFECTS)
 //                            .withOperation("\"ectolum.glowing\"", "BlockEntityTag.\"ectolum.glowing\"")
