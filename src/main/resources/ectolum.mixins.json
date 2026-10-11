@@ -3,7 +3,6 @@
   "package": "com.technicman.ectolum.mixin",
   "compatibilityLevel": "JAVA_17",
   "mixins": [
-    "AbstractSignBlockMixin",
     "BannerBlockEntityMixin",
     "DecoratedPotBlockEntityMixin",
     "DecoratedPotPatternsMixin",

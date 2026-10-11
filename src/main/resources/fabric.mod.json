@@ -8,7 +8,8 @@
 		"Technicman"
 	],
 	"contact": {
-		"sources": "https://github.com/Technicman69/Ectoluminescence"
+		"sources": "https://github.com/Technicman69/Ectoluminescence",
+		"discord": "discord.gg/7pGAsJjKPz"
 	},
 	"license": "CC0-1.0",
 	"icon": "icon.png",
@@ -42,7 +43,6 @@
 		"fabric-api": "*"
 	},
 	"suggests": {
-		"glow_ink_plus": "*",
 		"jei": "*"
 	}
 }
