@@ -1,15 +1,14 @@
-package com.technicman.ectolum.util;
+package com.technicman.ectolum.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.technicman.ectolum.Ectoluminescence;
-import com.technicman.ectolum.component.ModComponents;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemStack;
+import net.minecraft.item.equipment.trim.ArmorTrim;
+import net.minecraft.item.equipment.trim.ArmorTrimMaterial;
 import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.item.trim.ArmorTrim;
-import net.minecraft.item.trim.ArmorTrimMaterial;
 import net.minecraft.network.RegistryByteBuf;
 import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.network.codec.PacketCodecs;
@@ -26,7 +25,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
 import java.util.Optional;
-import java.util.function.Consumer;
 
 public record EchoingLayer(
         Optional<Boolean> glowing,
@@ -46,8 +44,8 @@ public record EchoingLayer(
     ).apply(builder, EchoingLayer::new));
 
     public static final PacketCodec<RegistryByteBuf, EchoingLayer> PACKET_CODEC = PacketCodec.tuple(
-            PacketCodecs.optional(PacketCodecs.BOOL), EchoingLayer::glowing,
-            PacketCodecs.optional(PacketCodecs.BOOL), EchoingLayer::hidden,
+            PacketCodecs.optional(PacketCodecs.BOOLEAN), EchoingLayer::glowing,
+            PacketCodecs.optional(PacketCodecs.BOOLEAN), EchoingLayer::hidden,
             PacketCodecs.optional(ArmorTrimMaterial.ENTRY_PACKET_CODEC), EchoingLayer::material,
             EchoingLayer::new
     );
@@ -59,7 +57,7 @@ public record EchoingLayer(
     }
 
     public static Identifier id(String name) {
-        return Ectoluminescence.identifier(name);
+        return Ectoluminescence.id(name);
     }
 
     public static MutableText addition() {
@@ -113,32 +111,32 @@ public record EchoingLayer(
         return description;
     }
 
-    public static void appendTooltip(ItemStack stack, Item.TooltipContext context, Consumer<Text> tooltip, TooltipType type) {
+    public static void appendTooltip(ItemStack stack, Item.TooltipContext context, TooltipType type, List<Text> tooltip) {
         ArmorTrim armorTrim = stack.get(DataComponentTypes.TRIM);
         List<EchoingLayer> echoingLayers = stack.get(ModComponents.ECHOING_LAYERS);
         if (armorTrim != null && echoingLayers != null && !echoingLayers.isEmpty()) {
-            Style color = armorTrim.getMaterial().value().description().getStyle();
-            EchoingLayer echoingLayer = echoingLayers.get(0);
+            Style color = armorTrim.material().value().description().getStyle();
+            EchoingLayer echoingLayer = echoingLayers.getFirst();
             if (echoingLayer.glowing.isPresent() && echoingLayer.glowing.get()) {
-                tooltip.accept(ScreenTexts.space().append(SMITHING_TEXT_GLOWING).fillStyle(color));
+                tooltip.add(ScreenTexts.space().append(SMITHING_TEXT_GLOWING).fillStyle(color));
             }
             if (echoingLayer.hidden.isPresent() && echoingLayer.hidden.get()) {
-                tooltip.accept(ScreenTexts.space().append(SMITHING_TEXT_HIDDEN).fillStyle(color));
+                tooltip.add(ScreenTexts.space().append(SMITHING_TEXT_HIDDEN).fillStyle(color));
             }
 
             if (echoingLayers.size() == 2) {
-                tooltip.accept(ScreenTexts.space().append(ECHOING_EFFECT_TEXT).setStyle(color));
+                tooltip.add(ScreenTexts.space().append(ECHOING_EFFECT_TEXT).setStyle(color));
                 MutableText description = (MutableText) echoingLayers.get(1).getDescription();
                 if (echoingLayers.get(1).material().isEmpty()) {
                     description.setStyle(color);
                 }
-                tooltip.accept(ScreenTexts.space().append(ScreenTexts.space()).append(description));
+                tooltip.add(ScreenTexts.space().append(ScreenTexts.space()).append(description));
 
             } else if (echoingLayers.size() > 2) {
-                tooltip.accept(ScreenTexts.space().append(ECHOING_EFFECT_TEXT).formatted(Formatting.GRAY));
+                tooltip.add(ScreenTexts.space().append(ECHOING_EFFECT_TEXT).formatted(Formatting.GRAY));
                 for (ListIterator<EchoingLayer> it = echoingLayers.listIterator(1); it.hasNext(); ) {
                     EchoingLayer layer = it.next();
-                    tooltip.accept(ScreenTexts.space().append(ScreenTexts.space()).append(layer.getDescription()));
+                    tooltip.add(ScreenTexts.space().append(ScreenTexts.space()).append(layer.getDescription()));
                 }
             }
         }

@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shaped",
   "category": "misc",
   "key": {
-    "#": {
-      "item": "stick"
-    },
-    "X": {
-      "item": "glow_ink_sac"
-    }
+    "#": "stick",
+    "X": "glow_ink_sac"
   },
   "pattern": [
     "X",

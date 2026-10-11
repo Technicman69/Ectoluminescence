@@ -2,12 +2,8 @@
   "type": "minecraft:crafting_shapeless",
   "category": "misc",
   "ingredients": [
-    {
-      "item": "item_frame"
-    },
-    {
-      "item": "phantom_membrane"
-    }
+    "item_frame",
+    "phantom_membrane"
   ],
   "result": {
     "id": "ectolum:clear_item_frame"

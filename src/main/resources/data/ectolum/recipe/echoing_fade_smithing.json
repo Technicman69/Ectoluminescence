@@ -1,12 +1,6 @@
 {
   "type": "ectolum:smithing_echoing_fade",
-  "template": {
-    "item": "minecraft:echo_shard"
-  },
-  "base": {
-    "tag": "minecraft:trimmable_armor"
-  },
-  "addition": {
-    "item": "minecraft:phantom_membrane"
-  }
+  "template": "minecraft:echo_shard",
+  "base": "#minecraft:trimmable_armor",
+  "addition": "minecraft:phantom_membrane"
 }

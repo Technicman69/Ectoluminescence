@@ -1,22 +1,23 @@
 package com.technicman.ectolum;
 
-import com.technicman.ectolum.accessor.EctolumBannerInterface;
-import com.technicman.ectolum.accessor.EctolumDecoratedPotInterface;
 import com.technicman.ectolum.block.ModBlocks;
+import com.technicman.ectolum.component.BannerEffects;
 import com.technicman.ectolum.component.ModComponents;
 import com.technicman.ectolum.entity.ModEntities;
 import com.technicman.ectolum.item.ModItems;
 import com.technicman.ectolum.loot.ModLootTableModifiers;
 import com.technicman.ectolum.recipe.ModRecipes;
 import com.technicman.ectolum.sound.ModSounds;
-import com.technicman.ectolum.util.BannerEffects;
-import com.technicman.ectolum.util.GlowingDecoratedPotPatterns;
+import com.technicman.ectolum.target_access.BannerAccess;
+import com.technicman.ectolum.target_access.DecoratedPotAccess;
+import com.technicman.ectolum.target_access.SignAccess;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.event.player.UseBlockCallback;
 import net.minecraft.advancement.criterion.Criteria;
 import net.minecraft.block.entity.BannerBlockEntity;
 import net.minecraft.block.entity.BlockEntity;
 import net.minecraft.block.entity.DecoratedPotBlockEntity;
+import net.minecraft.block.entity.SignBlockEntity;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.Items;
 import net.minecraft.server.network.ServerPlayerEntity;
@@ -53,12 +54,11 @@ public class Ectoluminescence implements ModInitializer {
 		ModRecipes.onInitialize();
 		ModLootTableModifiers.onInitialize();
 		ModComponents.onInitialize();
-		GlowingDecoratedPotPatterns.onInitialize();
 
 		LOGGER.info("Hello Fabric world!");
 	}
 
-	public static Identifier identifier(String name) {
+	public static Identifier id(String name) {
 		return Identifier.of(MOD_ID, name);
 	}
 
@@ -66,13 +66,13 @@ public class Ectoluminescence implements ModInitializer {
 		if (hitDirection.getAxis().equals(Direction.Axis.Y)) {
 			return -1;
 		} else if (hitDirection.equals(sideFacing)) {
-			return EctolumDecoratedPotInterface.BACK;
+			return DecoratedPotAccess.BACK;
 		} else if (hitDirection.rotateYClockwise().equals(sideFacing)) {
-			return EctolumDecoratedPotInterface.LEFT;
+			return DecoratedPotAccess.LEFT;
 		} else if (hitDirection.rotateYCounterclockwise().equals(sideFacing)) {
-			return EctolumDecoratedPotInterface.RIGHT;
+			return DecoratedPotAccess.RIGHT;
 		} else {
-			return EctolumDecoratedPotInterface.FRONT;
+			return DecoratedPotAccess.FRONT;
 		}
 	}
 
@@ -83,41 +83,63 @@ public class Ectoluminescence implements ModInitializer {
 			boolean hasPhantomMembrane = heldStack.isOf(Items.PHANTOM_MEMBRANE) && player.canModifyBlocks();
 			BlockPos pos = hit.getBlockPos();
 			BlockEntity blockEntity = world.getBlockEntity(pos);
-			// Process Banner use
-			if (blockEntity instanceof BannerBlockEntity bannerBlockEntity) {
-				if (world.isClient) {
-					return !(hasGlowInkSac || hasPhantomMembrane) ? ActionResult.CONSUME : ActionResult.SUCCESS;
-				}
-				BannerEffects effects = ((EctolumBannerInterface) bannerBlockEntity).ectolum$getBannerEffects();
-				if (hasPhantomMembrane && !effects.isBackgroundHidden()) {
-					world.playSound(null, pos, ModSounds.PHANTOM_MEMBRANE_USE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-					effects.setHideBackground(true);
-					blockEntity.markDirty();
-				} else if (hasGlowInkSac && !effects.isGlowing()) {
-					world.playSound(null, pos, SoundEvents.ITEM_GLOW_INK_SAC_USE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-					effects.setGlowing(true);
-					blockEntity.markDirty();
-				} else {
-					return ActionResult.PASS;
-				}
-				// Process Decorated Pot use
-			} else if (blockEntity instanceof DecoratedPotBlockEntity decoratedPotBlockEntity) {
-				if (world.isClient) {
-					return !hasGlowInkSac ? ActionResult.CONSUME : ActionResult.SUCCESS;
-				}
-				EctolumDecoratedPotInterface ectolumPot = (EctolumDecoratedPotInterface) decoratedPotBlockEntity;
-				int face = getDecoratedPotFaceIndex(hit.getSide(), decoratedPotBlockEntity.getHorizontalFacing());
-				if (face != -1 && !ectolumPot.ectolum$getSherdGlow(face)) {
-					world.playSound(null, pos, SoundEvents.ITEM_GLOW_INK_SAC_USE, SoundCategory.BLOCKS, 1.0F, 1.0F);
-					ectolumPot.ectolum$setSherdGlow(face, true);
-					blockEntity.markDirty();
-				} else {
-					return ActionResult.PASS;
-				}
-				// If no blocks were procesed, return default ActionResult.PASS
-			} else {
-				return ActionResult.PASS;
-			}
+            switch (blockEntity) {
+                case BannerBlockEntity bannerBlockEntity -> {
+                    // Process Banner use
+
+                    if (world.isClient()) {
+                        return hasGlowInkSac || hasPhantomMembrane ? ActionResult.SUCCESS : ActionResult.CONSUME;
+                    }
+					BannerAccess banner = ((BannerAccess) bannerBlockEntity);
+                    BannerEffects effects = banner.ectolum$getBannerEffects();
+                    if (hasPhantomMembrane && !effects.isBackgroundHidden()) {
+                        world.playSound(null, pos, ModSounds.PHANTOM_MEMBRANE_USE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                        banner.ectolum$setBannerEffects(effects.withHideBackground(true));
+                        blockEntity.markDirty();
+                    } else if (hasGlowInkSac && !effects.isGlowing()) {
+                        world.playSound(null, pos, SoundEvents.ITEM_GLOW_INK_SAC_USE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                        banner.ectolum$setBannerEffects(effects.withGlowing(true));
+                        blockEntity.markDirty();
+                    } else {
+                        return ActionResult.PASS;
+                    }
+                }
+                case DecoratedPotBlockEntity decoratedPotBlockEntity -> {
+                    // Process Decorated Pot use
+
+                    if (world.isClient()) {
+                        return hasGlowInkSac ? ActionResult.SUCCESS : ActionResult.CONSUME;
+                    }
+                    DecoratedPotAccess decoratedPot = (DecoratedPotAccess) decoratedPotBlockEntity;
+                    int face = getDecoratedPotFaceIndex(hit.getSide(), decoratedPotBlockEntity.getHorizontalFacing());
+                    if (face != -1 && !decoratedPot.ectolum$getSherdGlow(face)) {
+                        world.playSound(null, pos, SoundEvents.ITEM_GLOW_INK_SAC_USE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                        decoratedPot.ectolum$setSherdGlow(face, true);
+                        blockEntity.markDirty();
+                    } else {
+                        return ActionResult.PASS;
+                    }
+                }
+                case SignBlockEntity signBlockEntity -> {
+                    // Process sign use
+
+                    if (world.isClient()) {
+                        return hasPhantomMembrane ? ActionResult.SUCCESS : ActionResult.CONSUME;
+                    }
+                    SignAccess sign = (SignAccess) signBlockEntity;
+                    if (hasPhantomMembrane && !sign.ectolum$isBackgroundHidden()) {
+                        sign.ectolum$setHideBackground(true);
+                        world.playSound(null, signBlockEntity.getPos(), ModSounds.PHANTOM_MEMBRANE_USE, SoundCategory.BLOCKS, 1.0F, 1.0F);
+                        signBlockEntity.markDirty();
+                    } else {
+                        return ActionResult.PASS;
+                    }
+                }
+                case null, default -> {
+                    // If no blocks were procesed, return default ActionResult.PASS
+                    return ActionResult.PASS;
+                }
+            }
 
 			// If any block was processed, update stats and block and stuff
 			if (player instanceof ServerPlayerEntity serverPlayer) {

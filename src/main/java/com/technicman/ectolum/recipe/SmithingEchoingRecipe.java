@@ -1,32 +1,31 @@
 package com.technicman.ectolum.recipe;
 
+import com.mojang.serialization.MapCodec;
+import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.technicman.ectolum.Ectoluminescence;
+import com.technicman.ectolum.component.EchoingLayer;
 import com.technicman.ectolum.component.ModComponents;
-import com.technicman.ectolum.util.EchoingLayer;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.item.trim.ArmorTrim;
-import net.minecraft.item.trim.ArmorTrimMaterial;
-import net.minecraft.item.trim.ArmorTrimMaterials;
-import net.minecraft.item.trim.ArmorTrimPattern;
+import net.minecraft.network.RegistryByteBuf;
+import net.minecraft.network.codec.PacketCodec;
 import net.minecraft.recipe.Ingredient;
+import net.minecraft.recipe.IngredientPlacement;
+import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.recipe.SmithingRecipe;
 import net.minecraft.recipe.input.SmithingRecipeInput;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.RegistryWrapper;
-import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.world.World;
+import org.jspecify.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
-import java.util.stream.Stream;
 
 public abstract class SmithingEchoingRecipe implements SmithingRecipe {
-    private final Ingredient template;
-    private final Ingredient base;
-    private final Ingredient addition;
+    final Ingredient template;
+    final Ingredient base;
+    final Ingredient addition;
+    private @Nullable IngredientPlacement ingredientPlacement;
 
     public List<EchoingLayer> copyEchoingLayers(ItemStack item) {
         List<EchoingLayer> echoingLayers = item.get(ModComponents.ECHOING_LAYERS);
@@ -53,52 +52,71 @@ public abstract class SmithingEchoingRecipe implements SmithingRecipe {
         this.addition = addition;
     }
 
-    public Ingredient getTemplate() {
-        return template;
+    @Override
+    public Optional<Ingredient> template() {
+        return Optional.of(template);
     }
 
-    public Ingredient getBase() {
+    @Override
+    public Ingredient base() {
         return base;
     }
 
-    public Ingredient getAddition() {
-        return addition;
+
+    @Override
+    public Optional<Ingredient> addition() {
+        return Optional.of(addition);
     }
 
     @Override
-    public boolean testTemplate(ItemStack stack) {
-        return template.test(stack);
-    }
+    public IngredientPlacement getIngredientPlacement() {
+        if (this.ingredientPlacement == null) {
+            this.ingredientPlacement = IngredientPlacement.forShapeless(List.of(this.template, this.base, this.addition));
+        }
 
-    @Override
-    public boolean testBase(ItemStack stack) {
-        return base.test(stack) && stack.contains(DataComponentTypes.TRIM);
-    }
-
-    @Override
-    public boolean testAddition(ItemStack stack) {
-        return addition.test(stack);
+        return this.ingredientPlacement;
     }
 
     @Override
     public boolean matches(SmithingRecipeInput smithingRecipeInput, World world) {
-        return template.test(smithingRecipeInput.template()) && base.test(smithingRecipeInput.base()) && addition.test(smithingRecipeInput.addition());
+        ItemStack armor = smithingRecipeInput.base();
+        return Ingredient.matches(this.template(), smithingRecipeInput.template()) &&
+                Ingredient.matches(this.addition(), smithingRecipeInput.addition()) &&
+                base().test(armor) &&
+                armor.contains(DataComponentTypes.TRIM);
     }
 
-    @Override
-    public ItemStack getResult(RegistryWrapper.WrapperLookup registriesLookup) {
-        ItemStack itemStack = new ItemStack(Items.IRON_CHESTPLATE);
-        Optional<RegistryEntry.Reference<ArmorTrimPattern>> pattern = registriesLookup.getWrapperOrThrow(RegistryKeys.TRIM_PATTERN).streamEntries().findFirst();
-        Optional<RegistryEntry.Reference<ArmorTrimMaterial>> material = registriesLookup.getWrapperOrThrow(RegistryKeys.TRIM_MATERIAL).getOptional(ArmorTrimMaterials.REDSTONE);
-        if (pattern.isPresent() && material.isPresent()) {
-            itemStack.set(DataComponentTypes.TRIM, new ArmorTrim(material.get(), pattern.get()));
+    @FunctionalInterface
+    public interface RecipeFactory<T extends SmithingEchoingRecipe> {
+        T create(Ingredient template, Ingredient base, Ingredient addition);
+    }
+
+    public static class Serializer<T extends SmithingEchoingRecipe> implements RecipeSerializer<T> {
+        private final MapCodec<T> codec;
+        public final PacketCodec<RegistryByteBuf, T> packetCodec;
+
+        public Serializer(RecipeFactory<T> factory) {
+            codec = RecordCodecBuilder.mapCodec(
+                    (instance) -> instance.group(
+                            Ingredient.CODEC.fieldOf("template").forGetter((recipe) -> recipe.template),
+                            Ingredient.CODEC.fieldOf("base").forGetter((recipe) -> recipe.base),
+                            Ingredient.CODEC.fieldOf("addition").forGetter((recipe) -> recipe.addition)
+                    ).apply(instance, factory::create)
+            );
+            packetCodec = PacketCodec.tuple(
+                    Ingredient.PACKET_CODEC, (recipe) -> recipe.template,
+                    Ingredient.PACKET_CODEC, (recipe) -> recipe.base,
+                    Ingredient.PACKET_CODEC, (recipe) -> recipe.addition,
+                    factory::create
+            );
         }
 
-        return itemStack;
-    }
+        public MapCodec<T> codec() {
+            return codec;
+        }
 
-    @Override
-    public boolean isEmpty() {
-        return Stream.of(template, base, addition).anyMatch(Ingredient::isEmpty);
+        public PacketCodec<RegistryByteBuf, T> packetCodec() {
+            return packetCodec;
+        }
     }
 }

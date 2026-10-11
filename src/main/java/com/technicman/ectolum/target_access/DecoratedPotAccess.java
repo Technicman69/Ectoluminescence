@@ -1,6 +1,6 @@
-package com.technicman.ectolum.accessor;
+package com.technicman.ectolum.target_access;
 
-public interface EctolumDecoratedPotInterface {
+public interface DecoratedPotAccess {
     String SHERD_GLOW_OVERRIDES_KEY = "ectolum.sherd_glow_overrides";
     int BACK = 0;
     int LEFT = 1;

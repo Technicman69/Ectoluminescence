@@ -1,53 +1,63 @@
 package com.technicman.ectolum.mixin.client;
 
-import com.technicman.ectolum.Ectoluminescence;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.technicman.ectolum.entity.ClearItemFrameEntity;
-import com.technicman.ectolum.entity.ModEntities;
+import com.technicman.ectolum.target_access.ItemFrameAccess;
+import net.minecraft.block.BlockState;
 import net.minecraft.client.render.RenderLayer;
-import net.minecraft.client.render.TexturedRenderLayers;
-import net.minecraft.client.render.VertexConsumerProvider;
+import net.minecraft.client.render.RenderLayers;
 import net.minecraft.client.render.entity.EntityRenderer;
 import net.minecraft.client.render.entity.EntityRendererFactory;
 import net.minecraft.client.render.entity.ItemFrameEntityRenderer;
-import net.minecraft.client.util.ModelIdentifier;
-import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.client.render.entity.state.ItemFrameEntityRenderState;
+import net.minecraft.client.texture.SpriteAtlasTexture;
 import net.minecraft.entity.decoration.ItemFrameEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
+import net.minecraft.state.property.Properties;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Redirect;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
+import org.spongepowered.asm.mixin.injection.ModifyArg;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import static com.technicman.ectolum.util.MixinGlobals.CLEAR_ITEM_FRAME;
 
 @Mixin(ItemFrameEntityRenderer.class)
-public abstract class ItemFrameEntityRendererMixin<T extends ItemFrameEntity> extends EntityRenderer<T> {
-    @Unique
-    private static final ModelIdentifier CLEAR_FRAME = new ModelIdentifier(Ectoluminescence.identifier("clear_item_frame"), "map=false");
-    @Unique
-    private static final ModelIdentifier MAP_CLEAR_FRAME = new ModelIdentifier(Ectoluminescence.identifier("clear_item_frame"), "map=true");
-
-    protected ItemFrameEntityRendererMixin(EntityRendererFactory.Context ctx) {
-        super(ctx);
+public abstract class ItemFrameEntityRendererMixin<T extends ItemFrameEntity> extends EntityRenderer<T, ItemFrameEntityRenderState> {
+    protected ItemFrameEntityRendererMixin(EntityRendererFactory.Context context) {
+        super(context);
     }
 
-    @Inject(method = "getModelId", at = @At("HEAD"), cancellable = true)
-    private void getModelId(T entity, ItemStack stack, CallbackInfoReturnable<ModelIdentifier> cir) {
-        if (entity.getType() == ModEntities.CLEAR_ITEM_FRAME) {
-            cir.setReturnValue(stack.isOf(Items.FILLED_MAP) ? MAP_CLEAR_FRAME : CLEAR_FRAME);
-        }
+    @Inject(
+            method = "updateRenderState(Lnet/minecraft/entity/decoration/ItemFrameEntity;Lnet/minecraft/client/render/entity/state/ItemFrameEntityRenderState;F)V",
+            at = @At("TAIL")
+    )
+    private void updateRenderState(T itemFrameEntity, ItemFrameEntityRenderState itemFrameEntityRenderState, float f, CallbackInfo ci) {
+        ((ItemFrameAccess)itemFrameEntityRenderState).ectolum$setClear(itemFrameEntity instanceof ClearItemFrameEntity);
     }
 
-    @Redirect(
-            method = "render(Lnet/minecraft/entity/decoration/ItemFrameEntity;FFLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;I)V",
+    @WrapOperation(
+            method = "render(Lnet/minecraft/client/render/entity/state/ItemFrameEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;Lnet/minecraft/client/render/state/CameraRenderState;)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/render/TexturedRenderLayers;getEntitySolid()Lnet/minecraft/client/render/RenderLayer;"
-            )
+                    target = "Lnet/minecraft/client/render/model/BlockStateManagers;getStateForItemFrame(ZZ)Lnet/minecraft/block/BlockState;")
     )
-    private RenderLayer injected(T itemFrameEntity, float f, float g, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i) {
+    private BlockState getStateForItemFrame(boolean hasGlow, boolean hasMap, Operation<BlockState> original, ItemFrameEntityRenderState itemFrameEntityRenderState) {
+        if (((ItemFrameAccess)itemFrameEntityRenderState).ectolum$isClear()) {
+            return CLEAR_ITEM_FRAME.getDefaultState().with(Properties.MAP, hasMap);
+        }
+        return original.call(hasGlow, hasMap);
+    }
 
-        return itemFrameEntity instanceof ClearItemFrameEntity ? TexturedRenderLayers.getEntityTranslucentCull() : TexturedRenderLayers.getEntitySolid();
+    @ModifyArg(
+            method = "render(Lnet/minecraft/client/render/entity/state/ItemFrameEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;Lnet/minecraft/client/render/state/CameraRenderState;)V",
+            at = @At(
+                    value = "INVOKE",
+                    target = "Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;submitBlockStateModel(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/RenderLayer;Lnet/minecraft/client/render/model/BlockStateModel;FFFIII)V"
+            ),
+            index = 1
+    )
+    private RenderLayer renderLayer(RenderLayer original) {
+        return RenderLayers.itemEntityTranslucentCull(SpriteAtlasTexture.BLOCK_ATLAS_TEXTURE);
     }
 }

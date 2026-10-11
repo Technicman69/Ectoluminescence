@@ -1,12 +1,6 @@
 {
   "type": "ectolum:smithing_glowing",
-  "template": {
-    "item": "minecraft:glow_ink_sac"
-  },
-  "base": {
-    "tag": "minecraft:trimmable_armor"
-  },
-  "addition": {
-    "item": "minecraft:glow_ink_sac"
-  }
+  "template": "minecraft:glow_ink_sac",
+  "base": "#minecraft:trimmable_armor",
+  "addition": "minecraft:glow_ink_sac"
 }

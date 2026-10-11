@@ -5,16 +5,13 @@
   "mixins": [
     "AbstractSignBlockMixin",
     "BannerBlockEntityMixin",
-    "BannerItemMixin",
     "DecoratedPotBlockEntityMixin",
-    "DecoratedPotBlockMixin",
-    "ItemStackMixin",
+    "DecoratedPotPatternsMixin",
     "SheepEntityMixin",
+    "SherdsMixin",
     "ShieldDecorationRecipeMixin",
-    "SignBlockEntityMixin",
-    "integration.GlowInkPlus"
+    "SignBlockEntityMixin"
   ],
-  "plugin": "com.technicman.ectolum.Integration",
   "injectors": {
     "defaultRequire": 1
   },

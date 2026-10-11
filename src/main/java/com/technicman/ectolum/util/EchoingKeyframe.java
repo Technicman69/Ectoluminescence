@@ -1,10 +1,11 @@
 package com.technicman.ectolum.util;
 
+import com.technicman.ectolum.component.EchoingLayer;
 import com.technicman.ectolum.component.ModComponents;
 import net.minecraft.component.DataComponentTypes;
 import net.minecraft.item.ItemStack;
-import net.minecraft.item.trim.ArmorTrim;
-import net.minecraft.item.trim.ArmorTrimMaterial;
+import net.minecraft.item.equipment.trim.ArmorTrim;
+import net.minecraft.item.equipment.trim.ArmorTrimMaterial;
 import net.minecraft.registry.entry.RegistryEntry;
 import net.minecraft.util.Pair;
 import org.jetbrains.annotations.Nullable;
@@ -57,7 +58,7 @@ public record EchoingKeyframe(
 
     public static EchoingKeyframe buildNext(EchoingKeyframe previous, List<EchoingLayer> echoingLayers, int nextIndex) {
         if (nextIndex >= echoingLayers.size()) {
-            EchoingLayer layer = echoingLayers.get(0);
+            EchoingLayer layer = echoingLayers.getFirst();
             return new EchoingKeyframe(
                     layer.glowing().isPresent()? layer.glowing().get() : DEFAULT_GLOWING,
                     layer.hidden().isPresent()? layer.hidden().get() : DEFAULT_HIDDEN,
@@ -75,33 +76,42 @@ public record EchoingKeyframe(
     public static EchoingKeyframe buildLast(ItemStack item) {
         if (item.contains(ModComponents.ECHOING_LAYERS)) {
             List<EchoingLayer> echoingLayers = item.get(ModComponents.ECHOING_LAYERS);
+            assert echoingLayers != null;
             EchoingKeyframe keyframe =  build(echoingLayers, echoingLayers.size()-1);
             if (keyframe.material == null) {
                 ArmorTrim trim = item.get(DataComponentTypes.TRIM);
-                return new EchoingKeyframe(keyframe.glowing, keyframe.hidden, trim.getMaterial());
+                assert trim != null;
+                return new EchoingKeyframe(keyframe.glowing, keyframe.hidden, trim.material());
             }
             return keyframe;
         }
         ArmorTrim trim = item.get(DataComponentTypes.TRIM);
-        return new EchoingKeyframe(DEFAULT_GLOWING, DEFAULT_HIDDEN, trim.getMaterial());
+        assert trim != null;
+        return new EchoingKeyframe(DEFAULT_GLOWING, DEFAULT_HIDDEN, trim.material());
     }
 
     public static Pair<EchoingKeyframe, EchoingKeyframe> buildKeyFrames(ItemStack item, long time) {
         List<EchoingLayer> echoingLayers = item.get(ModComponents.ECHOING_LAYERS);
+        assert echoingLayers != null;
         int index = (int) (time % (echoingLayers.size()));
 
         EchoingKeyframe first = build(echoingLayers, index);
         EchoingKeyframe second = buildNext(first, echoingLayers, index+1);
 
         ArmorTrim trim = item.get(DataComponentTypes.TRIM);
+        assert trim != null;
         if (first.material == null) {
-            first = new EchoingKeyframe(first.glowing, first.hidden, trim.getMaterial());
+            first = new EchoingKeyframe(first.glowing, first.hidden, trim.material());
         }
         if (second.material == null) {
-            second = new EchoingKeyframe(second.glowing, second.hidden, trim.getMaterial());
+            second = new EchoingKeyframe(second.glowing, second.hidden, trim.material());
         }
 
         return new Pair<>(first, second);
+    }
+
+    public static EchoingKeyframe of(ArmorTrim armorTrim) {
+        return new EchoingKeyframe(false, false, armorTrim.material());
     }
 
     public boolean equals(Object o) {
@@ -124,7 +134,7 @@ public record EchoingKeyframe(
     public ArmorTrim toTrim(ArmorTrim base) {
         return new ArmorTrim(
                 material,
-                base.getPattern()
+                base.pattern()
         );
     }
 }

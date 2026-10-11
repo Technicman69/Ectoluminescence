@@ -6,7 +6,7 @@
   "subtitles.ectolum.entity.clear_item_frame.remove_item": "Opróżnienie Przezroczystej Ramki na Przedmiot",
   "subtitles.ectolum.entity.clear_item_frame.rotate_item": "Przezroczysta Ramka na Przedmiot klika",
 
-  "block.ectolum.glow_ink_torch": "Lśniąca Pochodnia",
+  "item.ectolum.glow_ink_torch": "Lśniąca Pochodnia",
   "item.ectolum.clear_item_frame": "Przezroczysta Ramka na Przedmiot",
 
   "item.ectolum.smithing_template.glowing": "+Blask",

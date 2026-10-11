@@ -1,6 +1,6 @@
-package com.technicman.ectolum.accessor;
+package com.technicman.ectolum.target_access;
 
-public interface EctolumSignInterface {
+public interface SignAccess {
     boolean ectolum$isBackgroundHidden();
     void ectolum$setHideBackground(boolean hideBackground);
 }

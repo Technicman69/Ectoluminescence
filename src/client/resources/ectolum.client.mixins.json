@@ -3,15 +3,22 @@
   "package": "com.technicman.ectolum.mixin.client",
   "compatibilityLevel": "JAVA_17",
   "client": [
-    "ArmorFeatureRendererMixin",
+    "AbstractSignBlockEntityRendererMixin",
     "BannerBlockEntityRendererMixin",
-    "BuiltinModelItemRendererMixin",
+    "BannerBlockEntityRenderStateMixin",
+    "BlockStatesManagersMixin",
     "DecoratedPotBlockEntityRendererMixin",
+    "DecoratedPotBlockEntityRenderStateMixin",
+    "EquipmentRendererMixin",
     "ItemFrameEntityRendererMixin",
-    "ItemRendererMixin",
-    "BlockStatesLoaderMixin",
+    "ItemFrameEntityRenderStateMixin",
+    "ItemModelManagerMixin",
+    "SheepEntityRendererMixin",
+    "SheepEntityRenderStateMixin",
     "SheepWoolFeatureRendererMixin",
-    "SignBlockEntityRendererMixin"
+    "ShieldModelRendererMixin",
+    "SignBlockEntityRenderStateMixin",
+    "accessor.ItemRenderStateAccessor"
   ],
   "injectors": {
     "defaultRequire": 1

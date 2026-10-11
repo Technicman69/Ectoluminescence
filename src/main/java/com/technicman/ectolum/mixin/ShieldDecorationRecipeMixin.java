@@ -1,8 +1,8 @@
 package com.technicman.ectolum.mixin;
 
 import com.llamalad7.mixinextras.sugar.Local;
+import com.technicman.ectolum.component.BannerEffects;
 import com.technicman.ectolum.component.ModComponents;
-import com.technicman.ectolum.util.BannerEffects;
 import net.minecraft.item.ItemStack;
 import net.minecraft.recipe.ShieldDecorationRecipe;
 import net.minecraft.recipe.input.CraftingRecipeInput;

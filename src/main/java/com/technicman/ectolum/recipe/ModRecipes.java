@@ -1,21 +1,25 @@
 package com.technicman.ectolum.recipe;
 
 import com.technicman.ectolum.Ectoluminescence;
+import net.fabricmc.fabric.api.recipe.v1.sync.RecipeSynchronization;
+import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.RecipeSerializer;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
-import net.minecraft.util.Identifier;
 
 public class ModRecipes {
-    public static SmithingEchoingFadeRecipe.Serializer SMITHING_ECHOING_FADE_RECIPE = register("smithing_echoing_fade", new SmithingEchoingFadeRecipe.Serializer());
-    public static SmithingEchoingPigmentRecipe.Serializer SMITHING_ECHOING_PIGMENT_RECIPE = register("smithing_echoing_pigment", new SmithingEchoingPigmentRecipe.Serializer());
-    public static SmithingEchoingTwinkleRecipe.Serializer SMITHING_ECHOING_TWINKLE_RECIPE = register("smithing_echoing_twinkle", new SmithingEchoingTwinkleRecipe.Serializer());
-    public static SmithingGlowingRecipe.Serializer SMITHING_GLOWING_RECIPE = register("smithing_glowing", new SmithingGlowingRecipe.Serializer());
+    public static RecipeSerializer<SmithingEchoingFadeRecipe> SMITHING_ECHOING_FADE_RECIPE = register("smithing_echoing_fade", new SmithingEchoingRecipe.Serializer<>(SmithingEchoingFadeRecipe::new));
+    public static RecipeSerializer<SmithingEchoingPigmentRecipe> SMITHING_ECHOING_PIGMENT_RECIPE = register("smithing_echoing_pigment", new SmithingEchoingRecipe.Serializer<>(SmithingEchoingPigmentRecipe::new));
+    public static RecipeSerializer<SmithingEchoingTwinkleRecipe> SMITHING_ECHOING_TWINKLE_RECIPE = register("smithing_echoing_twinkle", new SmithingEchoingRecipe.Serializer<>(SmithingEchoingTwinkleRecipe::new));
+    public static RecipeSerializer<SmithingGlowingRecipe> SMITHING_GLOWING_RECIPE = register("smithing_glowing", new SmithingEchoingRecipe.Serializer<>(SmithingGlowingRecipe::new));
 
     static <S extends RecipeSerializer<T>, T extends Recipe<?>> S register(String name, S serializer) {
-        Identifier id = Ectoluminescence.identifier(name);
-        return Registry.register(Registries.RECIPE_SERIALIZER, id, serializer);
+        // JEI requires recipes to be synced with client
+        if (FabricLoader.getInstance().isModLoaded("jei"))
+            RecipeSynchronization.synchronizeRecipeSerializer(serializer);
+
+        return Registry.register(Registries.RECIPE_SERIALIZER, Ectoluminescence.id(name), serializer);
     }
 
     public static void onInitialize() {}

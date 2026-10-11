@@ -1,7 +1,8 @@
-package com.technicman.ectolum.util;
+package com.technicman.ectolum.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
+import net.minecraft.component.ComponentsAccess;
 import net.minecraft.item.Item;
 import net.minecraft.item.tooltip.TooltipAppender;
 import net.minecraft.item.tooltip.TooltipType;
@@ -25,21 +26,21 @@ public class BannerEffects implements TooltipAppender {
             BannerEffects::new
     );
 
-    public static BannerEffects empty() {
-        return new BannerEffects((byte)0);
-    }
-
-    public static final BannerEffects EMPTY = empty();
+    public static final BannerEffects EMPTY = new BannerEffects((byte)0);
 
     private static final int GLOWING = 0;
     private static final int HIDE_BACKGROUND = 1;
 
     private final BitSet flags;
 
+    public BannerEffects(BitSet flags) {
+        this.flags = flags;
+    }
+
     public BannerEffects(boolean glowing, boolean hideBackground) {
         flags = new BitSet(2);
-        setGlowing(glowing);
-        setHideBackground(hideBackground);
+        flags.set(GLOWING, glowing);
+        flags.set(HIDE_BACKGROUND, hideBackground);
     }
 
     public BannerEffects(byte flags) {
@@ -54,12 +55,16 @@ public class BannerEffects implements TooltipAppender {
         return flags.get(HIDE_BACKGROUND);
     }
 
-    public void setGlowing(boolean value) {
-        flags.set(GLOWING, value);
+    public BannerEffects withGlowing(boolean value) {
+        BitSet newFlags = (BitSet) flags.clone();
+        newFlags.set(GLOWING, value);
+        return new BannerEffects(newFlags);
     }
 
-    public void setHideBackground(boolean value) {
-        flags.set(HIDE_BACKGROUND, value);
+    public BannerEffects withHideBackground(boolean value) {
+        BitSet newFlags = (BitSet) flags.clone();
+        newFlags.set(HIDE_BACKGROUND, value);
+        return new BannerEffects(newFlags);
     }
 
     public byte getFlags() {
@@ -68,12 +73,12 @@ public class BannerEffects implements TooltipAppender {
     }
 
     @Override
-    public void appendTooltip(Item.TooltipContext context, Consumer<Text> tooltip, TooltipType type) {
+    public void appendTooltip(Item.TooltipContext context, Consumer<Text> tooltip, TooltipType type, ComponentsAccess components) {
         if (isGlowing()) {
-            tooltip.accept(Text.translatable("block.minecraft.banner.ectolum.glowing").formatted(Formatting.WHITE));
+            tooltip.accept(Text.translatable("block.minecraft.banner.ectolum.glowing").formatted(Formatting.GRAY));
         }
         if (isBackgroundHidden()) {
-            tooltip.accept(Text.translatable("block.minecraft.banner.ectolum.hide_background").formatted(Formatting.WHITE));
+            tooltip.accept(Text.translatable("block.minecraft.banner.ectolum.hide_background").formatted(Formatting.GRAY));
         }
     }
 }

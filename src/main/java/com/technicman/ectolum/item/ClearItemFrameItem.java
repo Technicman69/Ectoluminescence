@@ -1,16 +1,12 @@
 package com.technicman.ectolum.item;
 
 import com.technicman.ectolum.entity.ClearItemFrameEntity;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.NbtComponent;
-import net.minecraft.entity.Entity;
 import net.minecraft.entity.EntityType;
 import net.minecraft.entity.decoration.AbstractDecorationEntity;
 import net.minecraft.entity.player.PlayerEntity;
 import net.minecraft.item.ItemFrameItem;
 import net.minecraft.item.ItemStack;
 import net.minecraft.item.ItemUsageContext;
-import net.minecraft.nbt.NbtCompound;
 import net.minecraft.util.ActionResult;
 import net.minecraft.util.math.BlockPos;
 import net.minecraft.util.math.Direction;
@@ -34,21 +30,16 @@ public class ClearItemFrameItem extends ItemFrameItem {
             World world = context.getWorld();
             AbstractDecorationEntity abstractDecorationEntity = new ClearItemFrameEntity(world, blockPos2, direction);
 
-
-            NbtComponent nbtComponent = itemStack.getOrDefault(DataComponentTypes.ENTITY_DATA, NbtComponent.DEFAULT);
-            if (!nbtComponent.isEmpty()) {
-                EntityType.loadFromEntityNbt(world, playerEntity, abstractDecorationEntity, nbtComponent);
-            }
-
+            EntityType.copier(world, itemStack, playerEntity).accept(abstractDecorationEntity);
             if (abstractDecorationEntity.canStayAttached()) {
-                if (!world.isClient) {
+                if (!world.isClient()) {
                     abstractDecorationEntity.onPlace();
-                    world.emitGameEvent(playerEntity, GameEvent.ENTITY_PLACE, abstractDecorationEntity.getPos());
+                    world.emitGameEvent(playerEntity, GameEvent.ENTITY_PLACE, abstractDecorationEntity.getEntityPos());
                     world.spawnEntity(abstractDecorationEntity);
                 }
 
                 itemStack.decrement(1);
-                return ActionResult.success(world.isClient);
+                return ActionResult.SUCCESS;
             } else {
                 return ActionResult.CONSUME;
             }

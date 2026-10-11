@@ -6,6 +6,8 @@ import net.minecraft.entity.EntityType;
 import net.minecraft.entity.SpawnGroup;
 import net.minecraft.registry.Registries;
 import net.minecraft.registry.Registry;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Identifier;
 
 public class ModEntities {
@@ -13,8 +15,9 @@ public class ModEntities {
             EntityType.Builder.<ClearItemFrameEntity>create(ClearItemFrameEntity::new, SpawnGroup.MISC).dimensions(0.5F, 0.5F).maxTrackingRange(10).trackingTickInterval(Integer.MAX_VALUE)
     );
     private static <T extends Entity> EntityType<T> registerEntity(String name, EntityType.Builder<T> entityType) {
-        Identifier id = Ectoluminescence.identifier(name);
-        return Registry.register(Registries.ENTITY_TYPE, id, entityType.build(name));
+        Identifier id = Ectoluminescence.id(name);
+        RegistryKey<EntityType<?>> key = RegistryKey.of(RegistryKeys.ENTITY_TYPE, id);
+        return Registry.register(Registries.ENTITY_TYPE, id, entityType.build(key));
     }
 
     public static void onInitialize() {

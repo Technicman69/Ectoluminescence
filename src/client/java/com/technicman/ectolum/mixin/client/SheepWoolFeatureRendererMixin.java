@@ -1,25 +1,29 @@
 package com.technicman.ectolum.mixin.client;
 
-import com.technicman.ectolum.accessor.EctolumSheepInterface;
-import com.technicman.ectolum.util.GlobalVariables;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.technicman.ectolum.EctoluminescenceClient;
+import com.technicman.ectolum.target_access.SheepAccess;
+import net.minecraft.client.model.Model;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
 import net.minecraft.client.render.entity.feature.SheepWoolFeatureRenderer;
+import net.minecraft.client.render.entity.state.LivingEntityRenderState;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.ModifyArgs;
-import org.spongepowered.asm.mixin.injection.invoke.arg.Args;
 
 @Mixin(SheepWoolFeatureRenderer.class)
 public class SheepWoolFeatureRendererMixin {
-    @ModifyArgs(
-            method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/passive/SheepEntity;FFFFFF)V",
-            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/feature/SheepWoolFeatureRenderer;render(Lnet/minecraft/client/render/entity/model/EntityModel;Lnet/minecraft/client/render/entity/model/EntityModel;Lnet/minecraft/util/Identifier;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;ILnet/minecraft/entity/LivingEntity;FFFFFFI)V")
+    @WrapOperation(
+            method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;ILnet/minecraft/client/render/entity/state/SheepEntityRenderState;FF)V",
+            at = @At(value = "INVOKE", target = "Lnet/minecraft/client/render/entity/feature/SheepWoolFeatureRenderer;render(Lnet/minecraft/client/model/Model;Lnet/minecraft/util/Identifier;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;ILnet/minecraft/client/render/entity/state/LivingEntityRenderState;II)V")
             )
-    private void render(Args args) {
-        int light = args.get(5);
-        EctolumSheepInterface sheepEntity = args.get(6);
-        args.set(5, sheepEntity.ectolum$isGlowing() ? GlobalVariables.GLOW_STRENGTH : light);
+    private void render(Model<?> model, Identifier identifier, MatrixStack matrixStack, OrderedRenderCommandQueue queue, int light, LivingEntityRenderState livingEntityRenderState, int color, int queueOrder, Operation<Void> original) {
+        SheepAccess sheepRenderState = (SheepAccess) livingEntityRenderState;
+        if (sheepRenderState.ectolum$isGlowing()) light = EctoluminescenceClient.GLOW_STRENGTH;
         // Changing rgb values, multiplying their values, making color x1.2 brighter
-//        if (sheepEntity.ectolum$isGlowing()) {
+//        if (sheepRenderState.ectolum$isGlowing()) {
 //            for (int c = 13; c <= 15; c++) {
 //                float colorChannel = args.get(c);
 //                colorChannel *= EctoluminescenceClient.COLOR_VALUE_MULTIPLIER;
@@ -29,5 +33,6 @@ public class SheepWoolFeatureRendererMixin {
 //                args.set(c, colorChannel);
 //            }
 //        }
+        original.call(model, identifier, matrixStack, queue, light, livingEntityRenderState, color, queueOrder);
     }
 }

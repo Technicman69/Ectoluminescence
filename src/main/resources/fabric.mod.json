@@ -20,6 +20,9 @@
 		"client": [
 			"com.technicman.ectolum.EctoluminescenceClient"
 		],
+		"fabric-datagen": [
+			"com.technicman.ectolum.datagen.EctoluminescenceDataGenerator"
+		],
 		"jei_mod_plugin": [
 			"com.technicman.integration.jei.Plugin"
 		]
@@ -40,6 +43,6 @@
 	},
 	"suggests": {
 		"glow_ink_plus": "*",
-		"jei": ">=19.50.0.414"
+		"jei": "*"
 	}
 }

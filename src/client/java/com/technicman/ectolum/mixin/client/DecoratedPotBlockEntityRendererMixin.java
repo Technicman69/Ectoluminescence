@@ -1,32 +1,40 @@
 package com.technicman.ectolum.mixin.client;
 
-import com.technicman.ectolum.accessor.EctolumDecoratedPotInterface;
-import com.technicman.ectolum.util.GlobalVariables;
-import com.technicman.ectolum.util.GlowingDecoratedPotPatterns;
-import net.fabricmc.loader.impl.lib.classtweaker.utils.EntryTriple;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.technicman.ectolum.EctoluminescenceClient;
+import com.technicman.ectolum.target_access.DecoratedPotAccess;
+import net.minecraft.block.DecoratedPotPattern;
+import net.minecraft.block.DecoratedPotPatterns;
 import net.minecraft.block.entity.DecoratedPotBlockEntity;
 import net.minecraft.block.entity.Sherds;
 import net.minecraft.client.model.ModelPart;
+import net.minecraft.client.render.RenderLayer;
+import net.minecraft.client.render.RenderLayers;
 import net.minecraft.client.render.TexturedRenderLayers;
-import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.render.block.entity.DecoratedPotBlockEntityRenderer;
+import net.minecraft.client.render.block.entity.state.DecoratedPotBlockEntityRenderState;
+import net.minecraft.client.render.command.ModelCommandRenderer;
+import net.minecraft.client.render.command.OrderedRenderCommandQueue;
+import net.minecraft.client.render.state.CameraRenderState;
+import net.minecraft.client.texture.Sprite;
+import net.minecraft.client.texture.SpriteHolder;
 import net.minecraft.client.util.SpriteIdentifier;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.data.client.BlockStateVariantMap;
 import net.minecraft.item.Item;
-import net.minecraft.item.Items;
+import net.minecraft.registry.RegistryKey;
+import net.minecraft.registry.RegistryKeys;
 import net.minecraft.util.Pair;
-import org.apache.commons.lang3.tuple.Triple;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.util.math.Vec3d;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.*;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Slice;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.Map;
 import java.util.Optional;
-import java.util.Set;
-import java.util.function.Function;
 
 @Mixin(DecoratedPotBlockEntityRenderer.class)
 public abstract class DecoratedPotBlockEntityRendererMixin {
@@ -46,64 +54,87 @@ public abstract class DecoratedPotBlockEntityRendererMixin {
     @Final
     @Shadow
     private final ModelPart right;
+    @Mutable
+    @Final
+    @Shadow
+    private final SpriteHolder materials;
 
-    protected DecoratedPotBlockEntityRendererMixin(ModelPart front, ModelPart back, ModelPart left, ModelPart right) {
+    @Unique
+    private DecoratedPotAccess ectolum$storedPot;
+
+    protected DecoratedPotBlockEntityRendererMixin(ModelPart front, ModelPart back, ModelPart left, ModelPart right, SpriteHolder materials) {
         this.front = front;
         this.back = back;
         this.left = left;
         this.right = right;
+        this.materials = materials;
     }
-
-    @Shadow
-    @Nullable
-    private static SpriteIdentifier getTextureIdFromSherd(Optional<Item> sherd) {
-        return null;
-    }
-
-    @Shadow
-    protected abstract void renderDecoratedSide(ModelPart part, MatrixStack matrices, VertexConsumerProvider vertexConsumers, int light, int overlay, @Nullable SpriteIdentifier textureId);
-
 
     @Inject(
-            method = "render(Lnet/minecraft/block/entity/DecoratedPotBlockEntity;FLnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/VertexConsumerProvider;II)V",
+            method = "updateRenderState(Lnet/minecraft/block/entity/DecoratedPotBlockEntity;Lnet/minecraft/client/render/block/entity/state/DecoratedPotBlockEntityRenderState;FLnet/minecraft/util/math/Vec3d;Lnet/minecraft/client/render/command/ModelCommandRenderer$CrumblingOverlayCommand;)V",
+            at = @At("TAIL")
+    )
+    private void updateRenderState(DecoratedPotBlockEntity decoratedPotBlockEntity, DecoratedPotBlockEntityRenderState decoratedPotBlockEntityRenderState, float f, Vec3d vec3d, ModelCommandRenderer.CrumblingOverlayCommand crumblingOverlayCommand, CallbackInfo ci) {
+        DecoratedPotAccess potEntity = (DecoratedPotAccess) decoratedPotBlockEntity;
+        DecoratedPotAccess potRenderState = (DecoratedPotAccess) decoratedPotBlockEntityRenderState;
+        for (int i = 0; i < 4; i++) {
+            potRenderState.ectolum$setSherdGlow(i, potEntity.ectolum$getSherdGlow(i));
+        }
+    }
+
+
+    @WrapOperation(
+            method = "render(Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;IILnet/minecraft/block/entity/Sherds;I)V",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/block/entity/DecoratedPotBlockEntity;getSherds()Lnet/minecraft/block/entity/Sherds;"
+                    target = "Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;submitModelPart(Lnet/minecraft/client/model/ModelPart;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/RenderLayer;IILnet/minecraft/client/texture/Sprite;ZZILnet/minecraft/client/render/command/ModelCommandRenderer$CrumblingOverlayCommand;I)V"
             ),
-            cancellable = true
+            slice = @Slice(
+                    from = @At(
+                            value = "INVOKE",
+                            target = "Lnet/minecraft/block/entity/Sherds;front()Ljava/util/Optional;"
+                    )
+            )
     )
-    private void injected(DecoratedPotBlockEntity decoratedPotBlockEntity, float f, MatrixStack matrixStack, VertexConsumerProvider vertexConsumerProvider, int i, int j, CallbackInfo ci) {
-        Sherds sherds = decoratedPotBlockEntity.getSherds();
-        EctolumDecoratedPotInterface ectolumPot = (EctolumDecoratedPotInterface) decoratedPotBlockEntity;
-        Set.of(
-                Triple.of(this.front, ectolumPot.FRONT, sherds.front()),
-                Triple.of(this.back, ectolumPot.BACK, sherds.back()),
-                Triple.of(this.left, ectolumPot.LEFT, sherds.left()),
-                Triple.of(this.right, ectolumPot.RIGHT, sherds.right())
-        ).forEach(t -> renderDecoratedSide(
-                t.getLeft(),
-                matrixStack,
-                vertexConsumerProvider,
-                ectolumPot.ectolum$getSherdGlow(t.getMiddle()) ? GlobalVariables.GLOW_STRENGTH : i,
-                j,
-                ectolum$getTextureIdFromSherd(
-                        t.getRight(),
-                        ectolumPot.ectolum$getSherdGlow(t.getMiddle())
-                )
-        ));
-        matrixStack.pop();
-        ci.cancel();
+    private void renderSherd(OrderedRenderCommandQueue instance, ModelPart part, MatrixStack matrices, RenderLayer renderLayer, int light, int overlay, @org.jspecify.annotations.Nullable Sprite sprite, boolean sheeted, boolean hasGlint, int tintedColor, ModelCommandRenderer.@org.jspecify.annotations.Nullable CrumblingOverlayCommand crumblingOverlay, int i, Operation<Void> original, MatrixStack m, OrderedRenderCommandQueue queue, int l, int o, Sherds sherds) {
+        final Map<ModelPart, Pair<Integer, Optional<Item>>> partToSherd = Map.of(
+                this.front, new Pair<>(DecoratedPotAccess.FRONT, sherds.front()),
+                this.back, new Pair<>(DecoratedPotAccess.BACK, sherds.back()),
+                this.left, new Pair<>(DecoratedPotAccess.LEFT, sherds.left()),
+                this.right, new Pair<>(DecoratedPotAccess.RIGHT, sherds.right())
+        );
+
+        // Replace sherd if it's glowing
+        Pair<Integer, Optional<Item>> pair = partToSherd.get(part);
+        if (pair != null) {
+            if (ectolum$storedPot != null && ectolum$storedPot.ectolum$getSherdGlow(pair.getLeft())) {
+                // If glowing, swap textures nad set light
+                light = EctoluminescenceClient.GLOW_STRENGTH;
+                SpriteIdentifier spriteIdentifier = pair.getRight().map(DecoratedPotBlockEntityRendererMixin::ectolum$glowingPatternTextureId).orElse(null);
+                if (spriteIdentifier != null) {
+                    renderLayer = spriteIdentifier.getRenderLayer(RenderLayers::entitySolid);
+                    sprite = materials.getSprite(spriteIdentifier);
+                }
+            }
+        }
+        original.call(instance, part, matrices, renderLayer, light, overlay, sprite, sheeted, hasGlint, tintedColor, crumblingOverlay, i);
     }
 
     @Unique
-    @Nullable
-    private static SpriteIdentifier ectolum$getTextureIdFromSherd(Optional<Item> item, boolean glowing) {
-        if (item.isPresent() && glowing) {
-            SpriteIdentifier spriteIdentifier = TexturedRenderLayers.getDecoratedPotPatternTextureId(GlowingDecoratedPotPatterns.fromSherd(item.get()));
-            if (spriteIdentifier != null) {
-                return spriteIdentifier;
-            }
+    private static @Nullable SpriteIdentifier ectolum$glowingPatternTextureId(Item sherd) {
+        RegistryKey<DecoratedPotPattern> baseKey = DecoratedPotPatterns.fromSherd(sherd);
+        if (baseKey != null) {
+            RegistryKey<DecoratedPotPattern> glowingKey = RegistryKey.of(RegistryKeys.DECORATED_POT_PATTERN, baseKey.getValue().withSuffixedPath("_glowing"));
+            return TexturedRenderLayers.getDecoratedPotPatternTextureId(glowingKey);
         }
-        return getTextureIdFromSherd(item);
+        return null;
+    }
+
+    @Inject(
+            method = "render(Lnet/minecraft/client/render/block/entity/state/DecoratedPotBlockEntityRenderState;Lnet/minecraft/client/util/math/MatrixStack;Lnet/minecraft/client/render/command/OrderedRenderCommandQueue;Lnet/minecraft/client/render/state/CameraRenderState;)V",
+            at = @At("HEAD")
+    )
+    private void injected(DecoratedPotBlockEntityRenderState decoratedPotBlockEntityRenderState, MatrixStack matrixStack, OrderedRenderCommandQueue queue, CameraRenderState cameraRenderState, CallbackInfo ci) {
+        ectolum$storedPot = (DecoratedPotAccess) decoratedPotBlockEntityRenderState;
     }
 }
