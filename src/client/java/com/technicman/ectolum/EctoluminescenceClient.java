@@ -13,7 +13,6 @@ import net.minecraft.client.render.entity.ItemFrameEntityRenderer;
 public class EctoluminescenceClient implements ClientModInitializer {
 
 	public static final int GLOW_STRENGTH = 15728880;
-	public static final float COLOR_VALUE_MULTIPLIER = 1.2f;
 
 	@Override
 	public void onInitializeClient() {

@@ -1,6 +1,7 @@
 package com.technicman.ectolum.mixin;
 
 import com.technicman.ectolum.component.ModComponents;
+import com.technicman.ectolum.target_access.DecoratedPotAccess;
 import net.minecraft.block.entity.Sherds;
 import net.minecraft.component.ComponentsAccess;
 import net.minecraft.item.Item;
@@ -37,10 +38,10 @@ public abstract class SherdsMixin {
         if (!Sherds.DEFAULT.equals(this)) {
             List<Boolean> overrides = components.getOrDefault(ModComponents.SHERD_GLOW_OVERRIDES, ModComponents.DEFAULT_SHERD_GLOW_OVERRIDES);
             textConsumer.accept(ScreenTexts.EMPTY);
-            ectolum$appendSherdTooltip(textConsumer, front(), overrides.get(3));
-            ectolum$appendSherdTooltip(textConsumer, left(), overrides.get(1));
-            ectolum$appendSherdTooltip(textConsumer, right(), overrides.get(2));
-            ectolum$appendSherdTooltip(textConsumer, back(), overrides.get(0));
+            ectolum$appendSherdTooltip(textConsumer, front(), overrides.get(DecoratedPotAccess.FRONT));
+            ectolum$appendSherdTooltip(textConsumer, left(), overrides.get(DecoratedPotAccess.LEFT));
+            ectolum$appendSherdTooltip(textConsumer, right(), overrides.get(DecoratedPotAccess.RIGHT));
+            ectolum$appendSherdTooltip(textConsumer, back(), overrides.get(DecoratedPotAccess.BACK));
         }
         ci.cancel();
     }

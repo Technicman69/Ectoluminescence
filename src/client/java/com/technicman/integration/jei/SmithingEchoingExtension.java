@@ -21,7 +21,7 @@ import java.util.List;
 import java.util.Random;
 import java.util.stream.Collectors;
 
-public class SmithingEchoingExtension<R extends SmithingEchoingRecipe> implements ISmithingCategoryExtension<R> {
+public class SmithingEchoingExtension<R extends SmithingEchoingRecipe> implements ISmithingCategoryExtension<@NotNull R> {
     private static final Random RANDOM = new Random();
     private static RegistryWrapper.WrapperLookup WRAPPER_LOOKUP;
 
@@ -44,12 +44,12 @@ public class SmithingEchoingExtension<R extends SmithingEchoingRecipe> implement
     }
 
     @Override
-    public <T extends IIngredientAcceptor<T>> void setTemplate(R recipe, T ingredientAcceptor) {
+    public <T extends IIngredientAcceptor<@NotNull T>> void setTemplate(R recipe, T ingredientAcceptor) {
         recipe.template().ifPresent(ingredientAcceptor::add);
     }
 
     @Override
-    public <T extends IIngredientAcceptor<T>> void setBase(R recipe, T ingredientAcceptor) {
+    public <T extends IIngredientAcceptor<@NotNull T>> void setBase(R recipe, T ingredientAcceptor) {
         ingredientAcceptor.addItemStacks(recipe.base().getMatchingItems()
                 .map(ItemStack::new)
                 .peek(stack -> stack.set(DataComponentTypes.TRIM, getRandomTrim()))
@@ -58,7 +58,7 @@ public class SmithingEchoingExtension<R extends SmithingEchoingRecipe> implement
     }
 
     @Override
-    public <T extends IIngredientAcceptor<T>> void setAddition(R recipe, T ingredientAcceptor) {
+    public <T extends IIngredientAcceptor<@NotNull T>> void setAddition(R recipe, T ingredientAcceptor) {
         recipe.addition().ifPresent(ingredientAcceptor::add);
     }
 

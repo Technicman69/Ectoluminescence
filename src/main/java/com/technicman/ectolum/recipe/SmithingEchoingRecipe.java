@@ -40,12 +40,6 @@ public abstract class SmithingEchoingRecipe implements SmithingRecipe {
         }
     }
 
-    public ItemStack getStackWithLayers(ItemStack item, List<EchoingLayer> layers) {
-        ItemStack newStack = item.copyWithCount(1);
-        newStack.set(ModComponents.ECHOING_LAYERS, layers);
-        return newStack;
-    }
-
     public SmithingEchoingRecipe(Ingredient template, Ingredient base, Ingredient addition) {
         this.template = template;
         this.base = base;
