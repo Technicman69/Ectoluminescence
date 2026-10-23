@@ -1,0 +1,18 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "glowing_banner",
+  "key": {
+    "/": "minecraft:stick",
+    "w": "ectolum:glowing_gray_wool"
+  },
+  "pattern": [
+    "www",
+    "www",
+    " / "
+  ],
+  "result": {
+    "count": 1,
+    "id": "ectolum:glowing_gray_banner"
+  }
+}

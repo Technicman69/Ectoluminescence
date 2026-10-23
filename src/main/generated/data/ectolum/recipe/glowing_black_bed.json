@@ -1,0 +1,17 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "glowing_bed",
+  "key": {
+    "p": "#minecraft:planks",
+    "w": "ectolum:glowing_black_wool"
+  },
+  "pattern": [
+    "www",
+    "ppp"
+  ],
+  "result": {
+    "count": 1,
+    "id": "ectolum:glowing_black_bed"
+  }
+}

@@ -11,7 +11,10 @@ public class EctoluminescenceDataGenerator implements DataGeneratorEntrypoint {
         FabricDataGenerator.Pack pack = fabricDataGenerator.createPack();
         pack.addProvider(ModModelProvider::new);
         pack.addProvider(ModBlockTagProvider::new);
+        pack.addProvider(ModItemTagProvider::new);
         pack.addProvider(ModLootTableProvider::new);
         pack.addProvider(ModRecipeProvider::new);
+        // Generates lang file in "generated" directory. Although, duplicated file from "resources" dir conflict
+        //pack.addProvider(ModLanguageProvider::new);
     }
 }

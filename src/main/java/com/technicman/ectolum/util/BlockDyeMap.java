@@ -11,7 +11,6 @@ public class BlockDyeMap {
     public static final EnumMap<DyeColor, Block> CARPET = new EnumMap<>(DyeColor.class);
     public static final EnumMap<DyeColor, Block> BED = new EnumMap<>(DyeColor.class);
     public static final EnumMap<DyeColor, Block> BANNER = new EnumMap<>(DyeColor.class);
-    public static final EnumMap<DyeColor, Block> WALL_BANNER = new EnumMap<>(DyeColor.class);
 
     public static final EnumMap<DyeColor, Block> GLOWING_WOOL = new EnumMap<>(DyeColor.class);
     public static final EnumMap<DyeColor, Block> GLOWING_CARPET = new EnumMap<>(DyeColor.class);
@@ -87,22 +86,5 @@ public class BlockDyeMap {
         BANNER.put(DyeColor.GREEN, Blocks.GREEN_BANNER);
         BANNER.put(DyeColor.RED, Blocks.RED_BANNER);
         BANNER.put(DyeColor.BLACK, Blocks.BLACK_BANNER);
-
-        WALL_BANNER.put(DyeColor.WHITE, Blocks.WHITE_WALL_BANNER);
-        WALL_BANNER.put(DyeColor.ORANGE, Blocks.ORANGE_WALL_BANNER);
-        WALL_BANNER.put(DyeColor.MAGENTA, Blocks.MAGENTA_WALL_BANNER);
-        WALL_BANNER.put(DyeColor.LIGHT_BLUE, Blocks.LIGHT_BLUE_WALL_BANNER);
-        WALL_BANNER.put(DyeColor.YELLOW, Blocks.YELLOW_WALL_BANNER);
-        WALL_BANNER.put(DyeColor.LIME, Blocks.LIME_WALL_BANNER);
-        WALL_BANNER.put(DyeColor.PINK, Blocks.PINK_WALL_BANNER);
-        WALL_BANNER.put(DyeColor.GRAY, Blocks.GRAY_WALL_BANNER);
-        WALL_BANNER.put(DyeColor.LIGHT_GRAY, Blocks.LIGHT_GRAY_WALL_BANNER);
-        WALL_BANNER.put(DyeColor.CYAN, Blocks.CYAN_WALL_BANNER);
-        WALL_BANNER.put(DyeColor.PURPLE, Blocks.PURPLE_WALL_BANNER);
-        WALL_BANNER.put(DyeColor.BLUE, Blocks.BLUE_WALL_BANNER);
-        WALL_BANNER.put(DyeColor.BROWN, Blocks.BROWN_WALL_BANNER);
-        WALL_BANNER.put(DyeColor.GREEN, Blocks.GREEN_WALL_BANNER);
-        WALL_BANNER.put(DyeColor.RED, Blocks.RED_WALL_BANNER);
-        WALL_BANNER.put(DyeColor.BLACK, Blocks.BLACK_WALL_BANNER);
     }
 }

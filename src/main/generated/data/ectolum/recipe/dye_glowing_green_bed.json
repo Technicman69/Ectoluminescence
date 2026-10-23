@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "dye_glowing_bed",
+  "ingredients": [
+    "minecraft:green_dye",
+    "#ectolum:glowing_beds"
+  ],
+  "result": {
+    "count": 1,
+    "id": "minecraft:green_bed"
+  }
+}

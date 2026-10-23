@@ -1,6 +1,7 @@
 package com.technicman.ectolum.datagen;
 
 import com.technicman.ectolum.Ectoluminescence;
+import com.technicman.ectolum.item.ModItems;
 import com.technicman.ectolum.util.BlockDyeMap;
 import com.technicman.ectolum.util.ModTags;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
@@ -12,7 +13,6 @@ import net.minecraft.item.DyeItem;
 import net.minecraft.item.Item;
 import net.minecraft.item.ItemConvertible;
 import net.minecraft.item.Items;
-import net.minecraft.recipe.Ingredient;
 import net.minecraft.recipe.Recipe;
 import net.minecraft.recipe.book.RecipeCategory;
 import net.minecraft.registry.Registries;
@@ -24,9 +24,7 @@ import net.minecraft.registry.tag.TagKey;
 import net.minecraft.util.DyeColor;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.ArrayList;
 import java.util.EnumMap;
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 public class ModRecipeProvider extends FabricRecipeProvider {
@@ -39,19 +37,21 @@ public class ModRecipeProvider extends FabricRecipeProvider {
         return new RecipeGenerator(registries, exporter) {
             @Override
             public void generate() {
-                // Glowing other from regular other
-//                BlockDyeMap.GLOWING_WOOL.forEach((color, block) -> {
-//                    ItemConvertible regularWool = BlockDyeMap.WOOL.get(color);
-//                    createShapeless(RecipeCategory.DECORATIONS, block)
-//                            .criterion(hasItem(regularWool), conditionsFromItem(regularWool))
-//                            .criterion(hasItem(Items.GLOW_INK_SAC), conditionsFromItem(Items.GLOW_INK_SAC))
-//                            .group("glowing_wool")
-//                            .input(Items.GLOW_INK_SAC)
-//                            .input(regularWool)
-//                            .offerTo(exporter);
-//                });
-                // Glowing other from dying other glowing other
-                createDyeRecipe(BlockDyeMap.GLOWING_WOOL, RecipeCategory.BUILDING_BLOCKS, "dye_glowing_wool");
+                createShaped(RecipeCategory.MISC, ModItems.GLOW_INK_TORCH_ITEM, 4)
+                        .criterion(hasItem(Items.GLOW_INK_SAC), conditionsFromItem(Items.GLOW_INK_SAC))
+                        .input('g', Items.GLOW_INK_SAC)
+                        .input('/', Items.STICK)
+                        .pattern("g")
+                        .pattern("/")
+                        .offerTo(exporter);
+                createShapeless(RecipeCategory.DECORATIONS, ModItems.CLEAR_ITEM_FRAME)
+                        .criterion(hasItem(Items.PHANTOM_MEMBRANE), conditionsFromItem(Items.PHANTOM_MEMBRANE))
+                        .input(Items.ITEM_FRAME)
+                        .input(Items.PHANTOM_MEMBRANE)
+                        .offerTo(exporter);
+
+                // Regular wool from dying
+                createDyeRecipe(BlockDyeMap.WOOL, ModTags.GLOWING_WOOL_ITEMS, RecipeCategory.BUILDING_BLOCKS, "dye_glowing_wool");
                 // Glowing wool from regular ones
                 createLightRecipe(BlockDyeMap.GLOWING_WOOL, BlockDyeMap.WOOL, RecipeCategory.BUILDING_BLOCKS, "light_wool");
 
@@ -66,8 +66,8 @@ public class ModRecipeProvider extends FabricRecipeProvider {
                             .pattern("ww")
                             .offerTo(exporter);
                 }));
-                // Glowing carpets from dying
-                createDyeRecipe(BlockDyeMap.GLOWING_CARPET, RecipeCategory.MISC, "dye_glowing_wool_carpet");
+                // Regular carpet from dying
+                createDyeRecipe(BlockDyeMap.CARPET, ModTags.GLOWING_WOOL_CARPET_ITEMS, RecipeCategory.MISC, "dye_glowing_wool_carpet");
                 // Glowing carpets from regular ones
                 createLightRecipe(BlockDyeMap.GLOWING_CARPET, BlockDyeMap.CARPET, RecipeCategory.MISC, "light_wool_carpet");
 
@@ -84,8 +84,8 @@ public class ModRecipeProvider extends FabricRecipeProvider {
                             .pattern("ppp")
                             .offerTo(exporter);
                 }));
-                // Glowing beds from dying
-                createDyeRecipe(BlockDyeMap.GLOWING_BED, RecipeCategory.MISC, "dye_glowing_bed");
+                // Regular bed from dying
+                createDyeRecipe(BlockDyeMap.BED, ModTags.GLOWING_BED_ITEMS, RecipeCategory.MISC, "dye_glowing_bed");
                 // Glowing beds from regular ones
                 createLightRecipe(BlockDyeMap.GLOWING_BED, BlockDyeMap.BED, RecipeCategory.MISC, "light_bed");
 
@@ -105,28 +105,14 @@ public class ModRecipeProvider extends FabricRecipeProvider {
                 }));
             }
 
-            private void createDyeRecipe(EnumMap<DyeColor, Block> blockDyeMap, RecipeCategory category, String group) {
+            private void createDyeRecipe(EnumMap<DyeColor, Block> blockDyeMap, TagKey<Item> glowingBlocks, RecipeCategory category, String group) {
                 blockDyeMap.forEach((color, block) -> {
-//                    List<Item> otherList = new ArrayList<>();
-//                    Registries.ITEM.iterateEntries(tag).forEach(itemRegistryEntry -> {
-//                        Item other = itemRegistryEntry.value();
-//                        if (!other.equals(block.asItem())) {
-//                            otherList.add(other);
-//                        }
-//                    });
-                    Ingredient others;
-                    try {
-                        others = Ingredient.ofItems(blockDyeMap.values().stream().filter(b -> !block.equals(b)));
-                    } catch (UnsupportedOperationException e) {
-                        return;
-                    }
-
                     createShapeless(category, block)
                             .criterion("has_needed_dye", conditionsFromItem(DyeItem.byColor(color)))
                             .group(group)
                             .input(DyeItem.byColor(color))
-                            .input(others)
-                            .offerTo(exporter, prefixedKey(block, "dye_"));
+                            .input(glowingBlocks)
+                            .offerTo(exporter, prefixedKey(block, "dye_glowing_"));
                 });
             }
 

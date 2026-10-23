@@ -1,0 +1,32 @@
+{
+  "parent": "minecraft:recipes/root",
+  "criteria": {
+    "has_glowing_lime_wool": {
+      "conditions": {
+        "items": [
+          {
+            "items": "ectolum:glowing_lime_wool"
+          }
+        ]
+      },
+      "trigger": "minecraft:inventory_changed"
+    },
+    "has_the_recipe": {
+      "conditions": {
+        "recipe": "ectolum:glowing_lime_banner"
+      },
+      "trigger": "minecraft:recipe_unlocked"
+    }
+  },
+  "requirements": [
+    [
+      "has_the_recipe",
+      "has_glowing_lime_wool"
+    ]
+  ],
+  "rewards": {
+    "recipes": [
+      "ectolum:glowing_lime_banner"
+    ]
+  }
+}

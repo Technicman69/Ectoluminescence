@@ -1,0 +1,15 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "group": "glowing_carpet",
+  "key": {
+    "w": "ectolum:glowing_black_wool"
+  },
+  "pattern": [
+    "ww"
+  ],
+  "result": {
+    "count": 3,
+    "id": "ectolum:glowing_black_carpet"
+  }
+}

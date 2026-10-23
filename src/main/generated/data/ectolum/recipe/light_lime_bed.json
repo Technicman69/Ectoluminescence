@@ -1,0 +1,13 @@
+{
+  "type": "minecraft:crafting_shapeless",
+  "category": "misc",
+  "group": "light_bed",
+  "ingredients": [
+    "minecraft:glow_ink_sac",
+    "minecraft:lime_bed"
+  ],
+  "result": {
+    "count": 1,
+    "id": "ectolum:glowing_lime_bed"
+  }
+}

@@ -8,6 +8,7 @@ import net.minecraft.block.Blocks;
 import net.minecraft.enchantment.Enchantment;
 import net.minecraft.enchantment.Enchantments;
 import net.minecraft.loot.LootTable;
+import net.minecraft.loot.condition.LootCondition;
 import net.minecraft.loot.condition.MatchToolLootCondition;
 import net.minecraft.loot.context.LootContextParameters;
 import net.minecraft.loot.function.CopyComponentsLootFunction;
@@ -49,48 +50,36 @@ public class ModLootTableModifiers  {
             RegistryEntry<Enchantment> silkTouch = optionalEnchantment.get();
 
             if (source.isBuiltin()) {
-                Optional<RegistryKey<LootTable>> POT_LOOT = Blocks.DECORATED_POT.getLootTableKey();
-                if (POT_LOOT.isPresent() && registryKey.equals(POT_LOOT.get())) {
+                Optional<RegistryKey<LootTable>> potLoot = Blocks.DECORATED_POT.getLootTableKey();
+                if (potLoot.isPresent() && registryKey.equals(potLoot.get())) {
                     LootFunction function = CopyComponentsLootFunction.blockEntity(LootContextParameters.BLOCK_ENTITY)
                             .include(ModComponents.SHERD_GLOW_OVERRIDES)
-                            .conditionally(
-                                    MatchToolLootCondition.builder(
-                                            ItemPredicate.Builder.create()
-                                                    .components(ComponentsPredicate.Builder.create()
-                                                            .partial(ENCHANTMENTS, EnchantmentsPredicate.Enchantments.enchantments(
-                                                                    List.of(new EnchantmentPredicate(
-                                                                            silkTouch,
-                                                                            IntRange.atLeast(1)
-                                                                    ))
-                                                            ))
-                                                            .build()
-                                                    )
-                                    )
-                            ).build();
+                            .conditionally(toolEnchantedWith(silkTouch))
+                            .build();
+                    tableBuilder.apply(function);
+                } else if (BANNERS_LOOT_TABLE_IDS.contains(registryKey)) {
+                    LootFunction function = CopyComponentsLootFunction.blockEntity(LootContextParameters.BLOCK_ENTITY)
+                            .include(ModComponents.BANNER_EFFECTS)
+                            .conditionally(toolEnchantedWith(silkTouch))
+                            .build();
                     tableBuilder.apply(function);
                 }
-            } else if (BANNERS_LOOT_TABLE_IDS.contains(registryKey)) {
-                //System.out.println("Changed loot table: " + registryKey.getValue());
-                LootFunction function = CopyComponentsLootFunction.blockEntity(LootContextParameters.BLOCK_ENTITY)
-                        .include(ModComponents.BANNER_EFFECTS)
-//                            .withOperation("\"ectolum.glowing\"", "BlockEntityTag.\"ectolum.glowing\"")
-//                            .withOperation("\"ectolum.hide_background\"", "BlockEntityTag.\"ectolum.hide_background\"")
-                        .conditionally(
-                                MatchToolLootCondition.builder(
-                                        ItemPredicate.Builder.create()
-                                                .components(ComponentsPredicate.Builder.create()
-                                                        .partial(ENCHANTMENTS, EnchantmentsPredicate.Enchantments.enchantments(
-                                                                List.of(new EnchantmentPredicate(
-                                                                        silkTouch,
-                                                                        IntRange.atLeast(1)
-                                                                ))
-                                                        ))
-                                                        .build()
-                                                )
-                                )
-                        ).build();
-                tableBuilder.apply(function);
-                }
+            }
         });
+    }
+
+    public static LootCondition.Builder toolEnchantedWith(RegistryEntry<Enchantment> enchantment) {
+        return MatchToolLootCondition.builder(
+                ItemPredicate.Builder.create()
+                        .components(ComponentsPredicate.Builder.create()
+                                .partial(ENCHANTMENTS, EnchantmentsPredicate.Enchantments.enchantments(
+                                        List.of(new EnchantmentPredicate(
+                                                enchantment,
+                                                IntRange.atLeast(1)
+                                        ))
+                                ))
+                                .build()
+                        )
+        );
     }
 }

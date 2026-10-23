@@ -4,7 +4,6 @@ import com.technicman.ectolum.util.BlockDyeMap;
 import com.technicman.ectolum.util.ModTags;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricTagProvider;
-import net.minecraft.block.Block;
 import net.minecraft.registry.RegistryWrapper;
 import org.jetbrains.annotations.NotNull;
 
@@ -19,5 +18,8 @@ public class ModBlockTagProvider extends FabricTagProvider.BlockTagProvider {
     protected void configure(RegistryWrapper.@NotNull WrapperLookup registries) {
         valueLookupBuilder(ModTags.GLOWING_WOOL).add(BlockDyeMap.GLOWING_WOOL.values());
         valueLookupBuilder(ModTags.GLOWING_WOOL_CARPETS).add(BlockDyeMap.GLOWING_CARPET.values());
+        valueLookupBuilder(ModTags.GLOWING_BEDS).add(BlockDyeMap.GLOWING_BED.values());
+        valueLookupBuilder(ModTags.GLOWING_BANNERS).add(BlockDyeMap.GLOWING_BANNER.values()).add(BlockDyeMap.GLOWING_WALL_BANNER.values());
+        valueLookupBuilder(ModTags.GLOWING_WALL_BANNERS).add(BlockDyeMap.GLOWING_WALL_BANNER.values());
     }
 }
