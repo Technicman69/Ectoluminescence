@@ -6,6 +6,7 @@ import com.technicman.ectolum.component.ModComponents;
 import com.technicman.ectolum.entity.ModEntities;
 import com.technicman.ectolum.item.ModItemGroups;
 import com.technicman.ectolum.item.ModItems;
+import com.technicman.ectolum.loot.ModEntitySubPredicateTypes;
 import com.technicman.ectolum.loot.ModLootTableModifiers;
 import com.technicman.ectolum.recipe.ModRecipes;
 import com.technicman.ectolum.sound.ModSounds;
@@ -54,6 +55,7 @@ public class Ectoluminescence implements ModInitializer {
 		ModItemGroups.onInitialize();
 		ModSounds.onInitialize();
 		ModRecipes.onInitialize();
+		ModEntitySubPredicateTypes.onInitialize();
 		ModLootTableModifiers.onInitialize();
 		ModComponents.onInitialize();
 

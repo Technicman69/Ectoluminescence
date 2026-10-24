@@ -43,11 +43,7 @@ public abstract class SheepEntityMixin extends AnimalEntity implements SheepAcce
 	private void interactMob (PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
 		ItemStack itemStack = player.getStackInHand(hand);
 		if (itemStack.isOf(Items.GLOW_INK_SAC)) {
-			if (!this.getEntityWorld().isClient()) {
-				if (ectolum$isGlowing()) {
-					cir.setReturnValue(ActionResult.SUCCESS);
-					return;
-				}
+			if (!this.getEntityWorld().isClient() && !ectolum$isGlowing()) {
 				ectolum$setGlowing(true);
 
 				if (player instanceof ServerPlayerEntity serverPlayer) {
@@ -57,7 +53,7 @@ public abstract class SheepEntityMixin extends AnimalEntity implements SheepAcce
 				this.getEntityWorld().playSoundFromEntity(null, this, SoundEvents.ITEM_GLOW_INK_SAC_USE, SoundCategory.PLAYERS, 1.0F, 1.0F);
 				player.incrementStat(Stats.USED.getOrCreateStat(itemStack.getItem()));
 				itemStack.decrement(1);
-				cir.setReturnValue(ActionResult.SUCCESS);
+				cir.setReturnValue(ActionResult.SUCCESS_SERVER);
 			} else {
 				cir.setReturnValue(ActionResult.CONSUME);
 			}
