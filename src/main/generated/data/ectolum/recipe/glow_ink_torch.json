@@ -1,0 +1,16 @@
+{
+  "type": "minecraft:crafting_shaped",
+  "category": "misc",
+  "key": {
+    "/": "minecraft:stick",
+    "g": "minecraft:glow_ink_sac"
+  },
+  "pattern": [
+    "g",
+    "/"
+  ],
+  "result": {
+    "count": 4,
+    "id": "ectolum:glow_ink_torch"
+  }
+}
