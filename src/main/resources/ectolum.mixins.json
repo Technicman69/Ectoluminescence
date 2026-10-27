@@ -5,7 +5,6 @@
   "mixins": [
     "BannerBlockEntityMixin",
     "BannerBlockMixin",
-    "BlockEntityTypeMixin",
     "DecoratedPotBlockEntityMixin",
     "DecoratedPotPatternsMixin",
     "SheepEntityMixin",

@@ -19,9 +19,9 @@ public class ModLootTableProvider extends FabricBlockLootTableProvider {
     public void generate() {
         addDrop(ModBlocks.GLOW_INK_TORCH);
 
-        BlockDyeMap.GLOWING_WOOL.forEach((color, block) -> addDrop(block));
-        BlockDyeMap.GLOWING_CARPET.forEach((color, block) -> addDrop(block));
-        BlockDyeMap.GLOWING_BED.forEach((color, block) -> addDrop(block, dropsWithProperty(block, BedBlock.PART, BedPart.HEAD)));
-        BlockDyeMap.GLOWING_BANNER.forEach((color, block) -> addDrop(block, bannerDrops(block)));
+        BlockDyeMap.GLOWING_WOOL.values().forEach(this::addDrop);
+        BlockDyeMap.GLOWING_CARPET.values().forEach(this::addDrop);
+        BlockDyeMap.GLOWING_BED.values().forEach(block -> addDrop(block, dropsWithProperty(block, BedBlock.PART, BedPart.HEAD)));
+        BlockDyeMap.GLOWING_BANNER.values().forEach(block -> addDrop(block, bannerDrops(block)));
     }
 }
