@@ -2,26 +2,26 @@ package com.technicman.ectolum.entity;
 
 import com.technicman.ectolum.item.ModItems;
 import com.technicman.ectolum.sound.ModSounds;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.ItemFrameEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.sound.SoundEvent;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.sounds.SoundEvent;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.decoration.ItemFrame;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.level.Level;
 
-public class ClearItemFrameEntity extends ItemFrameEntity {
-    public ClearItemFrameEntity(EntityType<? extends ItemFrameEntity> entityType, World world) {
+public class ClearItemFrameEntity extends ItemFrame {
+    public ClearItemFrameEntity(EntityType<? extends ItemFrame> entityType, Level world) {
         super(entityType, world);
     }
 
-    public ClearItemFrameEntity(World world, BlockPos blockPos, Direction direction) {
+    public ClearItemFrameEntity(Level world, BlockPos blockPos, Direction direction) {
         super(ModEntities.CLEAR_ITEM_FRAME, world, blockPos, direction);
     }
 
-    public void setHeldItemStack(ItemStack value, boolean update) {
+    public void setItem(ItemStack value, boolean update) {
         this.setInvisible(!value.isEmpty());
-        super.setHeldItemStack(value, update);
+        super.setItem(value, update);
     }
 
     public SoundEvent getRemoveItemSound() {
@@ -44,7 +44,7 @@ public class ClearItemFrameEntity extends ItemFrameEntity {
         return ModSounds.ENTITY_CLEAR_ITEM_FRAME_ROTATE_ITEM;
     }
 
-    protected ItemStack getAsItemStack() {
+    protected ItemStack getFrameItemStack() {
         return new ItemStack(ModItems.CLEAR_ITEM_FRAME);
     }
 }

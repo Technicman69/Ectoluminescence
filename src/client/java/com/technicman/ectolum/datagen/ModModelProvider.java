@@ -3,15 +3,16 @@ package com.technicman.ectolum.datagen;
 import com.technicman.ectolum.util.BlockDyeMap;
 import net.fabricmc.fabric.api.client.datagen.v1.provider.FabricModelProvider;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
-import net.minecraft.block.Block;
 import net.minecraft.client.data.*;
-import net.minecraft.client.render.item.model.special.BannerModelRenderer;
-import net.minecraft.client.render.item.model.special.BedModelRenderer;
-import net.minecraft.client.render.model.json.ModelVariant;
-import net.minecraft.client.render.model.json.WeightedVariant;
-import net.minecraft.item.Item;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.collection.WeightedPool;
+import net.minecraft.client.data.models.BlockModelGenerators;
+import net.minecraft.client.data.models.ItemModelGenerators;
+import net.minecraft.client.data.models.MultiVariant;
+import net.minecraft.client.data.models.blockstates.MultiVariantGenerator;
+import net.minecraft.client.data.models.model.ModelLocationUtils;
+import net.minecraft.client.renderer.block.model.Variant;
+import net.minecraft.resources.Identifier;
+import net.minecraft.util.random.WeightedList;
+import net.minecraft.world.level.block.Block;
 import org.jetbrains.annotations.NotNull;
 
 public class ModModelProvider extends FabricModelProvider {
@@ -20,7 +21,7 @@ public class ModModelProvider extends FabricModelProvider {
     }
 
     @Override
-    public void generateBlockStateModels(@NotNull BlockStateModelGenerator blockStateModelGenerator) {
+    public void generateBlockStateModels(@NotNull BlockModelGenerators blockStateModelGenerator) {
         BlockDyeMap.GLOWING_WOOL.forEach((color, block) ->
                 registerParentedWithItem(blockStateModelGenerator, BlockDyeMap.WOOL.get(color), block));
         BlockDyeMap.GLOWING_CARPET.forEach((color, block) ->
@@ -44,25 +45,25 @@ public class ModModelProvider extends FabricModelProvider {
         });
     }
 
-    public void registerParentedWithItem(@NotNull BlockStateModelGenerator blockStateModelGenerator, Block parent, Block block) {
-        registerParented(blockStateModelGenerator, ModelIds.getBlockModelId(parent), block);
-        blockStateModelGenerator.registerParentedItemModel(block, ModelIds.getBlockModelId(parent));
+    public void registerParentedWithItem(@NotNull BlockModelGenerators blockStateModelGenerator, Block parent, Block block) {
+        registerParented(blockStateModelGenerator, ModelLocationUtils.getModelLocation(parent), block);
+        blockStateModelGenerator.registerSimpleItemModel(block, ModelLocationUtils.getModelLocation(parent));
     }
 
     /**
      * Registers block_state same as provided parent block
      */
-    public void registerParented(@NotNull BlockStateModelGenerator blockStateModelGenerator, Identifier parent, Block block) {
-        blockStateModelGenerator.blockStateCollector.accept(
-                VariantsBlockModelDefinitionCreator.of(
+    public void registerParented(@NotNull BlockModelGenerators blockStateModelGenerator, Identifier parent, Block block) {
+        blockStateModelGenerator.blockStateOutput.accept(
+                MultiVariantGenerator.dispatch(
                         block,
-                        new WeightedVariant(WeightedPool.of(new ModelVariant(parent)))
+                        new MultiVariant(WeightedList.of(new Variant(parent)))
                 )
         );
     }
 
     @Override
-    public void generateItemModels(@NotNull ItemModelGenerator itemModelGenerator) {
+    public void generateItemModels(@NotNull ItemModelGenerators itemModelGenerator) {
 
     }
 }

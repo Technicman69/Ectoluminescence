@@ -2,27 +2,26 @@ package com.technicman.ectolum.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import net.minecraft.component.ComponentsAccess;
-import net.minecraft.item.Item;
-import net.minecraft.item.tooltip.TooltipAppender;
-import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-
 import java.util.BitSet;
 import java.util.function.Consumer;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.component.TooltipProvider;
 
-public class BannerEffects implements TooltipAppender {
+public class BannerEffects implements TooltipProvider {
     public static final Codec<BannerEffects> CODEC = RecordCodecBuilder.create(builder -> builder.group(
             Codec.BOOL.optionalFieldOf("glowing", false).forGetter(BannerEffects::isGlowing),
             Codec.BOOL.optionalFieldOf("hide_background", false).forGetter(BannerEffects::isBackgroundHidden)
     ).apply(builder, BannerEffects::new));
 
-    public static final PacketCodec<RegistryByteBuf, BannerEffects> PACKET_CODEC = PacketCodec.tuple(
-            PacketCodecs.BYTE, BannerEffects::getFlags,
+    public static final StreamCodec<RegistryFriendlyByteBuf, BannerEffects> PACKET_CODEC = StreamCodec.composite(
+            ByteBufCodecs.BYTE, BannerEffects::getFlags,
             BannerEffects::new
     );
 
@@ -73,12 +72,12 @@ public class BannerEffects implements TooltipAppender {
     }
 
     @Override
-    public void appendTooltip(Item.TooltipContext context, Consumer<Text> tooltip, TooltipType type, ComponentsAccess components) {
+    public void addToTooltip(Item.TooltipContext context, Consumer<Component> tooltip, TooltipFlag type, DataComponentGetter components) {
         if (isGlowing()) {
-            tooltip.accept(Text.translatable("block.minecraft.banner.ectolum.glowing").formatted(Formatting.GRAY));
+            tooltip.accept(Component.translatable("block.minecraft.banner.ectolum.glowing").withStyle(ChatFormatting.GRAY));
         }
         if (isBackgroundHidden()) {
-            tooltip.accept(Text.translatable("block.minecraft.banner.ectolum.hide_background").formatted(Formatting.GRAY));
+            tooltip.accept(Component.translatable("block.minecraft.banner.ectolum.hide_background").withStyle(ChatFormatting.GRAY));
         }
     }
 }

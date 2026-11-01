@@ -2,11 +2,6 @@ package com.technicman.ectolum.mixin;
 
 import com.technicman.ectolum.component.ModComponents;
 import com.technicman.ectolum.target_access.DecoratedPotAccess;
-import net.minecraft.block.entity.DecoratedPotBlockEntity;
-import net.minecraft.component.ComponentMap;
-import net.minecraft.component.ComponentsAccess;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -18,6 +13,11 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.world.level.block.entity.DecoratedPotBlockEntity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 
 @Mixin(DecoratedPotBlockEntity.class)
 public class DecoratedPotBlockEntityMixin implements DecoratedPotAccess {
@@ -40,8 +40,8 @@ public class DecoratedPotBlockEntityMixin implements DecoratedPotAccess {
         ectolum$sherdGlowOverrides.set(index, glowing);
     }
 
-    @Inject(at = @At("TAIL"), method = "writeData")
-    private void writeData(WriteView view, CallbackInfo ci) {
+    @Inject(at = @At("TAIL"), method = "saveAdditional")
+    private void writeData(ValueOutput view, CallbackInfo ci) {
         if (
                 ectolum$getSherdGlow(0) ||
                 ectolum$getSherdGlow(1) ||
@@ -57,8 +57,8 @@ public class DecoratedPotBlockEntityMixin implements DecoratedPotAccess {
         }
     }
 
-    @Inject(at = @At("TAIL"), method = "readData")
-    private void readData(ReadView view, CallbackInfo ci) {
+    @Inject(at = @At("TAIL"), method = "loadAdditional")
+    private void readData(ValueInput view, CallbackInfo ci) {
         if (view != null) {
             Optional<byte[]> optionalOverrides = view.getOptionalByteArray(SHERD_GLOW_OVERRIDES_KEY);
             if (optionalOverrides.isPresent()) {
@@ -70,21 +70,21 @@ public class DecoratedPotBlockEntityMixin implements DecoratedPotAccess {
         }
     }
 
-    @Inject(at = @At("TAIL"), method = "addComponents")
-    protected void addComponents(ComponentMap.Builder componentMapBuilder, CallbackInfo ci) {
-        componentMapBuilder.add(ModComponents.SHERD_GLOW_OVERRIDES, ectolum$sherdGlowOverrides);
+    @Inject(at = @At("TAIL"), method = "collectImplicitComponents")
+    protected void addComponents(DataComponentMap.Builder componentMapBuilder, CallbackInfo ci) {
+        componentMapBuilder.set(ModComponents.SHERD_GLOW_OVERRIDES, ectolum$sherdGlowOverrides);
     }
 
-    @Inject(at = @At("TAIL"), method = "readComponents")
-    protected void readComponents(ComponentsAccess components, CallbackInfo ci) {
+    @Inject(at = @At("TAIL"), method = "applyImplicitComponents")
+    protected void readComponents(DataComponentGetter components, CallbackInfo ci) {
         this.ectolum$sherdGlowOverrides = components.get(ModComponents.SHERD_GLOW_OVERRIDES);
         if (ectolum$sherdGlowOverrides == null) {
             ectolum$sherdGlowOverrides = ectolum$getEmptyGlowOverrides();
         }
     }
 
-    @Inject(at = @At("TAIL"), method = "removeFromCopiedStackData")
-    protected void removeFromCopiedStackData(WriteView view, CallbackInfo ci) {
-        view.remove(SHERD_GLOW_OVERRIDES_KEY);
+    @Inject(at = @At("TAIL"), method = "removeComponentsFromTag")
+    protected void removeFromCopiedStackData(ValueOutput view, CallbackInfo ci) {
+        view.discard(SHERD_GLOW_OVERRIDES_KEY);
     }
 }

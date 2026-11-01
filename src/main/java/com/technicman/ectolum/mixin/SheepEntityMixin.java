@@ -1,26 +1,26 @@
 package com.technicman.ectolum.mixin;
 
 import com.technicman.ectolum.target_access.SheepAccess;
-import net.minecraft.advancement.criterion.Criteria;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.data.DataTracker;
-import net.minecraft.entity.data.TrackedData;
-import net.minecraft.entity.data.TrackedDataHandlerRegistry;
-import net.minecraft.entity.passive.AnimalEntity;
-import net.minecraft.entity.passive.SheepEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.Items;
-import net.minecraft.server.network.ServerPlayerEntity;
-import net.minecraft.sound.SoundCategory;
-import net.minecraft.sound.SoundEvents;
-import net.minecraft.stat.Stats;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.Hand;
-import net.minecraft.world.World;
-import net.minecraft.world.event.GameEvent;
+import net.minecraft.advancements.CriteriaTriggers;
+import net.minecraft.network.syncher.EntityDataAccessor;
+import net.minecraft.network.syncher.EntityDataSerializers;
+import net.minecraft.network.syncher.SynchedEntityData;
+import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.sounds.SoundEvents;
+import net.minecraft.sounds.SoundSource;
+import net.minecraft.stats.Stats;
+import net.minecraft.world.InteractionHand;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.animal.Animal;
+import net.minecraft.world.entity.animal.sheep.Sheep;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.Items;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -28,60 +28,60 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
-@Mixin(SheepEntity.class)
-public abstract class SheepEntityMixin extends AnimalEntity implements SheepAccess {
+@Mixin(Sheep.class)
+public abstract class SheepEntityMixin extends Animal implements SheepAccess {
 
 	@Unique
-	private static final TrackedData<Boolean> GLOWING =
-			DataTracker.registerData(SheepEntity.class, TrackedDataHandlerRegistry.BOOLEAN);
+	private static final EntityDataAccessor<Boolean> GLOWING =
+			SynchedEntityData.defineId(Sheep.class, EntityDataSerializers.BOOLEAN);
 
-	protected SheepEntityMixin(EntityType<? extends AnimalEntity> entityType, World world) {
+	protected SheepEntityMixin(EntityType<? extends Animal> entityType, Level world) {
 		super(entityType, world);
 	}
 
-	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/entity/passive/AnimalEntity;interactMob(Lnet/minecraft/entity/player/PlayerEntity;Lnet/minecraft/util/Hand;)Lnet/minecraft/util/ActionResult;"), method = "interactMob", cancellable = true)
-	private void interactMob (PlayerEntity player, Hand hand, CallbackInfoReturnable<ActionResult> cir) {
-		ItemStack itemStack = player.getStackInHand(hand);
-		if (itemStack.isOf(Items.GLOW_INK_SAC)) {
-			if (!this.getEntityWorld().isClient() && !ectolum$isGlowing()) {
+	@Inject(at = @At(value = "INVOKE", target = "Lnet/minecraft/world/entity/animal/Animal;mobInteract(Lnet/minecraft/world/entity/player/Player;Lnet/minecraft/world/InteractionHand;)Lnet/minecraft/world/InteractionResult;"), method = "mobInteract", cancellable = true)
+	private void interactMob (Player player, InteractionHand hand, CallbackInfoReturnable<InteractionResult> cir) {
+		ItemStack itemStack = player.getItemInHand(hand);
+		if (itemStack.is(Items.GLOW_INK_SAC)) {
+			if (!this.level().isClientSide() && !ectolum$isGlowing()) {
 				ectolum$setGlowing(true);
 
-				if (player instanceof ServerPlayerEntity serverPlayer) {
-					Criteria.PLAYER_INTERACTED_WITH_ENTITY.trigger(serverPlayer, itemStack, this);
+				if (player instanceof ServerPlayer serverPlayer) {
+					CriteriaTriggers.PLAYER_INTERACTED_WITH_ENTITY.trigger(serverPlayer, itemStack, this);
 				}
-				this.emitGameEvent(GameEvent.ENTITY_INTERACT, player);
-				this.getEntityWorld().playSoundFromEntity(null, this, SoundEvents.ITEM_GLOW_INK_SAC_USE, SoundCategory.PLAYERS, 1.0F, 1.0F);
-				player.incrementStat(Stats.USED.getOrCreateStat(itemStack.getItem()));
-				itemStack.decrement(1);
-				cir.setReturnValue(ActionResult.SUCCESS_SERVER);
+				this.gameEvent(GameEvent.ENTITY_INTERACT, player);
+				this.level().playSound(null, this, SoundEvents.GLOW_INK_SAC_USE, SoundSource.PLAYERS, 1.0F, 1.0F);
+				player.awardStat(Stats.ITEM_USED.get(itemStack.getItem()));
+				itemStack.shrink(1);
+				cir.setReturnValue(InteractionResult.SUCCESS_SERVER);
 			} else {
-				cir.setReturnValue(ActionResult.CONSUME);
+				cir.setReturnValue(InteractionResult.CONSUME);
 			}
 		}
 	}
 
-	@Inject(method = "initDataTracker", at = @At("TAIL"))
-	private void initDataTracker(DataTracker.Builder builder, CallbackInfo ci) {
-		builder.add(GLOWING, false);
+	@Inject(method = "defineSynchedData", at = @At("TAIL"))
+	private void initDataTracker(SynchedEntityData.Builder builder, CallbackInfo ci) {
+		builder.define(GLOWING, false);
 	}
 
 	public boolean ectolum$isGlowing() {
-		return this.dataTracker.get(GLOWING);
+		return this.entityData.get(GLOWING);
 	}
 
 	public void ectolum$setGlowing(boolean glowing) {
-		this.dataTracker.set(GLOWING, glowing);
+		this.entityData.set(GLOWING, glowing);
 	}
 
-	@Inject(at = @At("HEAD"), method = "writeCustomData")
-	private void writeCustomData(WriteView view, CallbackInfo ci) {
+	@Inject(at = @At("HEAD"), method = "addAdditionalSaveData")
+	private void writeCustomData(ValueOutput view, CallbackInfo ci) {
 		if (ectolum$isGlowing()) {
 			view.putBoolean("ectolum.glowing", true);
 		}
 	}
 
-	@Inject(at = @At("HEAD"), method = "readCustomData")
-	private void readCustomData(ReadView view, CallbackInfo ci) {
-		ectolum$setGlowing(view.getBoolean("ectolum.glowing", false));
+	@Inject(at = @At("HEAD"), method = "readAdditionalSaveData")
+	private void readCustomData(ValueInput view, CallbackInfo ci) {
+		ectolum$setGlowing(view.getBooleanOr("ectolum.glowing", false));
 	}
 }

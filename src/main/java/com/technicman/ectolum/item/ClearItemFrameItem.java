@@ -1,47 +1,47 @@
 package com.technicman.ectolum.item;
 
 import com.technicman.ectolum.entity.ClearItemFrameEntity;
-import net.minecraft.entity.EntityType;
-import net.minecraft.entity.decoration.AbstractDecorationEntity;
-import net.minecraft.entity.player.PlayerEntity;
-import net.minecraft.item.ItemFrameItem;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.ItemUsageContext;
-import net.minecraft.util.ActionResult;
-import net.minecraft.util.math.BlockPos;
-import net.minecraft.util.math.Direction;
-import net.minecraft.world.World;
-import net.minecraft.world.event.GameEvent;
+import net.minecraft.core.BlockPos;
+import net.minecraft.core.Direction;
+import net.minecraft.world.InteractionResult;
+import net.minecraft.world.entity.EntityType;
+import net.minecraft.world.entity.decoration.HangingEntity;
+import net.minecraft.world.entity.player.Player;
+import net.minecraft.world.item.ItemFrameItem;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.context.UseOnContext;
+import net.minecraft.world.level.Level;
+import net.minecraft.world.level.gameevent.GameEvent;
 
 public class ClearItemFrameItem extends ItemFrameItem {
-    public ClearItemFrameItem(EntityType<? extends AbstractDecorationEntity> entityType, Settings settings) {
+    public ClearItemFrameItem(EntityType<? extends HangingEntity> entityType, Properties settings) {
         super(entityType, settings);
     }
 
-    public ActionResult useOnBlock(ItemUsageContext context) {
-        BlockPos blockPos = context.getBlockPos();
-        Direction direction = context.getSide();
-        BlockPos blockPos2 = blockPos.offset(direction);
-        PlayerEntity playerEntity = context.getPlayer();
-        ItemStack itemStack = context.getStack();
-        if (playerEntity != null && !this.canPlaceOn(playerEntity, direction, itemStack, blockPos2)) {
-            return ActionResult.FAIL;
+    public InteractionResult useOn(UseOnContext context) {
+        BlockPos blockPos = context.getClickedPos();
+        Direction direction = context.getClickedFace();
+        BlockPos blockPos2 = blockPos.relative(direction);
+        Player playerEntity = context.getPlayer();
+        ItemStack itemStack = context.getItemInHand();
+        if (playerEntity != null && !this.mayPlace(playerEntity, direction, itemStack, blockPos2)) {
+            return InteractionResult.FAIL;
         } else {
-            World world = context.getWorld();
-            AbstractDecorationEntity abstractDecorationEntity = new ClearItemFrameEntity(world, blockPos2, direction);
+            Level world = context.getLevel();
+            HangingEntity abstractDecorationEntity = new ClearItemFrameEntity(world, blockPos2, direction);
 
-            EntityType.copier(world, itemStack, playerEntity).accept(abstractDecorationEntity);
-            if (abstractDecorationEntity.canStayAttached()) {
-                if (!world.isClient()) {
-                    abstractDecorationEntity.onPlace();
-                    world.emitGameEvent(playerEntity, GameEvent.ENTITY_PLACE, abstractDecorationEntity.getEntityPos());
-                    world.spawnEntity(abstractDecorationEntity);
+            EntityType.createDefaultStackConfig(world, itemStack, playerEntity).accept(abstractDecorationEntity);
+            if (abstractDecorationEntity.survives()) {
+                if (!world.isClientSide()) {
+                    abstractDecorationEntity.playPlacementSound();
+                    world.gameEvent(playerEntity, GameEvent.ENTITY_PLACE, abstractDecorationEntity.position());
+                    world.addFreshEntity(abstractDecorationEntity);
                 }
 
-                itemStack.decrement(1);
-                return ActionResult.SUCCESS;
+                itemStack.shrink(1);
+                return InteractionResult.SUCCESS;
             } else {
-                return ActionResult.CONSUME;
+                return InteractionResult.CONSUME;
             }
         }
     }

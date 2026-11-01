@@ -5,80 +5,79 @@ import com.google.common.collect.HashBiMap;
 import com.technicman.ectolum.component.ModComponents;
 import com.technicman.ectolum.util.BlockDyeMap;
 import net.fabricmc.fabric.api.loot.v3.LootTableEvents;
-import net.minecraft.block.AbstractBannerBlock;
-import net.minecraft.block.AbstractBlock;
-import net.minecraft.block.Blocks;
-import net.minecraft.enchantment.Enchantment;
-import net.minecraft.enchantment.Enchantments;
-import net.minecraft.loot.LootPool;
-import net.minecraft.loot.LootTable;
-import net.minecraft.loot.LootTables;
-import net.minecraft.loot.condition.EntityPropertiesLootCondition;
-import net.minecraft.loot.condition.LootCondition;
-import net.minecraft.loot.condition.MatchToolLootCondition;
-import net.minecraft.loot.context.LootContext;
-import net.minecraft.loot.context.LootContextParameters;
-import net.minecraft.loot.entry.ItemEntry;
-import net.minecraft.loot.function.CopyComponentsLootFunction;
-import net.minecraft.loot.function.LootFunction;
-import net.minecraft.loot.provider.number.UniformLootNumberProvider;
-import net.minecraft.predicate.NumberRange.IntRange;
-import net.minecraft.predicate.component.ComponentsPredicate;
-import net.minecraft.predicate.entity.EntityPredicate;
-import net.minecraft.predicate.item.EnchantmentPredicate;
-import net.minecraft.predicate.item.EnchantmentsPredicate;
-import net.minecraft.predicate.item.ItemPredicate;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.util.DyeColor;
-
+import net.minecraft.advancements.criterion.DataComponentMatchers;
+import net.minecraft.advancements.criterion.EnchantmentPredicate;
+import net.minecraft.advancements.criterion.EntityPredicate;
+import net.minecraft.advancements.criterion.ItemPredicate;
+import net.minecraft.advancements.criterion.MinMaxBounds.Ints;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.predicates.EnchantmentsPredicate;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.item.enchantment.Enchantment;
+import net.minecraft.world.item.enchantment.Enchantments;
+import net.minecraft.world.level.block.AbstractBannerBlock;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.storage.loot.BuiltInLootTables;
+import net.minecraft.world.level.storage.loot.LootContext;
+import net.minecraft.world.level.storage.loot.LootPool;
+import net.minecraft.world.level.storage.loot.LootTable;
+import net.minecraft.world.level.storage.loot.entries.LootItem;
+import net.minecraft.world.level.storage.loot.functions.CopyComponentsFunction;
+import net.minecraft.world.level.storage.loot.functions.LootItemFunction;
+import net.minecraft.world.level.storage.loot.parameters.LootContextParams;
+import net.minecraft.world.level.storage.loot.predicates.LootItemCondition;
+import net.minecraft.world.level.storage.loot.predicates.LootItemEntityPropertyCondition;
+import net.minecraft.world.level.storage.loot.predicates.MatchTool;
+import net.minecraft.world.level.storage.loot.providers.number.UniformGenerator;
 import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import static net.minecraft.predicate.component.ComponentPredicateTypes.ENCHANTMENTS;
+import static net.minecraft.core.component.predicates.DataComponentPredicates.ENCHANTMENTS;
 
 public class ModLootTableModifiers  {
-    private static final Set<RegistryKey<LootTable>> BANNERS_LOOT_TABLE_IDS = Registries.BLOCK.stream()
+    private static final Set<ResourceKey<LootTable>> BANNERS_LOOT_TABLE_IDS = BuiltInRegistries.BLOCK.stream()
             .filter((block -> block instanceof AbstractBannerBlock))
-            .map(AbstractBlock::getLootTableKey)
+            .map(BlockBehaviour::getLootTable)
             .filter(Optional::isPresent)
             .map(Optional::get)
             .collect(Collectors.toSet());
 
     public static void onInitialize() {
         // Modify banner loot tables, to drop with effects
-        RegistryKey<LootTable> potLoot = Blocks.DECORATED_POT.getLootTableKey().orElse(null);
-        BiMap<RegistryKey<LootTable>, DyeColor> sheepDyeColorFromDrops =
-                HashBiMap.create(LootTables.SHEEP_DROPS_FROM_DYE_COLOR).inverse();
-        BiMap<RegistryKey<LootTable>, DyeColor> sheepDyeColorFromShearing =
-                HashBiMap.create(LootTables.SHEEP_SHEARING_FROM_DYE_COLOR).inverse();
+        ResourceKey<LootTable> potLoot = Blocks.DECORATED_POT.getLootTable().orElse(null);
+        BiMap<ResourceKey<LootTable>, DyeColor> sheepDyeColorFromDrops =
+                HashBiMap.create(BuiltInLootTables.SHEEP_BY_DYE).inverse();
+        BiMap<ResourceKey<LootTable>, DyeColor> sheepDyeColorFromShearing =
+                HashBiMap.create(BuiltInLootTables.SHEAR_SHEEP_BY_DYE).inverse();
 
         LootTableEvents.MODIFY.register((registryKey, tableBuilder, source, registries) -> {
             // Let's only modify built-in loot tables and leave data pack loot tables untouched by checking the source.
-            var enchantmentRegistry = registries.getOptional(RegistryKeys.ENCHANTMENT);
+            var enchantmentRegistry = registries.lookup(Registries.ENCHANTMENT);
             if (enchantmentRegistry.isEmpty()) return;
-            var optionalEnchantment = enchantmentRegistry.get().getOptional(Enchantments.SILK_TOUCH);
+            var optionalEnchantment = enchantmentRegistry.get().get(Enchantments.SILK_TOUCH);
             if (optionalEnchantment.isEmpty()) return;
-            RegistryEntry<Enchantment> silkTouch = optionalEnchantment.get();
+            Holder<Enchantment> silkTouch = optionalEnchantment.get();
 
             if (source.isBuiltin()) {
                 if (registryKey.equals(potLoot)) {
                     // Decorated pots should keep sherd glow overrides
-                    LootFunction function = CopyComponentsLootFunction.blockEntity(LootContextParameters.BLOCK_ENTITY)
+                    LootItemFunction function = CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
                             .include(ModComponents.SHERD_GLOW_OVERRIDES)
-                            .conditionally(toolEnchantedWith(silkTouch))
+                            .when(toolEnchantedWith(silkTouch))
                             .build();
                     tableBuilder.apply(function);
 
                 } else if (BANNERS_LOOT_TABLE_IDS.contains(registryKey)) {
                     // Banners should keep sherd their effects
-                    LootFunction function = CopyComponentsLootFunction.blockEntity(LootContextParameters.BLOCK_ENTITY)
+                    LootItemFunction function = CopyComponentsFunction.copyComponentsFromBlockEntity(LootContextParams.BLOCK_ENTITY)
                             .include(ModComponents.BANNER_EFFECTS)
-                            .conditionally(toolEnchantedWith(silkTouch))
+                            .when(toolEnchantedWith(silkTouch))
                             .build();
                     tableBuilder.apply(function);
 
@@ -87,44 +86,44 @@ public class ModLootTableModifiers  {
                     DyeColor color = sheepDyeColorFromDrops.get(registryKey);
 
                     tableBuilder.modifyPools(poolBuilder ->
-                            poolBuilder.conditionally(sheepGlowing(false)));
-                    tableBuilder.pool(LootPool.builder()
-                            .with(ItemEntry.builder(BlockDyeMap.GLOWING_WOOL.get(color)))
-                            .conditionally(sheepGlowing(true)));
+                            poolBuilder.when(sheepGlowing(false)));
+                    tableBuilder.withPool(LootPool.lootPool()
+                            .add(LootItem.lootTableItem(BlockDyeMap.GLOWING_WOOL.get(color)))
+                            .when(sheepGlowing(true)));
 
                 } else if (sheepDyeColorFromShearing.containsKey(registryKey)) {
                     // Sheared sheep wool should keep the glow
                     DyeColor color = sheepDyeColorFromShearing.get(registryKey);
 
                     tableBuilder.modifyPools(poolBuilder ->
-                            poolBuilder.conditionally(sheepGlowing(false)));
-                    tableBuilder.pool(LootPool.builder()
-                            .with(ItemEntry.builder(BlockDyeMap.GLOWING_WOOL.get(color)))
-                            .rolls(UniformLootNumberProvider.create(1, 3))
-                            .conditionally(sheepGlowing(true)));
+                            poolBuilder.when(sheepGlowing(false)));
+                    tableBuilder.withPool(LootPool.lootPool()
+                            .add(LootItem.lootTableItem(BlockDyeMap.GLOWING_WOOL.get(color)))
+                            .setRolls(UniformGenerator.between(1, 3))
+                            .when(sheepGlowing(true)));
                 }
             }
         });
     }
 
-    public static LootCondition sheepGlowing(boolean glowing) {
-        return EntityPropertiesLootCondition.builder(
-                        LootContext.EntityReference.THIS,
-                        EntityPredicate.Builder.create()
-                                .typeSpecific(SheepPredicate.glowing(glowing))
+    public static LootItemCondition sheepGlowing(boolean glowing) {
+        return LootItemEntityPropertyCondition.hasProperties(
+                        LootContext.EntityTarget.THIS,
+                        EntityPredicate.Builder.entity()
+                                .subPredicate(SheepPredicate.glowing(glowing))
                                 .build()
                 )
                 .build();
     }
 
-    public static LootCondition.Builder toolEnchantedWith(RegistryEntry<Enchantment> enchantment) {
-        return MatchToolLootCondition.builder(
-                ItemPredicate.Builder.create()
-                        .components(ComponentsPredicate.Builder.create()
+    public static LootItemCondition.Builder toolEnchantedWith(Holder<Enchantment> enchantment) {
+        return MatchTool.toolMatches(
+                ItemPredicate.Builder.item()
+                        .withComponents(DataComponentMatchers.Builder.components()
                                 .partial(ENCHANTMENTS, EnchantmentsPredicate.Enchantments.enchantments(
                                         List.of(new EnchantmentPredicate(
                                                 enchantment,
-                                                IntRange.atLeast(1)
+                                                Ints.atLeast(1)
                                         ))
                                 ))
                                 .build()

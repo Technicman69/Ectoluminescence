@@ -3,43 +3,44 @@ package com.technicman.ectolum.item;
 import com.technicman.ectolum.Ectoluminescence;
 import com.technicman.ectolum.block.ModBlocks;
 import com.technicman.ectolum.entity.ModEntities;
-import net.minecraft.block.Block;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.component.type.BannerPatternsComponent;
-import net.minecraft.component.type.EquippableComponent;
-import net.minecraft.item.*;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.util.DyeColor;
-import net.minecraft.util.Identifier;
-import net.minecraft.util.math.Direction;
+import net.minecraft.core.Direction;
+import net.minecraft.core.Registry;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.Identifier;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.*;
+import net.minecraft.world.item.equipment.Equippable;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.entity.BannerPatternLayers;
 
+import java.util.function.BiFunction;
 import java.util.function.Function;
+import java.util.function.UnaryOperator;
 
 public class ModItems {
     public static final Item GLOW_INK_TORCH_ITEM = register("glow_ink_torch",
-            settings -> new VerticallyAttachableBlockItem(ModBlocks.GLOW_INK_TORCH, ModBlocks.GLOW_INK_WALL_TORCH, Direction.DOWN, settings));
+            settings -> new StandingAndWallBlockItem(ModBlocks.GLOW_INK_TORCH, ModBlocks.GLOW_INK_WALL_TORCH, Direction.DOWN, settings));
     public static final Item CLEAR_ITEM_FRAME = register("clear_item_frame",
             settings -> new ClearItemFrameItem(ModEntities.CLEAR_ITEM_FRAME, settings));
 
-    public static final Item GLOWING_WHITE_WOOL = Items.register(ModBlocks.GLOWING_WHITE_WOOL);
-    public static final Item GLOWING_LIGHT_GRAY_WOOL = Items.register(ModBlocks.GLOWING_LIGHT_GRAY_WOOL);
-    public static final Item GLOWING_GRAY_WOOL = Items.register(ModBlocks.GLOWING_GRAY_WOOL);
-    public static final Item GLOWING_BLACK_WOOL = Items.register(ModBlocks.GLOWING_BLACK_WOOL);
-    public static final Item GLOWING_BROWN_WOOL = Items.register(ModBlocks.GLOWING_BROWN_WOOL);
-    public static final Item GLOWING_RED_WOOL = Items.register(ModBlocks.GLOWING_RED_WOOL);
-    public static final Item GLOWING_ORANGE_WOOL = Items.register(ModBlocks.GLOWING_ORANGE_WOOL);
-    public static final Item GLOWING_YELLOW_WOOL = Items.register(ModBlocks.GLOWING_YELLOW_WOOL);
-    public static final Item GLOWING_LIME_WOOL = Items.register(ModBlocks.GLOWING_LIME_WOOL);
-    public static final Item GLOWING_GREEN_WOOL = Items.register(ModBlocks.GLOWING_GREEN_WOOL);
-    public static final Item GLOWING_CYAN_WOOL = Items.register(ModBlocks.GLOWING_CYAN_WOOL);
-    public static final Item GLOWING_LIGHT_BLUE_WOOL = Items.register(ModBlocks.GLOWING_LIGHT_BLUE_WOOL);
-    public static final Item GLOWING_BLUE_WOOL = Items.register(ModBlocks.GLOWING_BLUE_WOOL);
-    public static final Item GLOWING_PURPLE_WOOL = Items.register(ModBlocks.GLOWING_PURPLE_WOOL);
-    public static final Item GLOWING_MAGENTA_WOOL = Items.register(ModBlocks.GLOWING_MAGENTA_WOOL);
-    public static final Item GLOWING_PINK_WOOL = Items.register(ModBlocks.GLOWING_PINK_WOOL);
+    public static final Item GLOWING_WHITE_WOOL = registerBlock(ModBlocks.GLOWING_WHITE_WOOL);
+    public static final Item GLOWING_LIGHT_GRAY_WOOL = registerBlock(ModBlocks.GLOWING_LIGHT_GRAY_WOOL);
+    public static final Item GLOWING_GRAY_WOOL = registerBlock(ModBlocks.GLOWING_GRAY_WOOL);
+    public static final Item GLOWING_BLACK_WOOL = registerBlock(ModBlocks.GLOWING_BLACK_WOOL);
+    public static final Item GLOWING_BROWN_WOOL = registerBlock(ModBlocks.GLOWING_BROWN_WOOL);
+    public static final Item GLOWING_RED_WOOL = registerBlock(ModBlocks.GLOWING_RED_WOOL);
+    public static final Item GLOWING_ORANGE_WOOL = registerBlock(ModBlocks.GLOWING_ORANGE_WOOL);
+    public static final Item GLOWING_YELLOW_WOOL = registerBlock(ModBlocks.GLOWING_YELLOW_WOOL);
+    public static final Item GLOWING_LIME_WOOL = registerBlock(ModBlocks.GLOWING_LIME_WOOL);
+    public static final Item GLOWING_GREEN_WOOL = registerBlock(ModBlocks.GLOWING_GREEN_WOOL);
+    public static final Item GLOWING_CYAN_WOOL = registerBlock(ModBlocks.GLOWING_CYAN_WOOL);
+    public static final Item GLOWING_LIGHT_BLUE_WOOL = registerBlock(ModBlocks.GLOWING_LIGHT_BLUE_WOOL);
+    public static final Item GLOWING_BLUE_WOOL = registerBlock(ModBlocks.GLOWING_BLUE_WOOL);
+    public static final Item GLOWING_PURPLE_WOOL = registerBlock(ModBlocks.GLOWING_PURPLE_WOOL);
+    public static final Item GLOWING_MAGENTA_WOOL = registerBlock(ModBlocks.GLOWING_MAGENTA_WOOL);
+    public static final Item GLOWING_PINK_WOOL = registerBlock(ModBlocks.GLOWING_PINK_WOOL);
 
     public static final Item GLOWING_WHITE_CARPET = registerCarpet(ModBlocks.GLOWING_WHITE_CARPET, DyeColor.WHITE);
     public static final Item GLOWING_LIGHT_GRAY_CARPET = registerCarpet(ModBlocks.GLOWING_LIGHT_GRAY_CARPET, DyeColor.LIGHT_GRAY);
@@ -94,23 +95,38 @@ public class ModItems {
 
 
     private static Item registerCarpet(Block block, DyeColor color) {
-        return Items.register(block, (settings) -> settings.component(DataComponentTypes.EQUIPPABLE, EquippableComponent.ofCarpet(color)));
+        return registerBlock(block, (settings) -> settings.component(DataComponents.EQUIPPABLE, Equippable.llamaSwag(color)));
     }
     private static Item registerBed(Block block) {
-        return Items.register(block, BedItem::new, (new Item.Settings()).maxCount(1));
+        return registerBlock(block, BedItem::new, (new Item.Properties()).stacksTo(1));
     }
     private static Item registerBanner(Block banner, Block wallBanner) {
-        return Items.register(banner,
+        return registerBlock(banner,
                 (block, settings) -> new BannerItem(block, wallBanner, settings),
-                (new Item.Settings()).maxCount(16)
-                        .component(DataComponentTypes.BANNER_PATTERNS, BannerPatternsComponent.DEFAULT));
+                (new Item.Properties()).stacksTo(16)
+                        .component(DataComponents.BANNER_PATTERNS, BannerPatternLayers.EMPTY));
 
     }
 
-    private static Item register(String id, Function<Item.Settings, Item> function) {
+    private static Item registerBlock(final Block block) {
+        return registerBlock(block, BlockItem::new);
+    }
+    private static Item registerBlock(final Block block, final UnaryOperator<Item.Properties> propertiesFunction) {
+        return registerBlock(block, (b, p) -> new BlockItem(b, propertiesFunction.apply(p)));
+    }
+    private static Item registerBlock(final Block block, final BiFunction<Block, Item.Properties, Item> itemFactory) {
+        return registerBlock(block, itemFactory, new Item.Properties());
+    }
+    private static Item registerBlock(final Block block, final BiFunction<Block, Item.Properties, Item> itemFactory, final Item.Properties properties) {
+        return register(block.builtInRegistryHolder().key().identifier().getPath(),
+                p -> itemFactory.apply(block, p.useBlockDescriptionPrefix().requiredFeatures(block.requiredFeatures())
+        ));
+    }
+
+    private static Item register(String id, Function<Item.Properties, Item> function) {
         Identifier identifier = Ectoluminescence.id(id);
-        Item item = function.apply(new Item.Settings().registryKey(RegistryKey.of(RegistryKeys.ITEM, identifier)));
-        return Registry.register(Registries.ITEM, identifier, item);
+        Item item = function.apply(new Item.Properties().setId(ResourceKey.create(Registries.ITEM, identifier)));
+        return Registry.register(BuiltInRegistries.ITEM, identifier, item);
     }
 
     public static void onInitialize() {

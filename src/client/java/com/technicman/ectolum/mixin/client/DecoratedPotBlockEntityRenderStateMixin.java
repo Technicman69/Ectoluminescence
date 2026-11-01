@@ -1,13 +1,13 @@
 package com.technicman.ectolum.mixin.client;
 
 import com.technicman.ectolum.target_access.DecoratedPotAccess;
-import net.minecraft.client.render.block.entity.state.DecoratedPotBlockEntityRenderState;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 
 import java.util.BitSet;
+import net.minecraft.client.renderer.blockentity.state.DecoratedPotRenderState;
 
-@Mixin(DecoratedPotBlockEntityRenderState.class)
+@Mixin(DecoratedPotRenderState.class)
 public class DecoratedPotBlockEntityRenderStateMixin implements DecoratedPotAccess {
     @Unique
     public BitSet ectolum$sherdGlow = new BitSet();

@@ -3,24 +3,23 @@ package com.technicman.ectolum.component;
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.technicman.ectolum.Ectoluminescence;
-import net.minecraft.component.DataComponentTypes;
-import net.minecraft.item.Item;
-import net.minecraft.item.ItemStack;
-import net.minecraft.item.equipment.trim.ArmorTrim;
-import net.minecraft.item.equipment.trim.ArmorTrimMaterial;
-import net.minecraft.item.tooltip.TooltipType;
-import net.minecraft.network.RegistryByteBuf;
-import net.minecraft.network.codec.PacketCodec;
-import net.minecraft.network.codec.PacketCodecs;
-import net.minecraft.registry.entry.RegistryEntry;
-import net.minecraft.screen.ScreenTexts;
-import net.minecraft.text.MutableText;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
+import net.minecraft.ChatFormatting;
+import net.minecraft.core.Holder;
+import net.minecraft.core.component.DataComponents;
+import net.minecraft.network.RegistryFriendlyByteBuf;
+import net.minecraft.network.chat.CommonComponents;
+import net.minecraft.network.chat.Component;
+import net.minecraft.network.chat.MutableComponent;
+import net.minecraft.network.chat.Style;
+import net.minecraft.network.codec.ByteBufCodecs;
+import net.minecraft.network.codec.StreamCodec;
+import net.minecraft.resources.Identifier;
 import net.minecraft.util.Util;
-
+import net.minecraft.world.item.Item;
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.TooltipFlag;
+import net.minecraft.world.item.equipment.trim.ArmorTrim;
+import net.minecraft.world.item.equipment.trim.TrimMaterial;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ListIterator;
@@ -29,24 +28,24 @@ import java.util.Optional;
 public record EchoingLayer(
         Optional<Boolean> glowing,
         Optional<Boolean> hidden,
-        Optional<RegistryEntry<ArmorTrimMaterial>> material
+        Optional<Holder<TrimMaterial>> material
 ) {
-    private static final Text SMITHING_TEXT_GLOWING;
-    private static final Text SMITHING_TEXT_HIDDEN;
-    public static final Text ECHOING_EFFECT_TEXT;
-    private static final Text GLOWING_TEXT;
-    private static final Text HIDDEN_TEXT;
+    private static final Component SMITHING_TEXT_GLOWING;
+    private static final Component SMITHING_TEXT_HIDDEN;
+    public static final Component ECHOING_EFFECT_TEXT;
+    private static final Component GLOWING_TEXT;
+    private static final Component HIDDEN_TEXT;
 
     public static final Codec<EchoingLayer> CODEC = RecordCodecBuilder.create((builder) -> builder.group(
             Codec.BOOL.optionalFieldOf("glowing").forGetter(EchoingLayer::glowing),
             Codec.BOOL.optionalFieldOf("hidden").forGetter(EchoingLayer::hidden),
-            ArmorTrimMaterial.ENTRY_CODEC.optionalFieldOf("material").forGetter(EchoingLayer::material)
+            TrimMaterial.CODEC.optionalFieldOf("material").forGetter(EchoingLayer::material)
     ).apply(builder, EchoingLayer::new));
 
-    public static final PacketCodec<RegistryByteBuf, EchoingLayer> PACKET_CODEC = PacketCodec.tuple(
-            PacketCodecs.optional(PacketCodecs.BOOLEAN), EchoingLayer::glowing,
-            PacketCodecs.optional(PacketCodecs.BOOLEAN), EchoingLayer::hidden,
-            PacketCodecs.optional(ArmorTrimMaterial.ENTRY_PACKET_CODEC), EchoingLayer::material,
+    public static final StreamCodec<RegistryFriendlyByteBuf, EchoingLayer> PACKET_CODEC = StreamCodec.composite(
+            ByteBufCodecs.optional(ByteBufCodecs.BOOL), EchoingLayer::glowing,
+            ByteBufCodecs.optional(ByteBufCodecs.BOOL), EchoingLayer::hidden,
+            ByteBufCodecs.optional(TrimMaterial.STREAM_CODEC), EchoingLayer::material,
             EchoingLayer::new
     );
 
@@ -60,23 +59,23 @@ public record EchoingLayer(
         return Ectoluminescence.id(name);
     }
 
-    public static MutableText addition() {
-        return Text.literal(" + ");
+    public static MutableComponent addition() {
+        return Component.literal(" + ");
     }
 
-    public static MutableText subtraction() {
-        return Text.literal(" - ");
+    public static MutableComponent subtraction() {
+        return Component.literal(" - ");
     }
 
-    public static MutableText subtractionLineStart() {
-        return Text.literal("- ");
+    public static MutableComponent subtractionLineStart() {
+        return Component.literal("- ");
     }
 
-    public static Text getTextForMaterial(ArmorTrimMaterial material) {
-        return Text.translatable(Util.createTranslationKey("echoing_effect", id("material")), material.description());
+    public static Component getTextForMaterial(TrimMaterial material) {
+        return Component.translatable(Util.makeDescriptionId("echoing_effect", id("material")), material.description());
     }
 
-    public static void addNecessarySeparator(MutableText text, boolean lineStart, boolean value) {
+    public static void addNecessarySeparator(MutableComponent text, boolean lineStart, boolean value) {
         if (lineStart) {
             if (!value) {
                 text.append(subtractionLineStart());
@@ -90,11 +89,11 @@ public record EchoingLayer(
         }
     }
 
-    public Text getDescription() {
-        MutableText description = Text.empty().formatted(Formatting.GRAY);
+    public Component getDescription() {
+        MutableComponent description = Component.empty().withStyle(ChatFormatting.GRAY);
         boolean lineStart = true;
         if (material.isPresent()) {
-            ArmorTrimMaterial material = this.material.get().value();
+            TrimMaterial material = this.material.get().value();
             description.setStyle(material.description().getStyle());
             description.append(getTextForMaterial(material));
             lineStart = false;
@@ -111,32 +110,32 @@ public record EchoingLayer(
         return description;
     }
 
-    public static void appendTooltip(ItemStack stack, Item.TooltipContext context, TooltipType type, List<Text> tooltip) {
-        ArmorTrim armorTrim = stack.get(DataComponentTypes.TRIM);
+    public static void appendTooltip(ItemStack stack, Item.TooltipContext context, TooltipFlag type, List<Component> tooltip) {
+        ArmorTrim armorTrim = stack.get(DataComponents.TRIM);
         List<EchoingLayer> echoingLayers = stack.get(ModComponents.ECHOING_LAYERS);
         if (armorTrim != null && echoingLayers != null && !echoingLayers.isEmpty()) {
             Style color = armorTrim.material().value().description().getStyle();
             EchoingLayer echoingLayer = echoingLayers.getFirst();
             if (echoingLayer.glowing.isPresent() && echoingLayer.glowing.get()) {
-                tooltip.add(ScreenTexts.space().append(SMITHING_TEXT_GLOWING).fillStyle(color));
+                tooltip.add(CommonComponents.space().append(SMITHING_TEXT_GLOWING).withStyle(color));
             }
             if (echoingLayer.hidden.isPresent() && echoingLayer.hidden.get()) {
-                tooltip.add(ScreenTexts.space().append(SMITHING_TEXT_HIDDEN).fillStyle(color));
+                tooltip.add(CommonComponents.space().append(SMITHING_TEXT_HIDDEN).withStyle(color));
             }
 
             if (echoingLayers.size() == 2) {
-                tooltip.add(ScreenTexts.space().append(ECHOING_EFFECT_TEXT).setStyle(color));
-                MutableText description = (MutableText) echoingLayers.get(1).getDescription();
+                tooltip.add(CommonComponents.space().append(ECHOING_EFFECT_TEXT).setStyle(color));
+                MutableComponent description = (MutableComponent) echoingLayers.get(1).getDescription();
                 if (echoingLayers.get(1).material().isEmpty()) {
                     description.setStyle(color);
                 }
-                tooltip.add(ScreenTexts.space().append(ScreenTexts.space()).append(description));
+                tooltip.add(CommonComponents.space().append(CommonComponents.space()).append(description));
 
             } else if (echoingLayers.size() > 2) {
-                tooltip.add(ScreenTexts.space().append(ECHOING_EFFECT_TEXT).formatted(Formatting.GRAY));
+                tooltip.add(CommonComponents.space().append(ECHOING_EFFECT_TEXT).withStyle(ChatFormatting.GRAY));
                 for (ListIterator<EchoingLayer> it = echoingLayers.listIterator(1); it.hasNext(); ) {
                     EchoingLayer layer = it.next();
-                    tooltip.add(ScreenTexts.space().append(ScreenTexts.space()).append(layer.getDescription()));
+                    tooltip.add(CommonComponents.space().append(CommonComponents.space()).append(layer.getDescription()));
                 }
             }
         }
@@ -155,14 +154,14 @@ public record EchoingLayer(
     }
 
     static {
-        SMITHING_TEXT_GLOWING = Text.translatable(Util.createTranslationKey(
+        SMITHING_TEXT_GLOWING = Component.translatable(Util.makeDescriptionId(
             "item", id("smithing_template.glowing")
         ));
-        SMITHING_TEXT_HIDDEN = Text.translatable(Util.createTranslationKey(
+        SMITHING_TEXT_HIDDEN = Component.translatable(Util.makeDescriptionId(
                 "item", id("smithing_template.glowing")
         ));
-        ECHOING_EFFECT_TEXT = Text.translatable(Util.createTranslationKey("item", id("smithing_template.echoing_effect")));
-        GLOWING_TEXT = Text.translatable(Util.createTranslationKey("echoing_effect", id("glowing")));
-        HIDDEN_TEXT = Text.translatable(Util.createTranslationKey("echoing_effect", id("hidden")));
+        ECHOING_EFFECT_TEXT = Component.translatable(Util.makeDescriptionId("item", id("smithing_template.echoing_effect")));
+        GLOWING_TEXT = Component.translatable(Util.makeDescriptionId("echoing_effect", id("glowing")));
+        HIDDEN_TEXT = Component.translatable(Util.makeDescriptionId("echoing_effect", id("hidden")));
     }
 }

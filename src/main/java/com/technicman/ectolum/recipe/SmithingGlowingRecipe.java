@@ -2,24 +2,22 @@ package com.technicman.ectolum.recipe;
 
 import com.technicman.ectolum.component.EchoingLayer;
 import com.technicman.ectolum.component.ModComponents;
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.RecipeSerializer;
-import net.minecraft.recipe.SmithingRecipe;
-import net.minecraft.recipe.input.SmithingRecipeInput;
-import net.minecraft.registry.RegistryWrapper;
-
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.*;
+import org.jspecify.annotations.NonNull;
+
 public class SmithingGlowingRecipe extends SmithingEchoingRecipe {
 
-    public SmithingGlowingRecipe(Ingredient template, Ingredient base, Ingredient addition) {
-        super(template, base, addition);
+    public SmithingGlowingRecipe(Recipe.CommonInfo commonInfo, Ingredient template, Ingredient base, Ingredient addition) {
+        super(commonInfo, template, base, addition);
     }
 
-    public ItemStack craft(SmithingRecipeInput smithingRecipeInput, RegistryWrapper.WrapperLookup wrapperLookup) {
+    @Override
+    public @NonNull ItemStack assemble(SmithingRecipeInput smithingRecipeInput) {
         ItemStack itemStack = smithingRecipeInput.base();
 //        if (testBase(itemStack)) {
             List<EchoingLayer> echoingLayers = new ArrayList<>();
@@ -37,7 +35,7 @@ public class SmithingGlowingRecipe extends SmithingEchoingRecipe {
     }
 
     @Override
-    public RecipeSerializer<? extends SmithingRecipe> getSerializer() {
+    public @NonNull RecipeSerializer<? extends SimpleSmithingRecipe> getSerializer() {
         return ModRecipes.SMITHING_GLOWING_RECIPE;
     }
 }

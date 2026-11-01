@@ -1,13 +1,13 @@
 package com.technicman.ectolum.mixin;
 
 import com.technicman.ectolum.target_access.SignAccess;
-import net.minecraft.block.BlockState;
-import net.minecraft.block.entity.BlockEntity;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.entity.SignBlockEntity;
-import net.minecraft.storage.ReadView;
-import net.minecraft.storage.WriteView;
-import net.minecraft.util.math.BlockPos;
+import net.minecraft.core.BlockPos;
+import net.minecraft.world.level.block.entity.BlockEntity;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.entity.SignBlockEntity;
+import net.minecraft.world.level.block.state.BlockState;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,14 +24,14 @@ public class SignBlockEntityMixin extends BlockEntity implements SignAccess {
 		super(type, pos, state);
 	}
 
-	@Inject(at = @At("HEAD"), method = "writeData")
-	private void writeData(WriteView view, CallbackInfo ci) {
+	@Inject(at = @At("HEAD"), method = "saveAdditional")
+	private void writeData(ValueOutput view, CallbackInfo ci) {
 		if (this.ectolum$hideBackground) view.putBoolean("ectolum.hide_background", true);
 	}
 
-	@Inject(at = @At("HEAD"), method = "readData")
-	private void readData(ReadView view, CallbackInfo ci) {
-		ectolum$hideBackground = view.getBoolean("ectolum.hide_background", false);
+	@Inject(at = @At("HEAD"), method = "loadAdditional")
+	private void readData(ValueInput view, CallbackInfo ci) {
+		ectolum$hideBackground = view.getBooleanOr("ectolum.hide_background", false);
 	}
 
 	@Override
@@ -42,7 +42,7 @@ public class SignBlockEntityMixin extends BlockEntity implements SignAccess {
 	@Override
 	public void ectolum$setHideBackground(boolean hideBackground) {
 		ectolum$hideBackground = hideBackground;
-		markDirty();
+		setChanged();
 	}
 
 }

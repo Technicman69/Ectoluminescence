@@ -3,22 +3,24 @@ package com.technicman.ectolum.recipe;
 import com.technicman.ectolum.component.EchoingLayer;
 import com.technicman.ectolum.component.ModComponents;
 import com.technicman.ectolum.util.EchoingKeyframe;
-import net.minecraft.item.ItemStack;
-import net.minecraft.recipe.Ingredient;
-import net.minecraft.recipe.input.SmithingRecipeInput;
-import net.minecraft.registry.RegistryWrapper;
-
 import java.util.List;
+
+import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.Ingredient;
+import net.minecraft.world.item.crafting.Recipe;
+import net.minecraft.world.item.crafting.SmithingRecipeInput;
+import org.jspecify.annotations.NonNull;
 
 public abstract class SmithingToggleEchoingFlagRecipe extends SmithingEchoingRecipe {
 
-    public SmithingToggleEchoingFlagRecipe(Ingredient template, Ingredient base, Ingredient addition) {
-        super(template, base, addition);
+    public SmithingToggleEchoingFlagRecipe(Recipe.CommonInfo commonInfo, Ingredient template, Ingredient base, Ingredient addition) {
+        super(commonInfo, template, base, addition);
     }
 
     public abstract EchoingLayer computeEchoingLayer(EchoingKeyframe keyFrame);
 
-    public ItemStack craft(SmithingRecipeInput smithingRecipeInput, RegistryWrapper.WrapperLookup wrapperLookup) {
+    @Override
+    public @NonNull ItemStack assemble(SmithingRecipeInput smithingRecipeInput) {
         ItemStack itemStack = smithingRecipeInput.base();
             EchoingKeyframe last = EchoingKeyframe.buildLast(itemStack);
 

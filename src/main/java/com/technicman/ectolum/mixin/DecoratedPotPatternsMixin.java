@@ -2,25 +2,25 @@ package com.technicman.ectolum.mixin;
 
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import net.minecraft.block.DecoratedPotPattern;
-import net.minecraft.block.DecoratedPotPatterns;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
+import net.minecraft.core.Registry;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.level.block.entity.DecoratedPotPattern;
+import net.minecraft.world.level.block.entity.DecoratedPotPatterns;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
 @Mixin(DecoratedPotPatterns.class)
 public class DecoratedPotPatternsMixin {
     @WrapOperation(
-            method = "registerAndGetDefault",
+            method = "bootstrap",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/block/DecoratedPotPatterns;register(Lnet/minecraft/registry/Registry;Lnet/minecraft/registry/RegistryKey;Ljava/lang/String;)Lnet/minecraft/block/DecoratedPotPattern;")
+                    target = "Lnet/minecraft/world/level/block/entity/DecoratedPotPatterns;register(Lnet/minecraft/core/Registry;Lnet/minecraft/resources/ResourceKey;Ljava/lang/String;)Lnet/minecraft/world/level/block/entity/DecoratedPotPattern;")
     )
-    private static DecoratedPotPattern registerGlowingPatterns(Registry<DecoratedPotPattern> registry, RegistryKey<DecoratedPotPattern> key, String id, Operation<DecoratedPotPattern> original) {
-        RegistryKey<DecoratedPotPattern> glowingKey = RegistryKey.of(registry.getKey(), key.getValue().withSuffixedPath("_glowing"));
-        String glowingId = id + "_glowing";
+    private static DecoratedPotPattern registerGlowingPatterns(Registry<DecoratedPotPattern> registry, ResourceKey<DecoratedPotPattern> id, String assetId, Operation<DecoratedPotPattern> original) {
+        ResourceKey<DecoratedPotPattern> glowingKey = ResourceKey.create(registry.key(), id.identifier().withSuffix("_glowing"));
+        String glowingId = assetId + "_glowing";
         original.call(registry, glowingKey, glowingId);
-        return original.call(registry, key, id);
+        return original.call(registry, id, assetId);
     }
 }

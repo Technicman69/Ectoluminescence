@@ -1,10 +1,9 @@
 package com.technicman.ectolum.util;
 
-import net.minecraft.block.Block;
-import net.minecraft.block.Blocks;
-import net.minecraft.util.DyeColor;
-
 import java.util.EnumMap;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
 
 public class BlockDyeMap {
     public static final EnumMap<DyeColor, Block> WOOL = new EnumMap<>(DyeColor.class);

@@ -3,19 +3,25 @@ package com.technicman.ectolum.block;
 import com.google.common.collect.Sets;
 import com.technicman.ectolum.Ectoluminescence;
 import com.technicman.ectolum.util.BlockDyeMap;
-import net.minecraft.block.*;
-import net.minecraft.block.entity.BlockEntityType;
-import net.minecraft.block.enums.BedPart;
-import net.minecraft.block.enums.NoteBlockInstrument;
-import net.minecraft.block.piston.PistonBehavior;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.Registry;
-import net.minecraft.registry.RegistryKey;
-import net.minecraft.registry.RegistryKeys;
-import net.minecraft.sound.BlockSoundGroup;
-import net.minecraft.state.property.Properties;
-import net.minecraft.util.DyeColor;
-
+import net.minecraft.core.Registry;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.resources.ResourceKey;
+import net.minecraft.world.item.DyeColor;
+import net.minecraft.world.level.block.BannerBlock;
+import net.minecraft.world.level.block.BedBlock;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.block.Blocks;
+import net.minecraft.world.level.block.SoundType;
+import net.minecraft.world.level.block.WallBannerBlock;
+import net.minecraft.world.level.block.WoolCarpetBlock;
+import net.minecraft.world.level.block.entity.BlockEntityType;
+import net.minecraft.world.level.block.state.BlockBehaviour;
+import net.minecraft.world.level.block.state.properties.BedPart;
+import net.minecraft.world.level.block.state.properties.BlockStateProperties;
+import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
+import net.minecraft.world.level.material.MapColor;
+import net.minecraft.world.level.material.PushReaction;
 import java.util.HashSet;
 import java.util.function.Function;
 
@@ -23,22 +29,22 @@ public class ModBlocks {
     public static final Block GLOW_INK_TORCH = register(
             "glow_ink_torch",
             GlowInkTorchBlock::new,
-            AbstractBlock.Settings.create()
+            BlockBehaviour.Properties.of()
                     .noCollision()
-                    .breakInstantly()
-                    .luminance((state) -> state.get(Properties.WATERLOGGED) ? 12 : 8)
-                    .sounds(BlockSoundGroup.WOOD)
-                    .pistonBehavior(PistonBehavior.DESTROY)
+                    .instabreak()
+                    .lightLevel((state) -> state.getValue(BlockStateProperties.WATERLOGGED) ? 12 : 8)
+                    .sound(SoundType.WOOD)
+                    .pushReaction(PushReaction.DESTROY)
     );
     public static final Block GLOW_INK_WALL_TORCH = register(
             "glow_ink_wall_torch",
             GlowInkWallTorchBlock::new,
             copyLootTable(GLOW_INK_TORCH, true)
                     .noCollision()
-                    .breakInstantly()
-                    .luminance((state) -> state.get(Properties.WATERLOGGED) ? 12 : 8)
-                    .sounds(BlockSoundGroup.WOOD)
-                    .pistonBehavior(PistonBehavior.DESTROY));
+                    .instabreak()
+                    .lightLevel((state) -> state.getValue(BlockStateProperties.WATERLOGGED) ? 12 : 8)
+                    .sound(SoundType.WOOD)
+                    .pushReaction(PushReaction.DESTROY));
 
     public static final Block GLOWING_WHITE_WOOL = registerGlowingWool("glowing_white_wool", DyeColor.WHITE);
     public static final Block GLOWING_LIGHT_GRAY_WOOL = registerGlowingWool("glowing_light_gray_wool", DyeColor.LIGHT_GRAY);
@@ -127,37 +133,37 @@ public class ModBlocks {
 
 
     private static Block registerGlowingWool(String id, DyeColor color) {
-        Block block = register(id, AbstractBlock.Settings.create()
-                .luminance(state -> 2).emissiveLighting(Blocks::always).postProcess(Blocks::always).mapColor(color)
-                .instrument(NoteBlockInstrument.GUITAR).strength(0.8F).sounds(BlockSoundGroup.WOOL).burnable());
+        Block block = register(id, BlockBehaviour.Properties.of()
+                .lightLevel(state -> 2).emissiveRendering(Blocks::always).mapColor(color)
+                .instrument(NoteBlockInstrument.GUITAR).strength(0.8F).sound(SoundType.WOOL).ignitedByLava());
         BlockDyeMap.GLOWING_WOOL.put(color, block);
         return block;
     }
     private static Block registerGlowingCarpet(String id, DyeColor color) {
         Block block = register(id,
-                (settings) -> new DyedCarpetBlock(color, settings),
-                AbstractBlock.Settings.create().mapColor(color).emissiveLighting(Blocks::always).luminance(state -> 2)
-                        .strength(0.1F).sounds(BlockSoundGroup.WOOL).burnable());
+                (settings) -> new WoolCarpetBlock(color, settings),
+                BlockBehaviour.Properties.of().mapColor(color).emissiveRendering(Blocks::always).lightLevel(state -> 2)
+                        .strength(0.1F).sound(SoundType.WOOL).ignitedByLava());
         BlockDyeMap.GLOWING_CARPET.put(color, block);
         return block;
     }
     private static Block registerGlowingBed(String id, DyeColor color) {
         Block block = register(id,
                 (settings) -> new BedBlock(color, settings),
-                AbstractBlock.Settings.create()
+                BlockBehaviour.Properties.of()
                         .mapColor((state) ->
-                                state.get(BedBlock.PART) == BedPart.FOOT ? color.getMapColor() : MapColor.WHITE_GRAY
-                        ).emissiveLighting(Blocks::always).luminance(state -> 2).sounds(BlockSoundGroup.WOOD)
-                        .strength(0.2F).nonOpaque().burnable().pistonBehavior(PistonBehavior.DESTROY));
+                                state.getValue(BedBlock.PART) == BedPart.FOOT ? color.getMapColor() : MapColor.WOOL
+                        ).emissiveRendering(Blocks::always).lightLevel(state -> 2).sound(SoundType.WOOD)
+                        .strength(0.2F).noOcclusion().ignitedByLava().pushReaction(PushReaction.DESTROY));
         BlockDyeMap.GLOWING_BED.put(color, block);
         return block;
     }
     private static Block registerGlowingBanner(String id, DyeColor color) {
         Block block = register(id,
-                (settings) -> new GlowingBannerBlock(color, settings),
-                AbstractBlock.Settings.create().mapColor(MapColor.OAK_TAN).solid().instrument(NoteBlockInstrument.BASS)
-                        .emissiveLighting(Blocks::always).luminance(state -> 2)
-                        .noCollision().strength(1.0F).sounds(BlockSoundGroup.WOOD).burnable());
+                (settings) -> new BannerBlock(color, settings),
+                BlockBehaviour.Properties.of().mapColor(MapColor.WOOD).forceSolidOn().instrument(NoteBlockInstrument.BASS)
+                        .emissiveRendering(Blocks::always).lightLevel(state -> 2)
+                        .noCollision().strength(1.0F).sound(SoundType.WOOD).ignitedByLava());
         BlockDyeMap.GLOWING_BANNER.put(color, block);
         return block;
     }
@@ -165,34 +171,34 @@ public class ModBlocks {
         if (baseBanner instanceof BannerBlock banner) {
             Block block = register(id,
                     (settings) -> new WallBannerBlock(banner.getColor(), settings),
-                    copyLootTable(baseBanner, true).mapColor(MapColor.OAK_TAN).solid().instrument(NoteBlockInstrument.BASS)
-                            .emissiveLighting(Blocks::always).luminance(state -> 2)
-                            .noCollision().strength(1.0F).sounds(BlockSoundGroup.WOOD).burnable());
+                    copyLootTable(baseBanner, true).mapColor(MapColor.WOOD).forceSolidOn().instrument(NoteBlockInstrument.BASS)
+                            .emissiveRendering(Blocks::always).lightLevel(state -> 2)
+                            .noCollision().strength(1.0F).sound(SoundType.WOOD).ignitedByLava());
             BlockDyeMap.GLOWING_WALL_BANNER.put(banner.getColor(), block);
             return block;
         }
-        return register(id, AbstractBlock.Settings.create());
+        return register(id, BlockBehaviour.Properties.of());
     }
 
 
-    private static Block register(String id, AbstractBlock.Settings settings) {
+    private static Block register(String id, BlockBehaviour.Properties settings) {
         return register(id, Block::new, settings);
     }
-    private static Block register(String id, Function<AbstractBlock.Settings, Block> factory, AbstractBlock.Settings settings) {
+    private static Block register(String id, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties settings) {
         return register(keyOf(id), factory, settings);
     }
-    private static RegistryKey<Block> keyOf(String id) {
-        return RegistryKey.of(RegistryKeys.BLOCK, Ectoluminescence.id(id));
+    private static ResourceKey<Block> keyOf(String id) {
+        return ResourceKey.create(Registries.BLOCK, Ectoluminescence.id(id));
     }
-    public static Block register(RegistryKey<Block> key, Function<AbstractBlock.Settings, Block> factory, AbstractBlock.Settings settings) {
-        Block block = factory.apply(settings.registryKey(key));
-        return Registry.register(Registries.BLOCK, key, block);
+    public static Block register(ResourceKey<Block> key, Function<BlockBehaviour.Properties, Block> factory, BlockBehaviour.Properties settings) {
+        Block block = factory.apply(settings.setId(key));
+        return Registry.register(BuiltInRegistries.BLOCK, key, block);
     }
 
-    private static AbstractBlock.Settings copyLootTable(Block block, boolean copyTranslationKey) {
-        AbstractBlock.Settings settings = AbstractBlock.Settings.create().lootTable(block.getLootTableKey());
+    private static BlockBehaviour.Properties copyLootTable(Block block, boolean copyTranslationKey) {
+        BlockBehaviour.Properties settings = BlockBehaviour.Properties.of().overrideLootTable(block.getLootTable());
         if (copyTranslationKey) {
-            settings = settings.overrideTranslationKey(block.getTranslationKey());
+            settings = settings.overrideDescription(block.getDescriptionId());
         }
 
         return settings;
@@ -200,8 +206,8 @@ public class ModBlocks {
 
     public static void onInitialize() {
         //Ectoluminescence.LOGGER.info("Registering blocks for " + Ectoluminescence.MOD_ID);
-        BlockEntityType.BANNER.blocks = Sets.union(BlockEntityType.BANNER.blocks,
+        BlockEntityType.BANNER.validBlocks = Sets.union(BlockEntityType.BANNER.validBlocks,
                 Sets.union(new HashSet<>(BlockDyeMap.GLOWING_BANNER.values()), new HashSet<>(BlockDyeMap.GLOWING_WALL_BANNER.values())));
-        BlockEntityType.BED.blocks = Sets.union(BlockEntityType.BANNER.blocks, new HashSet<>(BlockDyeMap.GLOWING_BED.values()));
+        BlockEntityType.BED.validBlocks = Sets.union(BlockEntityType.BANNER.validBlocks, new HashSet<>(BlockDyeMap.GLOWING_BED.values()));
     }
 }

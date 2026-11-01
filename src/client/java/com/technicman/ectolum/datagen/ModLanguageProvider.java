@@ -3,9 +3,9 @@ package com.technicman.ectolum.datagen;
 import com.technicman.ectolum.util.BlockDyeMap;
 import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricLanguageProvider;
-import net.minecraft.block.Block;
-import net.minecraft.registry.Registries;
-import net.minecraft.registry.RegistryWrapper;
+import net.minecraft.core.HolderLookup;
+import net.minecraft.core.registries.BuiltInRegistries;
+import net.minecraft.world.level.block.Block;
 import org.apache.commons.lang3.StringUtils;
 
 import java.nio.file.Path;
@@ -14,12 +14,12 @@ import java.util.concurrent.CompletableFuture;
 import java.util.stream.Collectors;
 
 public class ModLanguageProvider extends FabricLanguageProvider {
-    public ModLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<RegistryWrapper.WrapperLookup> registryLookup) {
+    public ModLanguageProvider(FabricDataOutput dataOutput, CompletableFuture<HolderLookup.Provider> registryLookup) {
         super(dataOutput, registryLookup);
     }
 
     @Override
-    public void generateTranslations(RegistryWrapper.WrapperLookup wrapperLookup, TranslationBuilder translationBuilder) {
+    public void generateTranslations(HolderLookup.Provider wrapperLookup, TranslationBuilder translationBuilder) {
         BlockDyeMap.GLOWING_WOOL.values().forEach(block -> addTranslations(translationBuilder, block));
         BlockDyeMap.GLOWING_CARPET.values().forEach(block -> addTranslations(translationBuilder, block));
         BlockDyeMap.GLOWING_BED.values().forEach(block -> addTranslations(translationBuilder, block));
@@ -41,7 +41,7 @@ public class ModLanguageProvider extends FabricLanguageProvider {
     }
 
     private static String obviousTranslation(Block block) {
-        String id = Registries.BLOCK.getId(block).getPath();
+        String id = BuiltInRegistries.BLOCK.getKey(block).getPath();
         return Arrays.stream(id.split("_"))
                 .map(StringUtils::capitalize)
                 .collect(Collectors.joining(" "));

@@ -8,7 +8,7 @@ import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
 import net.fabricmc.fabric.api.client.rendering.v1.EntityRendererRegistry;
-import net.minecraft.client.render.entity.ItemFrameEntityRenderer;
+import net.minecraft.client.renderer.entity.ItemFrameRenderer;
 
 public class EctoluminescenceClient implements ClientModInitializer {
 
@@ -16,7 +16,7 @@ public class EctoluminescenceClient implements ClientModInitializer {
 
 	@Override
 	public void onInitializeClient() {
-		EntityRendererRegistry.register(ModEntities.CLEAR_ITEM_FRAME, ItemFrameEntityRenderer::new);
+		EntityRendererRegistry.register(ModEntities.CLEAR_ITEM_FRAME, ItemFrameRenderer::new);
 		ModelLoadingPlugin.register(context -> context.addModel(
 				ExtraModelKey.create(() -> "clear_item_frame"),
 				SimpleUnbakedExtraModel.blockStateModel(Ectoluminescence.id("block/clear_item_frame"))
