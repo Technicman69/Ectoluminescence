@@ -202,6 +202,6 @@ public class ModBlocks {
         //Ectoluminescence.LOGGER.info("Registering blocks for " + Ectoluminescence.MOD_ID);
         BlockEntityType.BANNER.blocks = Sets.union(BlockEntityType.BANNER.blocks,
                 Sets.union(new HashSet<>(BlockDyeMap.GLOWING_BANNER.values()), new HashSet<>(BlockDyeMap.GLOWING_WALL_BANNER.values())));
-        BlockEntityType.BED.blocks = Sets.union(BlockEntityType.BANNER.blocks, new HashSet<>(BlockDyeMap.GLOWING_BED.values()));
+        BlockEntityType.BED.blocks = Sets.union(BlockEntityType.BED.blocks, new HashSet<>(BlockDyeMap.GLOWING_BED.values()));
     }
 }
