@@ -74,14 +74,14 @@ public abstract class SheepEntityMixin extends Animal implements SheepAccess {
 	}
 
 	@Inject(at = @At("HEAD"), method = "addAdditionalSaveData")
-	private void writeCustomData(ValueOutput view, CallbackInfo ci) {
+	private void writeCustomData(ValueOutput output, CallbackInfo ci) {
 		if (ectolum$isGlowing()) {
-			view.putBoolean("ectolum.glowing", true);
+			output.putBoolean("ectolum.glowing", true);
 		}
 	}
 
 	@Inject(at = @At("HEAD"), method = "readAdditionalSaveData")
-	private void readCustomData(ValueInput view, CallbackInfo ci) {
-		ectolum$setGlowing(view.getBooleanOr("ectolum.glowing", false));
+	private void readCustomData(ValueInput input, CallbackInfo ci) {
+		ectolum$setGlowing(input.getBooleanOr("ectolum.glowing", false));
 	}
 }

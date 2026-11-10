@@ -1,14 +1,13 @@
 package com.technicman.ectolum.recipe;
 
-import com.technicman.ectolum.component.EchoingLayer;
+import com.technicman.ectolum.component.EchoingEffects;
 import com.technicman.ectolum.component.ModComponents;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
-
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.*;
 import org.jspecify.annotations.NonNull;
+
+import java.util.List;
+import java.util.Optional;
 
 public class SmithingGlowingRecipe extends SmithingEchoingRecipe {
 
@@ -19,19 +18,14 @@ public class SmithingGlowingRecipe extends SmithingEchoingRecipe {
     @Override
     public @NonNull ItemStack assemble(SmithingRecipeInput smithingRecipeInput) {
         ItemStack itemStack = smithingRecipeInput.base();
-//        if (testBase(itemStack)) {
-            List<EchoingLayer> echoingLayers = new ArrayList<>();
-            echoingLayers.add(new EchoingLayer(
+            EchoingEffects echoingEffects = new EchoingEffects(List.of(new EchoingEffects.EchoingLayer(
                     Optional.of(true),
                     Optional.empty(),
                     Optional.empty()
-            ));
+            )));
             ItemStack newStack = itemStack.copyWithCount(1);
-            newStack.set(ModComponents.ECHOING_LAYERS, echoingLayers);
+            newStack.set(ModComponents.ECHOING_EFFECTS, echoingEffects);
             return newStack;
-//        }
-//
-//        return ItemStack.EMPTY;
     }
 
     @Override

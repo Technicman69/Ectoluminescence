@@ -5,6 +5,7 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.technicman.ectolum.component.ModComponents;
 import com.technicman.ectolum.mixin.client.accessor.ItemRenderStateAccessor;
 import com.technicman.ectolum.util.EchoingKeyframe;
+import it.unimi.dsi.fastutil.ints.IntList;
 import net.minecraft.client.multiplayer.ClientLevel;
 import net.minecraft.client.renderer.item.ItemModel;
 import net.minecraft.client.renderer.item.ItemModelResolver;
@@ -38,18 +39,16 @@ public class ItemModelManagerMixin {
         ItemStackRenderState.LayerRenderState[] layers = ((ItemRenderStateAccessor) state).ectolum$getLayers();
         ItemStackRenderState.LayerRenderState lastLayer = layers[layers.length-1];
         // Increase tints length
-        int[] tints = lastLayer.prepareTintLayers(lastLayer.prepareTintLayers(-1).length + 2);
+        IntList tints = lastLayer.tintLayers();
 
         // Add new opacity tint
         // (hide armor completely and make "top echoing layer trim" transparent)
         int tintArmorBase = ARGB.white(ARGB.as8BitChannel(renderBase ? 1f : 0f));
         int tintTrim = ARGB.white(ARGB.as8BitChannel(alpha));
-        // The tints should be empty so I could've used just indexes 0 and 1
-        // but other mods and resourcepacks could change something in the models or
-        // the rendering itself so...
-        // I'm actually not sure if that changes anything...
-        tints[tints.length-2] = tintArmorBase;
-        tints[tints.length-1] = tintTrim;
+
+        tints.add(tintArmorBase);
+        tints.add(tintTrim);
+
         state.appendModelIdentityElement(tintArmorBase);
         state.appendModelIdentityElement(tintTrim);
     }
@@ -61,7 +60,7 @@ public class ItemModelManagerMixin {
                     target = "Lnet/minecraft/client/renderer/item/ItemModel;update(Lnet/minecraft/client/renderer/item/ItemStackRenderState;Lnet/minecraft/world/item/ItemStack;Lnet/minecraft/client/renderer/item/ItemModelResolver;Lnet/minecraft/world/item/ItemDisplayContext;Lnet/minecraft/client/multiplayer/ClientLevel;Lnet/minecraft/world/entity/ItemOwner;I)V")
     )
     private void updateEchoingLayers(ItemModel instance, ItemStackRenderState state, ItemStack stack, ItemModelResolver itemModelManager, ItemDisplayContext itemDisplayContext, ClientLevel world, ItemOwner heldItemContext, int i, Operation<Void> original) {
-        if (world != null && stack.has(TRIM) && stack.has(ModComponents.ECHOING_LAYERS)) {
+        if (world != null && stack.has(TRIM) && stack.has(ModComponents.ECHOING_EFFECTS)) {
             ArmorTrim savedTrim = stack.get(TRIM);
 
             long worldTime = world.getGameTime();
@@ -69,19 +68,19 @@ public class ItemModelManagerMixin {
             long time = Math.floorDiv(worldTime, 10L);
             Tuple<EchoingKeyframe, EchoingKeyframe> pair = EchoingKeyframe.buildKeyFrames(stack, time);
 
-            ectolum$applyEchoingKeyFrame(stack, pair.getLeft(), savedTrim);
+            ectolum$applyEchoingKeyFrame(stack, pair.getA(), savedTrim);
             original.call(instance, state, stack, itemModelManager, itemDisplayContext, world, heldItemContext, i);
             // Check if layers are different. If so, overlay one on top of the other
             if (
-                    pair.getLeft().hidden() != pair.getRight().hidden() ||
-                            !pair.getLeft().material().equals(pair.getRight().material())
+                    pair.getA().hidden() != pair.getB().hidden() ||
+                            !pair.getA().material().equals(pair.getB().material())
             ) {
                 // If the top layer is invisible, it can't be overlayed with alpha,
                 // so the bottom one's opacity should be changed
-                if (pair.getRight().hidden()) {
+                if (pair.getB().hidden()) {
                     ectolum$setOpacity(state, (Mth.cos(Mth.PI * t) + 1) * 0.5f, true);
                 } else {
-                    ectolum$applyEchoingKeyFrame(stack, pair.getRight(), savedTrim);
+                    ectolum$applyEchoingKeyFrame(stack, pair.getB(), savedTrim);
                     original.call(instance, state, stack, itemModelManager, itemDisplayContext, world, heldItemContext, i);
                     ectolum$setOpacity(state, (-Mth.cos(Mth.PI * t) + 1) * 0.5f, false);
                 }

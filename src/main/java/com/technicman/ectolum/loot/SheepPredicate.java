@@ -4,14 +4,14 @@ import com.mojang.serialization.Codec;
 import com.mojang.serialization.MapCodec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
 import com.technicman.ectolum.target_access.SheepAccess;
-import org.jspecify.annotations.Nullable;
-
-import java.util.Optional;
 import net.minecraft.advancements.criterion.EntitySubPredicate;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.Entity;
 import net.minecraft.world.entity.animal.sheep.Sheep;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
+
+import java.util.Optional;
 
 public record SheepPredicate(Optional<Boolean> sheared, Optional<Boolean> glowing) implements EntitySubPredicate {
     public static final MapCodec<SheepPredicate> CODEC = RecordCodecBuilder.mapCodec((instance) ->

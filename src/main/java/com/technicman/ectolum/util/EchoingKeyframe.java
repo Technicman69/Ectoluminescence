@@ -1,17 +1,18 @@
 package com.technicman.ectolum.util;
 
-import com.technicman.ectolum.component.EchoingLayer;
+import com.technicman.ectolum.component.EchoingEffects;
 import com.technicman.ectolum.component.ModComponents;
-import org.jetbrains.annotations.Nullable;
-
-import java.util.List;
-import java.util.ListIterator;
 import net.minecraft.core.Holder;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.util.Tuple;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
 import net.minecraft.world.item.equipment.trim.TrimMaterial;
+import org.jetbrains.annotations.Nullable;
+
+import java.util.ListIterator;
+
+import static com.technicman.ectolum.component.EchoingEffects.EchoingLayer;
 
 public record EchoingKeyframe(
         boolean glowing,
@@ -21,8 +22,8 @@ public record EchoingKeyframe(
     public static final boolean DEFAULT_GLOWING = false;
     public static final boolean DEFAULT_HIDDEN = false;
 
-    public static EchoingKeyframe build(List<EchoingLayer> echoingLayers, int index) {
-        ListIterator<EchoingLayer> iterator = echoingLayers.listIterator(index+1);
+    public static EchoingKeyframe build(EchoingEffects echoingEffects, int index) {
+        ListIterator<EchoingLayer> iterator = echoingEffects.layers().listIterator(index+1);
 
         @Nullable Boolean glowing1 = null;
         @Nullable Boolean hidden1 = null;
@@ -56,16 +57,16 @@ public record EchoingKeyframe(
         return new EchoingKeyframe(Boolean.TRUE.equals(glowing1), Boolean.TRUE.equals(hidden1), material1);
     }
 
-    public static EchoingKeyframe buildNext(EchoingKeyframe previous, List<EchoingLayer> echoingLayers, int nextIndex) {
-        if (nextIndex >= echoingLayers.size()) {
-            EchoingLayer layer = echoingLayers.getFirst();
+    public static EchoingKeyframe buildNext(EchoingKeyframe previous, EchoingEffects echoingEffects, int nextIndex) {
+        if (nextIndex >= echoingEffects.layers().size()) {
+            EchoingLayer layer = echoingEffects.layers().getFirst();
             return new EchoingKeyframe(
                     layer.glowing().isPresent()? layer.glowing().get() : DEFAULT_GLOWING,
                     layer.hidden().isPresent()? layer.hidden().get() : DEFAULT_HIDDEN,
                     layer.material().isPresent()? layer.material().get() : null
             );
         }
-        EchoingLayer nextLayer = echoingLayers.get(nextIndex);
+        EchoingLayer nextLayer = echoingEffects.layers().get(nextIndex);
         return new EchoingKeyframe(
                 nextLayer.glowing().isPresent()? nextLayer.glowing().get() : previous.glowing(),
                 nextLayer.hidden().isPresent()? nextLayer.hidden().get() : previous.hidden(),
@@ -74,10 +75,10 @@ public record EchoingKeyframe(
     }
 
     public static EchoingKeyframe buildLast(ItemStack item) {
-        if (item.has(ModComponents.ECHOING_LAYERS)) {
-            List<EchoingLayer> echoingLayers = item.get(ModComponents.ECHOING_LAYERS);
-            assert echoingLayers != null;
-            EchoingKeyframe keyframe =  build(echoingLayers, echoingLayers.size()-1);
+        if (item.has(ModComponents.ECHOING_EFFECTS)) {
+            EchoingEffects echoingEffects = item.get(ModComponents.ECHOING_EFFECTS);
+            assert echoingEffects != null;
+            EchoingKeyframe keyframe =  build(echoingEffects, echoingEffects.layers().size()-1);
             if (keyframe.material == null) {
                 ArmorTrim trim = item.get(DataComponents.TRIM);
                 assert trim != null;
@@ -91,12 +92,12 @@ public record EchoingKeyframe(
     }
 
     public static Tuple<EchoingKeyframe, EchoingKeyframe> buildKeyFrames(ItemStack item, long time) {
-        List<EchoingLayer> echoingLayers = item.get(ModComponents.ECHOING_LAYERS);
-        assert echoingLayers != null;
-        int index = (int) (time % (echoingLayers.size()));
+        EchoingEffects echoingEffects = item.get(ModComponents.ECHOING_EFFECTS);
+        assert echoingEffects != null;
+        int index = (int) (time % (echoingEffects.layers().size()));
 
-        EchoingKeyframe first = build(echoingLayers, index);
-        EchoingKeyframe second = buildNext(first, echoingLayers, index+1);
+        EchoingKeyframe first = build(echoingEffects, index);
+        EchoingKeyframe second = buildNext(first, echoingEffects, index+1);
 
         ArmorTrim trim = item.get(DataComponents.TRIM);
         assert trim != null;
@@ -115,12 +116,12 @@ public record EchoingKeyframe(
     }
 
     public boolean equals(Object o) {
-        if (!(o instanceof EchoingKeyframe keyframe)) {
+        if (!(o instanceof EchoingKeyframe(boolean glowing1, boolean hidden1, Holder<TrimMaterial> material1))) {
             return false;
         } else {
-            return this.glowing == keyframe.glowing
-                    && this.hidden == keyframe.hidden
-                    && this.material.equals(keyframe.material);
+            return this.glowing == glowing1
+                    && this.hidden == hidden1
+                    && this.material.equals(material1);
         }
     }
 

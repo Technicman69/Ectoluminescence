@@ -2,6 +2,11 @@ package com.technicman.ectolum.mixin;
 
 import com.technicman.ectolum.component.ModComponents;
 import com.technicman.ectolum.target_access.DecoratedPotAccess;
+import net.minecraft.core.component.DataComponentGetter;
+import net.minecraft.core.component.DataComponentMap;
+import net.minecraft.world.level.block.entity.DecoratedPotBlockEntity;
+import net.minecraft.world.level.storage.ValueInput;
+import net.minecraft.world.level.storage.ValueOutput;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -13,11 +18,6 @@ import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
-import net.minecraft.core.component.DataComponentGetter;
-import net.minecraft.core.component.DataComponentMap;
-import net.minecraft.world.level.block.entity.DecoratedPotBlockEntity;
-import net.minecraft.world.level.storage.ValueInput;
-import net.minecraft.world.level.storage.ValueOutput;
 
 @Mixin(DecoratedPotBlockEntity.class)
 public class DecoratedPotBlockEntityMixin implements DecoratedPotAccess {
@@ -41,14 +41,14 @@ public class DecoratedPotBlockEntityMixin implements DecoratedPotAccess {
     }
 
     @Inject(at = @At("TAIL"), method = "saveAdditional")
-    private void writeData(ValueOutput view, CallbackInfo ci) {
+    private void writeData(ValueOutput output, CallbackInfo ci) {
         if (
                 ectolum$getSherdGlow(0) ||
                 ectolum$getSherdGlow(1) ||
                 ectolum$getSherdGlow(2) ||
                 ectolum$getSherdGlow(3)
         ) {
-            view.putByteArray(SHERD_GLOW_OVERRIDES_KEY, new byte[]{
+            output.putByteArray(SHERD_GLOW_OVERRIDES_KEY, new byte[]{
                     (byte) (ectolum$getSherdGlow(0) ? 1 : 0),
                     (byte) (ectolum$getSherdGlow(1) ? 1 : 0),
                     (byte) (ectolum$getSherdGlow(2) ? 1 : 0),
@@ -58,21 +58,21 @@ public class DecoratedPotBlockEntityMixin implements DecoratedPotAccess {
     }
 
     @Inject(at = @At("TAIL"), method = "loadAdditional")
-    private void readData(ValueInput view, CallbackInfo ci) {
-        if (view != null) {
-            Optional<byte[]> optionalOverrides = view.getOptionalByteArray(SHERD_GLOW_OVERRIDES_KEY);
-            if (optionalOverrides.isPresent()) {
-                byte[] overrides = optionalOverrides.get();
-                ectolum$sherdGlowOverrides = IntStream.range(0, 4).mapToObj(i -> overrides[i] != 0).collect(Collectors.toList());
-            }
+    private void readData(ValueInput input, CallbackInfo ci) {
+        if (input != null) {
+            Optional<byte[]> optionalOverrides = input.getOptionalByteArray(SHERD_GLOW_OVERRIDES_KEY);
+            optionalOverrides.ifPresent(overrides ->
+                    ectolum$sherdGlowOverrides = IntStream.range(0, 4)
+                            .mapToObj(i -> overrides[i] != 0)
+                            .collect(Collectors.toList()));
         } else {
             ectolum$sherdGlowOverrides = ectolum$getEmptyGlowOverrides();
         }
     }
 
     @Inject(at = @At("TAIL"), method = "collectImplicitComponents")
-    protected void addComponents(DataComponentMap.Builder componentMapBuilder, CallbackInfo ci) {
-        componentMapBuilder.set(ModComponents.SHERD_GLOW_OVERRIDES, ectolum$sherdGlowOverrides);
+    protected void addComponents(DataComponentMap.Builder components, CallbackInfo ci) {
+        components.set(ModComponents.SHERD_GLOW_OVERRIDES, ectolum$sherdGlowOverrides);
     }
 
     @Inject(at = @At("TAIL"), method = "applyImplicitComponents")
@@ -84,7 +84,7 @@ public class DecoratedPotBlockEntityMixin implements DecoratedPotAccess {
     }
 
     @Inject(at = @At("TAIL"), method = "removeComponentsFromTag")
-    protected void removeFromCopiedStackData(ValueOutput view, CallbackInfo ci) {
-        view.discard(SHERD_GLOW_OVERRIDES_KEY);
+    protected void removeFromCopiedStackData(ValueOutput output, CallbackInfo ci) {
+        output.discard(SHERD_GLOW_OVERRIDES_KEY);
     }
 }

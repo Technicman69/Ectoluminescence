@@ -8,13 +8,7 @@ import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.level.block.BannerBlock;
-import net.minecraft.world.level.block.BedBlock;
-import net.minecraft.world.level.block.Block;
-import net.minecraft.world.level.block.Blocks;
-import net.minecraft.world.level.block.SoundType;
-import net.minecraft.world.level.block.WallBannerBlock;
-import net.minecraft.world.level.block.WoolCarpetBlock;
+import net.minecraft.world.level.block.*;
 import net.minecraft.world.level.block.entity.BlockEntityType;
 import net.minecraft.world.level.block.state.BlockBehaviour;
 import net.minecraft.world.level.block.state.properties.BedPart;
@@ -22,6 +16,7 @@ import net.minecraft.world.level.block.state.properties.BlockStateProperties;
 import net.minecraft.world.level.block.state.properties.NoteBlockInstrument;
 import net.minecraft.world.level.material.MapColor;
 import net.minecraft.world.level.material.PushReaction;
+
 import java.util.HashSet;
 import java.util.function.Function;
 
@@ -208,6 +203,6 @@ public class ModBlocks {
         //Ectoluminescence.LOGGER.info("Registering blocks for " + Ectoluminescence.MOD_ID);
         BlockEntityType.BANNER.validBlocks = Sets.union(BlockEntityType.BANNER.validBlocks,
                 Sets.union(new HashSet<>(BlockDyeMap.GLOWING_BANNER.values()), new HashSet<>(BlockDyeMap.GLOWING_WALL_BANNER.values())));
-        BlockEntityType.BED.validBlocks = Sets.union(BlockEntityType.BANNER.validBlocks, new HashSet<>(BlockDyeMap.GLOWING_BED.values()));
+        BlockEntityType.BED.validBlocks = Sets.union(BlockEntityType.BED.validBlocks, new HashSet<>(BlockDyeMap.GLOWING_BED.values()));
     }
 }

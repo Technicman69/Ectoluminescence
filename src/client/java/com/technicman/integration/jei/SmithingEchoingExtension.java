@@ -8,6 +8,7 @@ import mezz.jei.api.recipe.category.extensions.vanilla.smithing.ISmithingCategor
 import net.minecraft.client.Minecraft;
 import net.minecraft.core.Holder;
 import net.minecraft.core.HolderLookup;
+import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.SmithingRecipeInput;
@@ -15,6 +16,7 @@ import net.minecraft.world.item.equipment.trim.ArmorTrim;
 import net.minecraft.world.item.equipment.trim.TrimMaterial;
 import net.minecraft.world.item.equipment.trim.TrimPattern;
 import org.jetbrains.annotations.NotNull;
+import org.jspecify.annotations.NonNull;
 
 import java.util.List;
 import java.util.Random;
@@ -43,25 +45,25 @@ public class SmithingEchoingExtension<R extends SmithingEchoingRecipe> implement
 
     @Override
     public <T extends IIngredientAcceptor<@NotNull T>> void setTemplate(R recipe, T ingredientAcceptor) {
-        recipe.template().ifPresent(ingredientAcceptor::add);
+        recipe.templateIngredient().ifPresent(ingredientAcceptor::add);
     }
 
     @Override
     public <T extends IIngredientAcceptor<@NotNull T>> void setBase(R recipe, T ingredientAcceptor) {
-        ingredientAcceptor.addItemStacks(recipe.base().getMatchingItems()
+        ingredientAcceptor.addItemStacks(recipe.baseIngredient().items()
                 .map(ItemStack::new)
-                .peek(stack -> stack.set(DataComponentTypes.TRIM, getRandomTrim()))
+                .peek(stack -> stack.set(DataComponents.TRIM, getRandomTrim()))
                 .collect(Collectors.toList())
         );
     }
 
     @Override
     public <T extends IIngredientAcceptor<@NotNull T>> void setAddition(R recipe, T ingredientAcceptor) {
-        recipe.addition().ifPresent(ingredientAcceptor::add);
+        recipe.additionIngredient().ifPresent(ingredientAcceptor::add);
     }
 
     @Override
-    public void onDisplayedIngredientsUpdate(R recipe, IRecipeSlotDrawable templateSlot, @NotNull IRecipeSlotDrawable baseSlot, @NotNull IRecipeSlotDrawable additionSlot, @NotNull IRecipeSlotDrawable outputSlot, @NotNull IFocusGroup focuses) {
+    public void onDisplayedIngredientsUpdate(@NonNull R recipe, IRecipeSlotDrawable templateSlot, @NotNull IRecipeSlotDrawable baseSlot, @NotNull IRecipeSlotDrawable additionSlot, @NotNull IRecipeSlotDrawable outputSlot, @NotNull IFocusGroup focuses) {
         templateSlot.getDisplayedIngredient().ifPresent(typedTemplate ->
                 typedTemplate.getItemStack().flatMap(template -> baseSlot.getDisplayedItemStack()).ifPresent(base ->
                         additionSlot.getDisplayedItemStack().ifPresent(addition -> {

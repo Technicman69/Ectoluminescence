@@ -15,7 +15,7 @@ public class SheepEntityRendererMixin {
             method = "extractRenderState(Lnet/minecraft/world/entity/animal/sheep/Sheep;Lnet/minecraft/client/renderer/entity/state/SheepRenderState;F)V",
             at = @At("TAIL")
     )
-    private void updateRenderState(Sheep sheepEntity, SheepRenderState sheepEntityRenderState, float f, CallbackInfo ci) {
-        ((SheepAccess)sheepEntityRenderState).ectolum$setGlowing(((SheepAccess)sheepEntity).ectolum$isGlowing());
+    private void updateRenderState(Sheep entity, SheepRenderState state, float partialTicks, CallbackInfo ci) {
+        ((SheepAccess) state).ectolum$setGlowing(((SheepAccess) entity).ectolum$isGlowing());
     }
 }

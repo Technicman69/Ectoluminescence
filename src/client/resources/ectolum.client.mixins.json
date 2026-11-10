@@ -22,5 +22,11 @@
   ],
   "injectors": {
     "defaultRequire": 1
-  }
+  },
+  "mixins": [
+    "BakedQuad$MaterialInfoMixin",
+    "BlockModelRenderStateMixin",
+    "BlockStateDefinitionsMixin",
+    "SelectItemModel$UnbakedMixin"
+  ]
 }

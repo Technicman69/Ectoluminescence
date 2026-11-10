@@ -1,9 +1,7 @@
 package com.technicman.ectolum;
 
-import com.technicman.ectolum.component.EchoingLayer;
 import com.technicman.ectolum.entity.ModEntities;
 import net.fabricmc.api.ClientModInitializer;
-import net.fabricmc.fabric.api.client.item.v1.ItemTooltipCallback;
 import net.fabricmc.fabric.api.client.model.loading.v1.ExtraModelKey;
 import net.fabricmc.fabric.api.client.model.loading.v1.ModelLoadingPlugin;
 import net.fabricmc.fabric.api.client.model.loading.v1.SimpleUnbakedExtraModel;
@@ -25,7 +23,6 @@ public class EctoluminescenceClient implements ClientModInitializer {
 				ExtraModelKey.create(() -> "clear_item_frame_map"),
 				SimpleUnbakedExtraModel.blockStateModel(Ectoluminescence.id("block/clear_item_frame_map"))
 		));
-
-		ItemTooltipCallback.EVENT.register(EchoingLayer::appendTooltip);
+		ModelLoadingPlugin.register(new ModModelModifier());
 	}
 }

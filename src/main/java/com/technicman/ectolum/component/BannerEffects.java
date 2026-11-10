@@ -2,8 +2,6 @@ package com.technicman.ectolum.component;
 
 import com.mojang.serialization.Codec;
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import java.util.BitSet;
-import java.util.function.Consumer;
 import net.minecraft.ChatFormatting;
 import net.minecraft.core.component.DataComponentGetter;
 import net.minecraft.network.RegistryFriendlyByteBuf;
@@ -13,6 +11,9 @@ import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.TooltipFlag;
 import net.minecraft.world.item.component.TooltipProvider;
+
+import java.util.BitSet;
+import java.util.function.Consumer;
 
 public class BannerEffects implements TooltipProvider {
     public static final Codec<BannerEffects> CODEC = RecordCodecBuilder.create(builder -> builder.group(

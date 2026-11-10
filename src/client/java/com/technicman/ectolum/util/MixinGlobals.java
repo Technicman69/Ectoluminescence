@@ -6,7 +6,6 @@ import net.minecraft.resources.Identifier;
 import net.minecraft.world.level.block.Block;
 import net.minecraft.world.level.block.state.BlockState;
 import net.minecraft.world.level.block.state.StateDefinition;
-import org.spongepowered.asm.mixin.Unique;
 
 /**
  * For storing temporary values between mixins
@@ -14,6 +13,8 @@ import org.spongepowered.asm.mixin.Unique;
 public class MixinGlobals {
     public static StateDefinition<Block, BlockState> CLEAR_ITEM_FRAME;
     public static final Identifier CLEAR_ITEM_FRAME_ID = Ectoluminescence.id("clear_item_frame");
-    @Unique
+
     public static BannerEffects storedBannerEffects = BannerEffects.EMPTY;
+    public static boolean storedClearFlag;
+    public static boolean isTrimModel;
 }

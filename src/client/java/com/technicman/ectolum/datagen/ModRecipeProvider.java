@@ -3,8 +3,9 @@ package com.technicman.ectolum.datagen;
 import com.technicman.ectolum.Ectoluminescence;
 import com.technicman.ectolum.item.ModItems;
 import com.technicman.ectolum.util.BlockDyeMap;
+import com.technicman.ectolum.util.ItemDyeMap;
 import com.technicman.ectolum.util.ModTags;
-import net.fabricmc.fabric.api.datagen.v1.FabricDataOutput;
+import net.fabricmc.fabric.api.datagen.v1.FabricPackOutput;
 import net.fabricmc.fabric.api.datagen.v1.provider.FabricRecipeProvider;
 import net.minecraft.core.HolderLookup;
 import net.minecraft.core.registries.BuiltInRegistries;
@@ -13,9 +14,9 @@ import net.minecraft.data.recipes.RecipeCategory;
 import net.minecraft.data.recipes.RecipeOutput;
 import net.minecraft.data.recipes.RecipeProvider;
 import net.minecraft.resources.ResourceKey;
+import net.minecraft.tags.ItemTags;
 import net.minecraft.tags.TagKey;
 import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.DyeItem;
 import net.minecraft.world.item.Item;
 import net.minecraft.world.item.Items;
 import net.minecraft.world.item.crafting.Recipe;
@@ -26,7 +27,8 @@ import java.util.EnumMap;
 import java.util.concurrent.CompletableFuture;
 
 public class ModRecipeProvider extends FabricRecipeProvider {
-    public ModRecipeProvider(FabricDataOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
+
+    public ModRecipeProvider(FabricPackOutput output, CompletableFuture<HolderLookup.Provider> registriesFuture) {
         super(output, registriesFuture);
     }
 
@@ -36,17 +38,17 @@ public class ModRecipeProvider extends FabricRecipeProvider {
             @Override
             public void buildRecipes() {
                 shaped(RecipeCategory.MISC, ModItems.GLOW_INK_TORCH_ITEM, 4)
-                        .criterion(getHasName(Items.GLOW_INK_SAC), has(Items.GLOW_INK_SAC))
-                        .input('g', Items.GLOW_INK_SAC)
-                        .input('/', Items.STICK)
+                        .unlockedBy(getHasName(Items.GLOW_INK_SAC), has(Items.GLOW_INK_SAC))
+                        .define('g', Items.GLOW_INK_SAC)
+                        .define('/', Items.STICK)
                         .pattern("g")
                         .pattern("/")
-                        .offerTo(output);
+                        .save(output);
                 shapeless(RecipeCategory.DECORATIONS, ModItems.CLEAR_ITEM_FRAME)
-                        .criterion(getHasName(Items.PHANTOM_MEMBRANE), has(Items.PHANTOM_MEMBRANE))
-                        .input(Items.ITEM_FRAME)
-                        .input(Items.PHANTOM_MEMBRANE)
-                        .offerTo(output);
+                        .unlockedBy(getHasName(Items.PHANTOM_MEMBRANE), has(Items.PHANTOM_MEMBRANE))
+                        .requires(Items.ITEM_FRAME)
+                        .requires(Items.PHANTOM_MEMBRANE)
+                        .save(output);
 
                 // Regular wool from dying
                 createDyeRecipe(BlockDyeMap.WOOL, ModTags.GLOWING_WOOL_ITEMS, RecipeCategory.BUILDING_BLOCKS, "dye_glowing_wool");
@@ -56,13 +58,13 @@ public class ModRecipeProvider extends FabricRecipeProvider {
 
                 // Crafting glowing carpets
                 BlockDyeMap.GLOWING_CARPET.forEach(((color, block) -> {
-                    ItemConvertible wool = BlockDyeMap.GLOWING_WOOL.get(color);
-                    createShaped(RecipeCategory.DECORATIONS, block, 3)
-                            .criterion(hasItem(wool), conditionsFromItem(wool))
+                    Block wool = BlockDyeMap.GLOWING_WOOL.get(color);
+                    shaped(RecipeCategory.DECORATIONS, block, 3)
+                            .unlockedBy(getHasName(wool), has(wool))
                             .group("glowing_carpet")
-                            .input('w', wool)
+                            .define('w', wool)
                             .pattern("ww")
-                            .offerTo(exporter);
+                            .save(exporter);
                 }));
                 // Regular carpet from dying
                 createDyeRecipe(BlockDyeMap.CARPET, ModTags.GLOWING_WOOL_CARPET_ITEMS, RecipeCategory.MISC, "dye_glowing_wool_carpet");
@@ -72,15 +74,15 @@ public class ModRecipeProvider extends FabricRecipeProvider {
 
                 // Crafting glowing beds
                 BlockDyeMap.GLOWING_BED.forEach(((color, block) -> {
-                    ItemConvertible wool = BlockDyeMap.GLOWING_WOOL.get(color);
-                    createShaped(RecipeCategory.DECORATIONS, block)
-                            .criterion(hasItem(wool), conditionsFromItem(wool))
+                    Block wool = BlockDyeMap.GLOWING_WOOL.get(color);
+                    shaped(RecipeCategory.DECORATIONS, block)
+                            .unlockedBy(getHasName(wool), has(wool))
                             .group("glowing_bed")
-                            .input('p', ItemTags.PLANKS)
-                            .input('w', wool)
+                            .define('p', ItemTags.PLANKS)
+                            .define('w', wool)
                             .pattern("www")
                             .pattern("ppp")
-                            .offerTo(exporter);
+                            .save(exporter);
                 }));
                 // Regular bed from dying
                 createDyeRecipe(BlockDyeMap.BED, ModTags.GLOWING_BED_ITEMS, RecipeCategory.MISC, "dye_glowing_bed");
@@ -90,25 +92,25 @@ public class ModRecipeProvider extends FabricRecipeProvider {
 
                 // Crafting glowing banners
                 BlockDyeMap.GLOWING_BANNER.forEach(((color, block) -> {
-                    ItemConvertible wool = BlockDyeMap.GLOWING_WOOL.get(color);
-                    createShaped(RecipeCategory.DECORATIONS, block)
-                            .criterion(hasItem(wool), conditionsFromItem(wool))
+                    Block wool = BlockDyeMap.GLOWING_WOOL.get(color);
+                    shaped(RecipeCategory.DECORATIONS, block)
+                            .unlockedBy(getHasName(wool), has(wool))
                             .group("glowing_banner")
-                            .input('/', Items.STICK)
-                            .input('w', wool)
+                            .define('/', Items.STICK)
+                            .define('w', wool)
                             .pattern("www")
                             .pattern("www")
                             .pattern(" / ")
-                            .offerTo(exporter);
+                            .save(exporter);
                 }));
             }
 
             private void createDyeRecipe(EnumMap<DyeColor, Block> blockDyeMap, TagKey<Item> glowingBlocks, RecipeCategory category, String group) {
                 blockDyeMap.forEach((color, block) -> {
                     shapeless(category, block)
-                            .unlockedBy("has_needed_dye", has(DyeItem.byColor(color)))
+                            .unlockedBy("has_needed_dye", has(ItemDyeMap.DYE.get(color)))
                             .group(group)
-                            .requires(DyeItem.byColor(color))
+                            .requires(ItemDyeMap.DYE.get(color))
                             .requires(glowingBlocks)
                             .save(output, prefixedKey(block, "dye_glowing_"));
                 });
@@ -129,7 +131,7 @@ public class ModRecipeProvider extends FabricRecipeProvider {
     }
 
     private static ResourceKey<Recipe<?>> prefixedKey(Block block, String prefix) {
-        return ResourceKey.create(Registries.RECIPE, Ectoluminescence.id(BuiltInRegistries.BLOCK.getKey(block).getPath()).withPrefixedPath(prefix));
+        return ResourceKey.create(Registries.RECIPE, Ectoluminescence.id(BuiltInRegistries.BLOCK.getKey(block).getPath()).withPrefix(prefix));
     }
 
     @Override

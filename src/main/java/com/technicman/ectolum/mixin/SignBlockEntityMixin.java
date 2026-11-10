@@ -25,13 +25,13 @@ public class SignBlockEntityMixin extends BlockEntity implements SignAccess {
 	}
 
 	@Inject(at = @At("HEAD"), method = "saveAdditional")
-	private void writeData(ValueOutput view, CallbackInfo ci) {
-		if (this.ectolum$hideBackground) view.putBoolean("ectolum.hide_background", true);
+	private void writeData(ValueOutput output, CallbackInfo ci) {
+		if (this.ectolum$hideBackground) output.putBoolean("ectolum.hide_background", true);
 	}
 
 	@Inject(at = @At("HEAD"), method = "loadAdditional")
-	private void readData(ValueInput view, CallbackInfo ci) {
-		ectolum$hideBackground = view.getBooleanOr("ectolum.hide_background", false);
+	private void readData(ValueInput input, CallbackInfo ci) {
+		ectolum$hideBackground = input.getBooleanOr("ectolum.hide_background", false);
 	}
 
 	@Override

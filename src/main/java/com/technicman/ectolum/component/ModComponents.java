@@ -7,7 +7,6 @@ import net.minecraft.core.Registry;
 import net.minecraft.core.component.DataComponentType;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
-import net.minecraft.network.codec.ByteBufCodecs;
 import net.minecraft.network.codec.StreamCodec;
 import java.util.List;
 import java.util.function.UnaryOperator;
@@ -15,6 +14,7 @@ import java.util.function.UnaryOperator;
 public class ModComponents {
     public static void onInitialize() {
         ItemComponentTooltipProviderRegistry.addAfter(DataComponents.BANNER_PATTERNS, BANNER_EFFECTS);
+        ItemComponentTooltipProviderRegistry.addAfter(DataComponents.TRIM, ECHOING_EFFECTS);
     }
 
     public static final DataComponentType<List<Boolean>> SHERD_GLOW_OVERRIDES = registerComponent(
@@ -32,10 +32,10 @@ public class ModComponents {
                     .networkSynchronized(BannerEffects.PACKET_CODEC)
                     .cacheEncoding());
 
-    public static final DataComponentType<List<EchoingLayer>> ECHOING_LAYERS = registerComponent(
+    public static final DataComponentType<EchoingEffects> ECHOING_EFFECTS = registerComponent(
             "echoing_layers", builder -> builder
-                    .persistent(EchoingLayer.CODEC.listOf(1, Ectoluminescence.ECHOING_LAYER_LIMIT))
-                    .networkSynchronized(EchoingLayer.PACKET_CODEC.apply(ByteBufCodecs.list()))
+                    .persistent(EchoingEffects.CODEC)
+                    .networkSynchronized(EchoingEffects.STREAM_CODEC)
                     .cacheEncoding());
 
 

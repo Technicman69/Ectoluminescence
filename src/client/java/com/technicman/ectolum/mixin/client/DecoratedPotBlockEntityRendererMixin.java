@@ -5,15 +5,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.mojang.blaze3d.vertex.PoseStack;
 import com.technicman.ectolum.EctoluminescenceClient;
 import com.technicman.ectolum.target_access.DecoratedPotAccess;
-import org.jspecify.annotations.Nullable;
-import org.spongepowered.asm.mixin.*;
-import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.Slice;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
-
-import java.util.Map;
-import java.util.Optional;
 import net.minecraft.client.model.geom.ModelPart;
 import net.minecraft.client.renderer.Sheets;
 import net.minecraft.client.renderer.SubmitNodeCollector;
@@ -22,10 +13,10 @@ import net.minecraft.client.renderer.blockentity.state.DecoratedPotRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.state.CameraRenderState;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
 import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.Material;
-import net.minecraft.client.resources.model.MaterialSet;
+import net.minecraft.client.resources.model.sprite.SpriteGetter;
+import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.core.registries.Registries;
 import net.minecraft.resources.ResourceKey;
 import net.minecraft.util.Tuple;
@@ -35,6 +26,15 @@ import net.minecraft.world.level.block.entity.DecoratedPotPattern;
 import net.minecraft.world.level.block.entity.DecoratedPotPatterns;
 import net.minecraft.world.level.block.entity.PotDecorations;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
+import org.spongepowered.asm.mixin.*;
+import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.Slice;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
+
+import java.util.Map;
+import java.util.Optional;
 
 @Mixin(DecoratedPotRenderer.class)
 public abstract class DecoratedPotBlockEntityRendererMixin {
@@ -57,26 +57,26 @@ public abstract class DecoratedPotBlockEntityRendererMixin {
     @Mutable
     @Final
     @Shadow
-    private final MaterialSet materials;
+    private final SpriteGetter sprites;
 
     @Unique
     private DecoratedPotAccess ectolum$storedPot;
 
-    protected DecoratedPotBlockEntityRendererMixin(ModelPart front, ModelPart back, ModelPart left, ModelPart right, MaterialSet materials) {
+    protected DecoratedPotBlockEntityRendererMixin(ModelPart front, ModelPart back, ModelPart left, ModelPart right, SpriteGetter sprites) {
         this.frontSide = front;
         this.backSide = back;
         this.leftSide = left;
         this.rightSide = right;
-        this.materials = materials;
+        this.sprites = sprites;
     }
 
     @Inject(
             method = "extractRenderState(Lnet/minecraft/world/level/block/entity/DecoratedPotBlockEntity;Lnet/minecraft/client/renderer/blockentity/state/DecoratedPotRenderState;FLnet/minecraft/world/phys/Vec3;Lnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V",
             at = @At("TAIL")
     )
-    private void updateRenderState(DecoratedPotBlockEntity decoratedPotBlockEntity, DecoratedPotRenderState decoratedPotBlockEntityRenderState, float f, Vec3 vec3d, ModelFeatureRenderer.CrumblingOverlay crumblingOverlayCommand, CallbackInfo ci) {
-        DecoratedPotAccess potEntity = (DecoratedPotAccess) decoratedPotBlockEntity;
-        DecoratedPotAccess potRenderState = (DecoratedPotAccess) decoratedPotBlockEntityRenderState;
+    private void updateRenderState(DecoratedPotBlockEntity blockEntity, DecoratedPotRenderState state, float partialTicks, Vec3 cameraPosition, ModelFeatureRenderer.CrumblingOverlay breakProgress, CallbackInfo ci) {
+        DecoratedPotAccess potEntity = (DecoratedPotAccess) blockEntity;
+        DecoratedPotAccess potRenderState = (DecoratedPotAccess) state;
         for (int i = 0; i < 4; i++) {
             potRenderState.ectolum$setSherdGlow(i, potEntity.ectolum$getSherdGlow(i));
         }
@@ -110,10 +110,10 @@ public abstract class DecoratedPotBlockEntityRendererMixin {
             if (ectolum$storedPot != null && ectolum$storedPot.ectolum$getSherdGlow(pair.getA())) {
                 // If glowing, swap textures nad set light
                 light = EctoluminescenceClient.GLOW_STRENGTH;
-                Material spriteIdentifier = pair.getB().map(DecoratedPotBlockEntityRendererMixin::ectolum$glowingPatternTextureId).orElse(null);
+                SpriteId spriteIdentifier = pair.getB().map(DecoratedPotBlockEntityRendererMixin::ectolum$glowingPatternTextureId).orElse(null);
                 if (spriteIdentifier != null) {
                     renderLayer = spriteIdentifier.renderType(RenderTypes::entitySolid);
-                    sprite = materials.get(spriteIdentifier);
+                    sprite = sprites.get(spriteIdentifier);
                 }
             }
         }
@@ -121,20 +121,20 @@ public abstract class DecoratedPotBlockEntityRendererMixin {
     }
 
     @Unique
-    private static @Nullable Material ectolum$glowingPatternTextureId(Item sherd) {
+    private static @Nullable SpriteId ectolum$glowingPatternTextureId(Item sherd) {
         ResourceKey<DecoratedPotPattern> baseKey = DecoratedPotPatterns.getPatternFromItem(sherd);
         if (baseKey != null) {
             ResourceKey<DecoratedPotPattern> glowingKey = ResourceKey.create(Registries.DECORATED_POT_PATTERN, baseKey.identifier().withSuffix("_glowing"));
-            return Sheets.getDecoratedPotMaterial(glowingKey);
+            return Sheets.getDecoratedPotSprite(glowingKey);
         }
         return null;
     }
 
     @Inject(
-            method = "submit(Lnet/minecraft/client/renderer/blockentity/state/DecoratedPotRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
+            method = "submit(Lnet/minecraft/client/renderer/blockentity/state/DecoratedPotRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
             at = @At("HEAD")
     )
-    private void injected(DecoratedPotRenderState decoratedPotBlockEntityRenderState, PoseStack matrixStack, SubmitNodeCollector queue, CameraRenderState cameraRenderState, CallbackInfo ci) {
-        ectolum$storedPot = (DecoratedPotAccess) decoratedPotBlockEntityRenderState;
+    private void injected(DecoratedPotRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera, CallbackInfo ci) {
+        ectolum$storedPot = (DecoratedPotAccess) state;
     }
 }

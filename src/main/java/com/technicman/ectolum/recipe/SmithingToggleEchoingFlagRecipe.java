@@ -1,9 +1,8 @@
 package com.technicman.ectolum.recipe;
 
-import com.technicman.ectolum.component.EchoingLayer;
+import com.technicman.ectolum.component.EchoingEffects;
 import com.technicman.ectolum.component.ModComponents;
 import com.technicman.ectolum.util.EchoingKeyframe;
-import java.util.List;
 
 import net.minecraft.world.item.ItemStack;
 import net.minecraft.world.item.crafting.Ingredient;
@@ -17,24 +16,26 @@ public abstract class SmithingToggleEchoingFlagRecipe extends SmithingEchoingRec
         super(commonInfo, template, base, addition);
     }
 
-    public abstract EchoingLayer computeEchoingLayer(EchoingKeyframe keyFrame);
+    public abstract EchoingEffects addEchoingLayer(EchoingEffects echoingEffects, EchoingKeyframe keyFrame);
 
     @Override
     public @NonNull ItemStack assemble(SmithingRecipeInput smithingRecipeInput) {
         ItemStack itemStack = smithingRecipeInput.base();
-            EchoingKeyframe last = EchoingKeyframe.buildLast(itemStack);
+        EchoingKeyframe last = EchoingKeyframe.buildLast(itemStack);
 
-            List<EchoingLayer> echoingLayers = copyEchoingLayers(itemStack);
-            if (echoingLayers == null) {
-                // Echoing layer limit reached
-                return ItemStack.EMPTY;
-            }
+        EchoingEffects echoingEffects;
+        try {
+            echoingEffects = addEchoingLayer(
+                    itemStack.getOrDefault(ModComponents.ECHOING_EFFECTS, EchoingEffects.empty()),
+                    last);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            // Echoing layer limit exceeded
+            return ItemStack.EMPTY;
+        }
 
-            echoingLayers.add(computeEchoingLayer(last));
-
-            ItemStack newStack = itemStack.copyWithCount(1);
-            newStack.set(ModComponents.ECHOING_LAYERS, echoingLayers);
-            return newStack;
+        ItemStack newStack = itemStack.copyWithCount(1);
+        newStack.set(ModComponents.ECHOING_EFFECTS, echoingEffects);
+        return newStack;
     }
 }
 

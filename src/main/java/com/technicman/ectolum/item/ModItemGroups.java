@@ -1,7 +1,7 @@
 package com.technicman.ectolum.item;
 
 import com.technicman.ectolum.Ectoluminescence;
-import com.technicman.ectolum.component.EchoingLayer;
+import com.technicman.ectolum.component.EchoingEffects;
 import com.technicman.ectolum.component.ModComponents;
 import com.technicman.ectolum.util.BlockDyeMap;
 import net.fabricmc.fabric.api.creativetab.v1.FabricCreativeModeTab;
@@ -12,13 +12,8 @@ import net.minecraft.core.component.DataComponentPatch;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.core.registries.BuiltInRegistries;
 import net.minecraft.network.chat.Component;
-import net.minecraft.resources.ResourceKey;
-import net.minecraft.world.item.CreativeModeTab;
-import net.minecraft.world.item.DyeColor;
-import net.minecraft.world.item.ItemStack;
-import net.minecraft.world.item.Items;
+import net.minecraft.world.item.*;
 import net.minecraft.world.item.equipment.trim.ArmorTrim;
-import net.minecraft.world.item.equipment.trim.TrimMaterial;
 import net.minecraft.world.item.equipment.trim.TrimMaterials;
 import net.minecraft.world.item.equipment.trim.TrimPatterns;
 import net.minecraft.world.level.block.Block;
@@ -27,7 +22,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.Map;
 import java.util.Optional;
-import java.util.function.Function;
 
 import static com.technicman.ectolum.item.ModItems.CLEAR_ITEM_FRAME;
 import static com.technicman.ectolum.item.ModItems.GLOW_INK_TORCH_ITEM;
@@ -74,33 +68,40 @@ public class ModItemGroups {
                 entries.acceptAll(orderDyedItems(BlockDyeMap.GLOWING_BANNER));
 
                 // Gamer armor, less goo
-                entries.accept(new ItemStack(Holder.direct(Items.NETHERITE_HELMET), 1, gamerComponents(context, HELMET)));
-                entries.accept(ICON = new ItemStack(Holder.direct(Items.NETHERITE_CHESTPLATE), 1, gamerComponents(context, CHESTPLATE)));
-                entries.accept(new ItemStack(Holder.direct(Items.NETHERITE_LEGGINGS), 1, gamerComponents(context, LEGGINGS)));
-                entries.accept(new ItemStack(Holder.direct(Items.NETHERITE_BOOTS), 1, gamerComponents(context, BOOTS)));
+                entries.accept(gamerComponents(HELMET, Items.NETHERITE_HELMET, context));
+                entries.accept(ICON = gamerComponents(CHESTPLATE, Items.NETHERITE_CHESTPLATE, context));
+                entries.accept(gamerComponents(LEGGINGS, Items.NETHERITE_LEGGINGS, context));
+                entries.accept(gamerComponents(BOOTS, Items.NETHERITE_BOOTS, context));
+
+                entries.accept(new ItemStack(Holder.direct(Items.NETHERITE_CHESTPLATE), 1, DataComponentPatch.builder().set(DataComponents.TRIM, new ArmorTrim(
+                        context.holders().getOrThrow(TrimMaterials.REDSTONE),
+                        context.holders().getOrThrow(TrimPatterns.SILENCE)))
+                        .build()));
             })
             .build());
 
-    private static @NotNull DataComponentPatch gamerComponents(CreativeModeTab.ItemDisplayParameters context, Component name) {
+    private static @NotNull ItemStack gamerComponents(Component name, Item item, CreativeModeTab.ItemDisplayParameters context) {
         final Optional<Boolean> empty = Optional.empty();
-        Function<ResourceKey<TrimMaterial>, Optional<Holder<TrimMaterial>>> material = (key) ->
-                Optional.of(context.holders().getOrThrow(key));
 
-        return DataComponentPatch.builder()
+        DataComponentPatch components = DataComponentPatch.builder()
                 .set(DataComponents.ITEM_NAME, name)
                 .set(DataComponents.TRIM, new ArmorTrim(
                         context.holders().getOrThrow(TrimMaterials.REDSTONE),
                         context.holders().getOrThrow(TrimPatterns.SILENCE)
-                )).set(ModComponents.ECHOING_LAYERS, List.of(
-                        new EchoingLayer(Optional.of(true), empty, Optional.empty()),
-                        new EchoingLayer(empty, empty, Optional.of(context.holders().getOrThrow((TrimMaterials.COPPER)))),
-                        new EchoingLayer(empty, empty, Optional.of(context.holders().getOrThrow((TrimMaterials.GOLD)))),
-                        new EchoingLayer(empty, empty, Optional.of(context.holders().getOrThrow((TrimMaterials.EMERALD)))),
-                        new EchoingLayer(empty, empty, Optional.of(context.holders().getOrThrow((TrimMaterials.DIAMOND)))),
-                        new EchoingLayer(empty, empty, Optional.of(context.holders().getOrThrow((TrimMaterials.LAPIS)))),
-                        new EchoingLayer(empty, empty, Optional.of(context.holders().getOrThrow((TrimMaterials.AMETHYST))))
-                ))
+                )).set(ModComponents.ECHOING_EFFECTS, new EchoingEffects(List.of(
+                        new EchoingEffects.EchoingLayer(Optional.of(true), empty, Optional.empty()),
+                        new EchoingEffects.EchoingLayer(empty, empty, Optional.of(context.holders().getOrThrow((TrimMaterials.COPPER)))),
+                        new EchoingEffects.EchoingLayer(empty, empty, Optional.of(context.holders().getOrThrow((TrimMaterials.GOLD)))),
+                        new EchoingEffects.EchoingLayer(empty, empty, Optional.of(context.holders().getOrThrow((TrimMaterials.EMERALD)))),
+                        new EchoingEffects.EchoingLayer(empty, empty, Optional.of(context.holders().getOrThrow((TrimMaterials.DIAMOND)))),
+                        new EchoingEffects.EchoingLayer(empty, empty, Optional.of(context.holders().getOrThrow((TrimMaterials.LAPIS)))),
+                        new EchoingEffects.EchoingLayer(empty, empty, Optional.of(context.holders().getOrThrow((TrimMaterials.AMETHYST))))
+                )))
                 .build();
+
+        ItemStack stack = new ItemStack(item);
+        stack.applyComponents(components);
+        return stack;
     }
 
     public static void onInitialize() {

@@ -3,3 +3,7 @@ accessWidener v1 official
 accessible field net/minecraft/world/level/block/entity/BlockEntityType validBlocks Ljava/util/Set;
 mutable field net/minecraft/world/level/block/entity/BlockEntityType validBlocks Ljava/util/Set;
 accessible class net/minecraft/client/renderer/entity/layers/EquipmentLayerRenderer$TrimSpriteKey
+accessible class net/minecraft/client/resources/model/sprite/TextureSlots$Value
+accessible class net/minecraft/client/resources/model/sprite/TextureSlots$Reference
+accessible field net/minecraft/client/resources/model/sprite/TextureSlots$Data values Ljava/util/Map;
+mutable field net/minecraft/client/resources/model/sprite/TextureSlots$Data values Ljava/util/Map;

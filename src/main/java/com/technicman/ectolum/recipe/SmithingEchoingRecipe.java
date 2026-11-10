@@ -1,39 +1,22 @@
 package com.technicman.ectolum.recipe;
 
 import com.mojang.serialization.codecs.RecordCodecBuilder;
-import com.technicman.ectolum.Ectoluminescence;
-import com.technicman.ectolum.component.EchoingLayer;
-import com.technicman.ectolum.component.ModComponents;
-import net.minecraft.world.item.crafting.*;
-import org.jspecify.annotations.NonNull;
-import org.jspecify.annotations.Nullable;
-
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Optional;
 import net.minecraft.core.component.DataComponents;
 import net.minecraft.network.codec.StreamCodec;
 import net.minecraft.world.item.ItemStack;
+import net.minecraft.world.item.crafting.*;
 import net.minecraft.world.level.Level;
+import org.jspecify.annotations.NonNull;
+import org.jspecify.annotations.Nullable;
+
+import java.util.List;
+import java.util.Optional;
 
 public abstract class SmithingEchoingRecipe extends SimpleSmithingRecipe {
     final Ingredient template;
     final Ingredient base;
     final Ingredient addition;
     private @Nullable PlacementInfo ingredientPlacement;
-
-    public List<EchoingLayer> copyEchoingLayers(ItemStack item) {
-        List<EchoingLayer> echoingLayers = item.get(ModComponents.ECHOING_LAYERS);
-        if (echoingLayers == null) return EchoingLayer.emptyList();
-            // If the echoing layer limit reached, refuse to craft
-        else if (echoingLayers.size() >= Ectoluminescence.ECHOING_LAYER_LIMIT) {
-            return null;
-        }
-        // If not, then copy layers from original item stack
-        else {
-            return new ArrayList<>(echoingLayers);
-        }
-    }
 
     public SmithingEchoingRecipe(Recipe.CommonInfo commonInfo, Ingredient template, Ingredient base, Ingredient addition) {
         super(commonInfo);

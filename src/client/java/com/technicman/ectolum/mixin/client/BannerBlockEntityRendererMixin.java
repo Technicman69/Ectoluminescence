@@ -14,15 +14,15 @@ import net.minecraft.client.renderer.blockentity.state.BannerRenderState;
 import net.minecraft.client.renderer.feature.ModelFeatureRenderer;
 import net.minecraft.client.renderer.rendertype.RenderType;
 import net.minecraft.client.renderer.rendertype.RenderTypes;
-import net.minecraft.client.renderer.state.CameraRenderState;
-import net.minecraft.client.renderer.texture.TextureAtlasSprite;
-import net.minecraft.client.resources.model.Material;
-import net.minecraft.client.resources.model.MaterialSet;
+import net.minecraft.client.renderer.state.level.CameraRenderState;
+import net.minecraft.client.resources.model.sprite.SpriteGetter;
+import net.minecraft.client.resources.model.sprite.SpriteId;
 import net.minecraft.resources.Identifier;
 import net.minecraft.util.Unit;
 import net.minecraft.world.item.DyeColor;
 import net.minecraft.world.level.block.entity.BannerBlockEntity;
 import net.minecraft.world.phys.Vec3;
+import org.jspecify.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
@@ -38,20 +38,20 @@ public class BannerBlockEntityRendererMixin {
             method = "extractRenderState(Lnet/minecraft/world/level/block/entity/BannerBlockEntity;Lnet/minecraft/client/renderer/blockentity/state/BannerRenderState;FLnet/minecraft/world/phys/Vec3;Lnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V",
             at = @At("TAIL")
     )
-    private void updateRenderState(BannerBlockEntity bannerBlockEntity, BannerRenderState bannerBlockEntityRenderState, float f, Vec3 vec3d, ModelFeatureRenderer.CrumblingOverlay crumblingOverlayCommand, CallbackInfo ci) {
-        ((BannerAccess)bannerBlockEntityRenderState).ectolum$setBannerEffects(((BannerAccess)bannerBlockEntity).ectolum$getBannerEffects());
+    private void updateRenderState(BannerBlockEntity blockEntity, BannerRenderState state, float partialTicks, Vec3 cameraPosition, ModelFeatureRenderer.CrumblingOverlay breakProgress, CallbackInfo ci) {
+        ((BannerAccess) state).ectolum$setBannerEffects(((BannerAccess) blockEntity).ectolum$getBannerEffects());
     }
 
     @Inject(
-            method = "submit(Lnet/minecraft/client/renderer/blockentity/state/BannerRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
+            method = "submit(Lnet/minecraft/client/renderer/blockentity/state/BannerRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
             at = @At("HEAD")
     )
-    private void readEffects(BannerRenderState bannerBlockEntityRenderState, PoseStack matrixStack, SubmitNodeCollector orderedRenderCommandQueue, CameraRenderState cameraRenderState, CallbackInfo ci) {
-        MixinGlobals.storedBannerEffects = ((BannerAccess)bannerBlockEntityRenderState).ectolum$getBannerEffects();
+    private void readEffects(BannerRenderState state, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, CameraRenderState camera, CallbackInfo ci) {
+        MixinGlobals.storedBannerEffects = ((BannerAccess) state).ectolum$getBannerEffects();
     }
 
     @Inject(
-            method = "submit(Lnet/minecraft/client/renderer/blockentity/state/BannerRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/CameraRenderState;)V",
+            method = "submit(Lnet/minecraft/client/renderer/blockentity/state/BannerRenderState;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;Lnet/minecraft/client/renderer/state/level/CameraRenderState;)V",
             at = @At("TAIL")
     )
     private void clearEffects(CallbackInfo ci) {
@@ -61,15 +61,16 @@ public class BannerBlockEntityRendererMixin {
     }
 
     @WrapOperation(
-            method = "submitBanner(Lnet/minecraft/client/resources/model/MaterialSet;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;IIFLnet/minecraft/client/model/object/banner/BannerModel;Lnet/minecraft/client/model/object/banner/BannerFlagModel;FLnet/minecraft/world/item/DyeColor;Lnet/minecraft/world/level/block/entity/BannerPatternLayers;Lnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;I)V",
+            method = "submitBanner",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;IIILnet/minecraft/client/renderer/texture/TextureAtlasSprite;ILnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V")
+                    target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;IIILnet/minecraft/client/resources/model/sprite/SpriteId;Lnet/minecraft/client/resources/model/sprite/SpriteGetter;ILnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V"
+            )
     )
-    private static void renderBaseBlock(SubmitNodeCollector instance, Model<Unit> model, Object state, PoseStack matrices, RenderType renderLayer, int light, int overlay, int tintedColor, TextureAtlasSprite sprite, int outlineColor, ModelFeatureRenderer.CrumblingOverlay crumblingOverlay, Operation<Void> original) {
+    private static void renderBaseBlock(SubmitNodeCollector instance, Model<Unit> model, Object o, PoseStack poseStack, int i, int j, int k, SpriteId spriteId, SpriteGetter spriteGetter, int i1, ModelFeatureRenderer.CrumblingOverlay crumblingOverlay, Operation<Void> original) {
         if (!MixinGlobals.storedBannerEffects.isBackgroundHidden()) {
             // If not, just render banner base like normal
-            original.call(instance, model, state, matrices, renderLayer, light, overlay, tintedColor, sprite, outlineColor, crumblingOverlay);
+            original.call(instance, model, o, poseStack, i, j, k, spriteId, spriteGetter, i1, crumblingOverlay);
         }
     }
 
@@ -77,27 +78,13 @@ public class BannerBlockEntityRendererMixin {
             method = "submitPatterns",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/SubmitNodeCollector;submitModel(Lnet/minecraft/client/model/Model;Ljava/lang/Object;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/rendertype/RenderType;IIILnet/minecraft/client/renderer/texture/TextureAtlasSprite;ILnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V",
+                    target = "Lnet/minecraft/client/renderer/blockentity/BannerRenderer;submitPatternLayer(Lnet/minecraft/client/resources/model/sprite/SpriteGetter;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;IILnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/client/resources/model/sprite/SpriteId;Lnet/minecraft/world/item/DyeColor;Lnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V",
                     ordinal = 0
             )
     )
-    private static void renderBaseFlag(SubmitNodeCollector instance, Model<Unit> model, Object o, PoseStack matrixStack, RenderType renderLayer, int light, int overlay, int tintedColor, TextureAtlasSprite sprite, int outlineColor, ModelFeatureRenderer.CrumblingOverlay crumblingOverlayCommand, Operation<Void> original, MaterialSet s, PoseStack m, SubmitNodeCollector q, int l, int ov, Model<Unit> mo, Object state, Material sp, boolean useBannerLayer) {
-        if (!(useBannerLayer && MixinGlobals.storedBannerEffects.isBackgroundHidden())) {
-            original.call(instance, model, o, matrixStack, renderLayer, light, overlay, tintedColor, sprite, outlineColor, crumblingOverlayCommand);
-        }
-    }
-
-    @WrapOperation(
-            method = "submitPatterns",
-            at = @At(
-                    value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/blockentity/BannerRenderer;submitPatternLayer(Lnet/minecraft/client/resources/model/MaterialSet;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;IILnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/client/resources/model/Material;Lnet/minecraft/world/item/DyeColor;Lnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V",
-                    ordinal = 0
-            )
-    )
-    private static void renderBaseFlagPattern(MaterialSet materials, PoseStack matrices, SubmitNodeCollector queue, int light, int overlay, Model<Float> model, Object state, Material spriteId, DyeColor color, ModelFeatureRenderer.CrumblingOverlay crumblingOverlay, Operation<Void> original) {
+    private static void renderBaseFlagPattern(SpriteGetter sprites, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, int overlayCoords, Model<Unit> model, Object state, SpriteId sprite, DyeColor color, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress, Operation<Void> original) {
         if (!MixinGlobals.storedBannerEffects.isBackgroundHidden()) {
-            original.call(materials, matrices, queue, light, overlay, model, state, spriteId, color, crumblingOverlay);
+            original.call(sprites, poseStack, submitNodeCollector, lightCoords, overlayCoords, model, state, sprite, color, breakProgress);
         }
     }
 
@@ -105,24 +92,24 @@ public class BannerBlockEntityRendererMixin {
             method = "submitPatterns",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/renderer/blockentity/BannerRenderer;submitPatternLayer(Lnet/minecraft/client/resources/model/MaterialSet;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;IILnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/client/resources/model/Material;Lnet/minecraft/world/item/DyeColor;Lnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V",
+                    target = "Lnet/minecraft/client/renderer/blockentity/BannerRenderer;submitPatternLayer(Lnet/minecraft/client/resources/model/sprite/SpriteGetter;Lcom/mojang/blaze3d/vertex/PoseStack;Lnet/minecraft/client/renderer/SubmitNodeCollector;IILnet/minecraft/client/model/Model;Ljava/lang/Object;Lnet/minecraft/client/resources/model/sprite/SpriteId;Lnet/minecraft/world/item/DyeColor;Lnet/minecraft/client/renderer/feature/ModelFeatureRenderer$CrumblingOverlay;)V",
                     ordinal = 1
             )
     )
-    private static void renderBasePattern(MaterialSet materials, PoseStack matrices, SubmitNodeCollector queue, int light, int overlay, Model<Float> model, Object state, Material spriteId, DyeColor color, ModelFeatureRenderer.CrumblingOverlay crumblingOverlay, Operation<Void> original) {
-        light = MixinGlobals.storedBannerEffects.isGlowing() ? EctoluminescenceClient.GLOW_STRENGTH : light;
-        original.call(materials, matrices, queue, light, overlay, model, state, spriteId, color, crumblingOverlay);
+    private static void renderBasePattern(SpriteGetter sprites, PoseStack poseStack, SubmitNodeCollector submitNodeCollector, int lightCoords, int overlayCoords, Model<Unit> model, Object state, SpriteId sprite, DyeColor color, ModelFeatureRenderer.@Nullable CrumblingOverlay breakProgress, Operation<Void> original) {
+        lightCoords = MixinGlobals.storedBannerEffects.isGlowing() ? EctoluminescenceClient.GLOW_STRENGTH : lightCoords;
+        original.call(sprites, poseStack, submitNodeCollector, lightCoords, overlayCoords, model, state, sprite, color, breakProgress);
     }
 
     @ModifyArg(
             method = "submitPatternLayer",
             at = @At(
                     value = "INVOKE",
-                    target = "Lnet/minecraft/client/resources/model/Material;renderType(Ljava/util/function/Function;)Lnet/minecraft/client/renderer/rendertype/RenderType;"
+                    target = "Lnet/minecraft/client/resources/model/sprite/SpriteId;renderType(Ljava/util/function/Function;)Lnet/minecraft/client/renderer/rendertype/RenderType;"
             )
     )
     private static Function<Identifier, RenderType> changeRenderLayer(Function<Identifier, RenderType> layerFactory) {
         // To prevent pattern from displaying clouds behind it etc
-        return RenderTypes::itemEntityTranslucentCull;
+        return RenderTypes::entityTranslucentCullItemTarget;
     }
 }
